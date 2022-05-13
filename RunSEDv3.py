@@ -1370,7 +1370,7 @@ for i in range(len(chandra_cosmos_phot_id_match)):
     # elif chandra_cosmos_phot_id_match[i] == 286067: 
         source = AGN(chandra_cosmos_phot_id_match[i],chandra_cosmos_z_match[i],COSMOS_filters,cosmos_flux_array[i],cosmos_flux_err_array[i])
         source.MakeSED()
-        check_sed.append(source.CheckSED(10, check_span=2.5))
+        check_sed.append(source.CheckSED(10, check_span=2.75))
 
         F1.append(source.Find_nuFnu(1.0))
         F025.append(source.Find_nuFnu(0.25)/source.Find_nuFnu(1.0))
@@ -1493,7 +1493,7 @@ for i in range(len(lamassa_id_use)):
         try:
             source = AGN(lamassa_id_use[i], s82x_z_sp[i], S82X_filters, s82x_flux_array[i], s82x_flux_err_array[i])
             source.MakeSED()
-            check_sed.append(source.CheckSED(10,check_span=2.5))
+            check_sed.append(source.CheckSED(10,check_span=2.75))
            
 
             F1.append(source.Find_nuFnu(1.0))
@@ -1582,7 +1582,7 @@ for i in range(len(goodsN_phot_id_match)):
     # else:
         source = AGN(goodsN_phot_id_match[i],xue_z_match[i],GOODSN_filters,goodsN_flux_array[i],goodsN_flux_err_array[i])
         source.MakeSED()
-        check_sed.append(source.CheckSED(10, check_span=2.5))
+        check_sed.append(source.CheckSED(10, check_span=2.75))
 
 
         F1.append(source.Find_nuFnu(1.0))
@@ -1647,7 +1647,7 @@ for i in range(len(goodsN_auge_ID_match)):
         try:
             source = AGN(goodsN_auge_ID_match[i],goodsN_auge_z_match[i],GOODSN_auge_filters,goodsN_flux_array_auge[i],goodsN_flux_err_array_auge[i])
             source.MakeSED()
-            check_sed.append(source.CheckSED(10, check_span=2.5))
+            check_sed.append(source.CheckSED(10, check_span=2.75))
             # print(check_sed[i])
 
 
@@ -1735,7 +1735,7 @@ for i in range(len(goodsS_phot_id_match)):
     # else:
         source = AGN(goodsS_phot_id_match[i],luo_z_match[i],GOODSS_filters,goodsS_flux_array[i],goodsS_flux_err_array[i])
         source.MakeSED()
-        check_sed.append(source.CheckSED(10, check_span=2.5))
+        check_sed.append(source.CheckSED(10, check_span=2.75))
 
         F1.append(source.Find_nuFnu(1.0))
         F025.append(source.Find_nuFnu(0.25)/source.Find_nuFnu(1.0))
@@ -1795,7 +1795,7 @@ for i in range(len(goodsS_auge_ID_match)):
         try:
             source = AGN(goodsS_auge_ID_match[i],goodsS_auge_z_match[i],GOODSS_auge_filters,goodsS_flux_array_auge[i],goodsS_flux_err_array_auge[i])
             source.MakeSED()
-            check_sed.append(source.CheckSED(10, check_span=2.5))
+            check_sed.append(source.CheckSED(10, check_span=2.75))
 
 
             F1.append(source.Find_nuFnu(1.0))
@@ -2038,11 +2038,13 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 
 print(uv_lum)
 print(Lbol)
+print(np.log10((uv_lum+mir_lum+fir_lum)/Lbol))
 
-plt.figure(figsize=(9,7))
-plt.hist(np.log10(uv_lum+mir_lum+fir_lum)/np.log10(Lbol),bins=np.arange(-1,1,0.1))
-plt.xlim(-0.6,0.2)
+plt.figure(figsize=(10,9))
+plt.hist(np.log10((uv_lum+mir_lum+fir_lum)/Lbol),bins=np.arange(-1,1,0.1))
+plt.xlim(-0.7,0.25)
 plt.xlabel('L(UV+MIR+FIR)/Lbol')
+plt.grid()
 plt.show()
 
 
@@ -2054,7 +2056,7 @@ plot.multi_SED('TEST_backup',all_x[sort],all_y[sort],Lx[sort],median_x[sort],med
 
 # fig 4 & 5
 # plot.multi_SED_zbins('All',all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
-# plot.multi_SED_field('All', all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort], wfir=WFIR[sort], ffir=FFIR[sort])
+plot.multi_SED_field('TEST_backup', all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort], wfir=WFIR[sort], ffir=FFIR[sort])
 
 # fig 6
 # plot.plot_5panel_zbins('43',all_x,all_y,Lx,spec_type,np.log10(F025),np.log10(F5),np.log10(F100),np.log10(F10),median_x,median_y,F1=F1,F2=field,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
