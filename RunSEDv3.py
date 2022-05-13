@@ -19,9 +19,9 @@ path = '/Users/connor_auge/Research/Disertation/catalogs/' # Path for photometry
 
 # set redshift and X-ray luminosity limits
 z_min = 0.0
-z_max = 10
+z_max = 1.2
 
-Lx_min = 35
+Lx_min = 43
 Lx_max = 50
 
 ###################################################################################
@@ -1513,7 +1513,10 @@ for i in range(len(lamassa_id_use)):
             MIRslope1.append(source.Find_slope(1.0, 6.5))
             MIRslope2.append(source.Find_slope(6.5, 10))
 
-            uv_lum
+            uv_lum.append(source.find_Lum_range(0.1,0.35))
+            opt_lum.append(source.find_Lum_range(0.35,3))
+            mir_lum.append(source.find_Lum_range(3,30))
+            fir_lum.append(source.find_Lum_range(30,500/(1+s82x_z_sp[i])))
 
             Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
             w = np.append(w,fill_nan)
@@ -1597,6 +1600,11 @@ for i in range(len(goodsN_phot_id_match)):
         MIRslope1.append(source.Find_slope(1.0,6.5))
         MIRslope2.append(source.Find_slope(6.5,10))
 
+        uv_lum.append(source.find_Lum_range(0.1,0.35))
+        opt_lum.append(source.find_Lum_range(0.35,3))
+        mir_lum.append(source.find_Lum_range(3,30))
+        fir_lum.append(source.find_Lum_range(30,500/(1+xue_z_match[i])))
+
         Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
         w = np.append(w,fill_nan)
         f = np.append(f,fill_nan)
@@ -1631,10 +1639,10 @@ fill_nan = np.zeros(len(GOODSS_auge_filters)-len(GOODSN_auge_filters))
 fill_nan[fill_nan == 0] = np.nan
 
 for i in range(len(goodsN_auge_ID_match)):
-    # if goodsN_auge_ID_match[i] in goodsN_phot_id_match:
-    #     print('repeat')
-    if goodsN_auge_ID_match[i] == 348:
-        continue
+    if goodsN_auge_ID_match[i] in xue_id_match:
+        print('repeat')
+    # if goodsN_auge_ID_match[i] == 348:
+        # continue
     else:
         try:
             source = AGN(goodsN_auge_ID_match[i],goodsN_auge_z_match[i],GOODSN_auge_filters,goodsN_flux_array_auge[i],goodsN_flux_err_array_auge[i])
@@ -1657,6 +1665,11 @@ for i in range(len(goodsN_auge_ID_match)):
             UVslope.append(source.Find_slope(0.15,1.0))
             MIRslope1.append(source.Find_slope(1.0,6.5))
             MIRslope2.append(source.Find_slope(6.5,10))
+
+            uv_lum.append(source.find_Lum_range(0.1,0.35))
+            opt_lum.append(source.find_Lum_range(0.35,3))
+            mir_lum.append(source.find_Lum_range(3,30))
+            fir_lum.append(source.find_Lum_range(30,500/(1+goodsN_auge_z_match[i])))
 
             Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
             w = np.append(w,fill_nan)
@@ -1739,6 +1752,11 @@ for i in range(len(goodsS_phot_id_match)):
         MIRslope1.append(source.Find_slope(1.0,6.5))
         MIRslope2.append(source.Find_slope(6.5,10))
 
+        uv_lum.append(source.find_Lum_range(0.1,0.35))
+        opt_lum.append(source.find_Lum_range(0.35,3))
+        mir_lum.append(source.find_Lum_range(3,30))
+        fir_lum.append(source.find_Lum_range(30,500/(1+luo_z_match[i])))
+
         Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
         w = np.append(w, fill_nan)
         f = np.append(f, fill_nan)
@@ -1770,10 +1788,10 @@ for i in range(len(goodsS_phot_id_match)):
 
 
 for i in range(len(goodsS_auge_ID_match)):
-    # if goodsS_auge_ID_match[i] in goodsS_phot_id_match:
+    if goodsS_auge_ID_match[i] in luo_id_match:
     #     # continue
-    #     print('repeat')
-    # else:
+        print('repeat')
+    else:
         try:
             source = AGN(goodsS_auge_ID_match[i],goodsS_auge_z_match[i],GOODSS_auge_filters,goodsS_flux_array_auge[i],goodsS_flux_err_array_auge[i])
             source.MakeSED()
@@ -1794,6 +1812,11 @@ for i in range(len(goodsS_auge_ID_match)):
             UVslope.append(source.Find_slope(0.15,1.0))
             MIRslope1.append(source.Find_slope(1.0,6.5))
             MIRslope2.append(source.Find_slope(6.5,10))
+
+            uv_lum.append(source.find_Lum_range(0.1,0.35))
+            opt_lum.append(source.find_Lum_range(0.35,3))
+            mir_lum.append(source.find_Lum_range(3,30))
+            fir_lum.append(source.find_Lum_range(30,500/(1+goodsS_auge_z_match[i])))
 
             Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
             # w = np.append(w,fill_nan)
@@ -1894,6 +1917,7 @@ Nh = np.asarray(Nh)[GOOD_SEDs]
 # F100_2 = np.asarray(F100_2)[GOOD_SEDs]
 # FFIR_2, WFIR_2 = np.asarray(FFIR_2)[GOOD_SEDs], np.asarray(WFIR_2)[GOOD_SEDs]
 median_fir_x, median_fir_y = np.asarray(median_fir_x)[GOOD_SEDs], np.asarray(median_fir_y)[GOOD_SEDs]
+uv_lum, opt_lum, mir_lum, fir_lum = np.asarray(uv_lum)[GOOD_SEDs], np.asarray(opt_lum)[GOOD_SEDs], np.asarray(mir_lum)[GOOD_SEDs], np.asarray(fir_lum)[GOOD_SEDs]
 
 
 print('GOODS-N Candels: ', goodsN_id_candels)
@@ -2012,12 +2036,21 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 # plt.legend()
 # plt.show()
 
+print(uv_lum)
+print(Lbol)
+
+plt.figure(figsize=(9,7))
+plt.hist(np.log10(uv_lum+mir_lum+fir_lum)/np.log10(Lbol),bins=np.arange(-1,1,0.1))
+plt.xlim(-0.6,0.2)
+plt.xlabel('L(UV+MIR+FIR)/Lbol')
+plt.show()
+
 
 # plot.plot_1panel('43',all_w,all_f,Lx,spec_type,np.log10(F025),np.log10(F5),np.log10(F100),np.log10(F10),median_w,median_f,F1=norm,F2=marker,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
 
 ################ Paper Plots ###################
 # fig 3
-# plot.multi_SED('GOODS',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
+plot.multi_SED('TEST_backup',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
 
 # fig 4 & 5
 # plot.multi_SED_zbins('All',all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
