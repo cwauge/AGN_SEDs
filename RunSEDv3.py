@@ -1393,6 +1393,11 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         MIRslope1.append(source.Find_slope(1.0,6.5))
         MIRslope2.append(source.Find_slope(6.5,10))
 
+        uv_lum.append(source.find_Lum_range(0.1,0.35))
+        opt_lum.append(source.find_Lum_range(0.35,3))
+        mir_lum.append(source.find_Lum_range(3,30))
+        fir_lum.append(source.find_Lum_range(30,500/(1+chandra_cosmos_z_match[i])))
+
         Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
         w = np.append(w,fill_nan)
         f = np.append(f,fill_nan)
