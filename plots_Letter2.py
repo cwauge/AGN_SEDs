@@ -91,9 +91,13 @@ class Plotter_Letter2():
 			y = f1
 			y_var = r'L (0.25$\mu$m)'
 
-		elif Y == 'MIR':
+		elif Y == 'MIR10':
 			y = f4
 			y_var = r'L (10$\mu$m)'
+
+		elif Y == 'MIR6':
+			y = f2
+			y_var = r'L (6$\mu$m)'
 
 		elif Y == 'FIR':
 			y = f3
@@ -132,8 +136,8 @@ class Plotter_Letter2():
 			xlim1 = 42
 			xlim2 = 47
 
-			xlabel = r'log$_{10}$ '+x_var+' [erg/s]'
-			ylabel = r'log$_{10}$ '+y_var+' [erg/s]'
+			xlabel = r'log$ '+x_var+' [erg/s]'
+			ylabel = r'log$ '+y_var+' [erg/s]'
 			
 		elif Norm == 'Both':
 			x = np.asarray([10**i for i in x])
@@ -145,8 +149,8 @@ class Plotter_Letter2():
 			xlim1 = -3
 			xlim2 = 1
 
-			xlabel = r'log$_{10}$ '+x_var+r'/L (1$\mu$m)'
-			ylabel = r'log$_{10}$ '+y_var+r'/L (1$\mu$m)'
+			xlabel = r'log '+x_var+r'/L (1$\mu$m)'
+			ylabel = r'log '+y_var+r'/L (1$\mu$m)'
 
 		elif Norm == 'Y':
 			ylim1 = -2
@@ -155,8 +159,8 @@ class Plotter_Letter2():
 			xlim1 = 42
 			xlim2 = 47
 
-			xlabel = r'log$_{10}$ '+x_var+r'[erg/s]'
-			ylabel = r'log$_{10}$ '+y_var+r'/L (1$\mu$m)'
+			xlabel = r'log '+x_var+r'[erg/s]'
+			ylabel = r'log '+y_var+r'/L (1$\mu$m)'
 
 		else:
 			print('Specify if each variable is normalized')
@@ -242,9 +246,9 @@ class Plotter_Letter2():
 			x34_med, y34_med = np.nanmedian(x_34), np.nanmedian(y_34)
 			x35_med, y35_med = np.nanmedian(x_35), np.nanmedian(y_35)
 
-			x1_med, y1_med = np.asarray([x11_med,x12_med,x13_med,x14_med,x15_med]), np.asarray([y11_med,y12_med,y13_med,y14_med,y15_med])
-			x2_med, y2_med = np.asarray([x21_med,x22_med,x23_med,x24_med,x25_med]), np.asarray([y21_med,y22_med,y23_med,y24_med,y25_med])
-			x3_med, y3_med = np.asarray([x31_med,x32_med,x33_med,x34_med,x35_med]), np.asarray([y31_med,y32_med,y33_med,y34_med,y35_med])
+			x1_med, y1_med = np.asarray([x11_med,x12_med,x13_med,x14_med,x15_med],dtype=float), np.asarray([y11_med,y12_med,y13_med,y14_med,y15_med],dtype=float)
+			x2_med, y2_med = np.asarray([x21_med,x22_med,x23_med,x24_med,x25_med],dtype=float), np.asarray([y21_med,y22_med,y23_med,y24_med,y25_med],dtype=float)
+			x3_med, y3_med = np.asarray([x31_med,x32_med,x33_med,x34_med,x35_med],dtype=float), np.asarray([y31_med,y32_med,y33_med,y34_med,y35_med],dtype=float)
 
 
 			# 25 Percentile 
@@ -266,9 +270,9 @@ class Plotter_Letter2():
 			x34_25per, y34_25per = np.nanpercentile(x_34, 25), np.nanpercentile(y_34, 25)
 			x35_25per, y35_25per = np.nanpercentile(x_35, 25), np.nanpercentile(y_35, 25)
 
-			x1_err_min, y1_err_min = x1_med - np.asarray([x11_25per,x12_25per,x13_25per,x14_25per,x15_25per]), y1_med - np.asarray([y11_25per,y12_25per,y13_25per,y14_25per,y15_25per])
-			x2_err_min, y2_err_min = x2_med - np.asarray([x21_25per,x22_25per,x23_25per,x24_25per,x25_25per]), y2_med - np.asarray([y21_25per,y22_25per,y23_25per,y24_25per,y25_25per])
-			x3_err_min, y3_err_min = x3_med - np.asarray([x31_25per,x32_25per,x33_25per,x34_25per,x35_25per]), y3_med - np.asarray([y31_25per,y32_25per,y33_25per,y34_25per,y35_25per])
+			x1_err_min, y1_err_min = x1_med - np.asarray([x11_25per,x12_25per,x13_25per,x14_25per,x15_25per],dtype=float), y1_med - np.asarray([y11_25per,y12_25per,y13_25per,y14_25per,y15_25per],dtype=float)
+			x2_err_min, y2_err_min = x2_med - np.asarray([x21_25per,x22_25per,x23_25per,x24_25per,x25_25per],dtype=float), y2_med - np.asarray([y21_25per,y22_25per,y23_25per,y24_25per,y25_25per],dtype=float)
+			x3_err_min, y3_err_min = x3_med - np.asarray([x31_25per,x32_25per,x33_25per,x34_25per,x35_25per],dtype=float), y3_med - np.asarray([y31_25per,y32_25per,y33_25per,y34_25per,y35_25per],dtype=float)
 
 			# 75 Percentile 
 			x11_75per, y11_75per = np.nanpercentile(x_11, 75), np.nanpercentile(y_11, 75)
@@ -289,9 +293,9 @@ class Plotter_Letter2():
 			x34_75per, y34_75per = np.nanpercentile(x_34, 75), np.nanpercentile(y_34, 75)
 			x35_75per, y35_75per = np.nanpercentile(x_35, 75), np.nanpercentile(y_35, 75)
 
-			x1_err_max, y1_err_max = np.asarray([x11_75per,x12_75per,x13_75per,x14_75per,x15_75per]) - x1_med, np.asarray([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per]) - y1_med
-			x2_err_max, y2_err_max = np.asarray([x21_75per,x22_75per,x23_75per,x24_75per,x25_75per]) - x2_med, np.asarray([y21_75per,y22_75per,y23_75per,y24_75per,y25_75per]) - y2_med
-			x3_err_max, y3_err_max = np.asarray([x31_75per,x32_75per,x33_75per,x34_75per,x35_75per]) - x3_med, np.asarray([y31_75per,y32_75per,y33_75per,y34_75per,y35_75per]) - y3_med
+			x1_err_max, y1_err_max = np.asarray([x11_75per,x12_75per,x13_75per,x14_75per,x15_75per],dtype=float) - x1_med, np.asarray([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per],dtype=float) - y1_med
+			x2_err_max, y2_err_max = np.asarray([x21_75per,x22_75per,x23_75per,x24_75per,x25_75per],dtype=float) - x2_med, np.asarray([y21_75per,y22_75per,y23_75per,y24_75per,y25_75per],dtype=float) - y2_med
+			x3_err_max, y3_err_max = np.asarray([x31_75per,x32_75per,x33_75per,x34_75per,x35_75per],dtype=float) - x3_med, np.asarray([y31_75per,y32_75per,y33_75per,y34_75per,y35_75per],dtype=float) - y3_med
 
 		elif Median == 'Lx':
 
@@ -326,9 +330,9 @@ class Plotter_Letter2():
 			x34_med, y34_med = np.nanmedian(x[zbins3][b4[zbins3]]), np.nanmedian(y[zbins3][b4[zbins3]])
 			x35_med, y35_med = np.nanmedian(x[zbins3][b5[zbins3]]), np.nanmedian(y[zbins3][b5[zbins3]])
 
-			x1_med, y1_med = np.asarray([x11_med,x12_med,x13_med,x14_med,x15_med]), np.asarray([y11_med,y12_med,y13_med,y14_med,y15_med])
-			x2_med, y2_med = np.asarray([x21_med,x22_med,x23_med,x24_med,x25_med]), np.asarray([y21_med,y22_med,y23_med,y24_med,y25_med])
-			x3_med, y3_med = np.asarray([x31_med,x32_med,x33_med,x34_med,x35_med]), np.asarray([y31_med,y32_med,y33_med,y34_med,y35_med])
+			x1_med, y1_med = np.asarray([x11_med,x12_med,x13_med,x14_med,x15_med],dtype=float), np.asarray([y11_med,y12_med,y13_med,y14_med,y15_med],dtype=float)
+			x2_med, y2_med = np.asarray([x21_med,x22_med,x23_med,x24_med,x25_med],dtype=float), np.asarray([y21_med,y22_med,y23_med,y24_med,y25_med],dtype=float)
+			x3_med, y3_med = np.asarray([x31_med,x32_med,x33_med,x34_med,x35_med],dtype=float), np.asarray([y31_med,y32_med,y33_med,y34_med,y35_med],dtype=float)
 
 			# 25 Percentile 
 			x11_25per, y11_25per = np.nanpercentile(x[zbins1][b1[zbins1]], 25), np.nanpercentile(y[zbins1][b1[zbins1]], 25)
@@ -349,9 +353,9 @@ class Plotter_Letter2():
 			x34_25per, y34_25per = np.nanpercentile(x[zbins3][b4[zbins3]], 25), np.nanpercentile(y[zbins3][b4[zbins3]], 25)
 			x35_25per, y35_25per = np.nanpercentile(x[zbins3][b5[zbins3]], 25), np.nanpercentile(y[zbins3][b5[zbins3]], 25)
 
-			x1_err_min, y1_err_min = x1_med - np.asarray([x11_25per,x12_25per,x13_25per,x14_25per,x15_25per]), y1_med - np.asarray([y11_25per,y12_25per,y13_25per,y14_25per,y15_25per])
-			x2_err_min, y2_err_min = x2_med - np.asarray([x21_25per,x22_25per,x23_25per,x24_25per,x25_25per]), y2_med - np.asarray([y21_25per,y22_25per,y23_25per,y24_25per,y25_25per])
-			x3_err_min, y3_err_min = x3_med - np.asarray([x31_25per,x32_25per,x33_25per,x34_25per,x35_25per]), y3_med - np.asarray([y31_25per,y32_25per,y33_25per,y34_25per,y35_25per])
+			x1_err_min, y1_err_min = x1_med - np.asarray([x11_25per,x12_25per,x13_25per,x14_25per,x15_25per],dtype=float), y1_med - np.asarray([y11_25per,y12_25per,y13_25per,y14_25per,y15_25per],dtype=float)
+			x2_err_min, y2_err_min = x2_med - np.asarray([x21_25per,x22_25per,x23_25per,x24_25per,x25_25per],dtype=float), y2_med - np.asarray([y21_25per,y22_25per,y23_25per,y24_25per,y25_25per],dtype=float)
+			x3_err_min, y3_err_min = x3_med - np.asarray([x31_25per,x32_25per,x33_25per,x34_25per,x35_25per],dtype=float), y3_med - np.asarray([y31_25per,y32_25per,y33_25per,y34_25per,y35_25per],dtype=float)
 
 			# 75 Percentile 
 			x11_75per, y11_75per = np.nanpercentile(x[zbins1][b1[zbins1]], 75), np.nanpercentile(y[zbins1][b1[zbins1]], 75)
@@ -372,9 +376,9 @@ class Plotter_Letter2():
 			x34_75per, y34_75per = np.nanpercentile(x[zbins3][b4[zbins3]], 75), np.nanpercentile(y[zbins3][b4[zbins3]], 75)
 			x35_75per, y35_75per = np.nanpercentile(x[zbins3][b5[zbins3]], 75), np.nanpercentile(y[zbins3][b5[zbins3]], 75)
 
-			x1_err_max, y1_err_max = np.asarray([x11_75per,x12_75per,x13_75per,x14_75per,x15_75per]) - x1_med, np.asarray([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per]) - y1_med
-			x2_err_max, y2_err_max = np.asarray([x21_75per,x22_75per,x23_75per,x24_75per,x25_75per]) - x2_med, np.asarray([y21_75per,y22_75per,y23_75per,y24_75per,y25_75per]) - y2_med
-			x3_err_max, y3_err_max = np.asarray([x31_75per,x32_75per,x33_75per,x34_75per,x35_75per]) - x3_med, np.asarray([y31_75per,y32_75per,y33_75per,y34_75per,y35_75per]) - y3_med
+			x1_err_max, y1_err_max = np.asarray([x11_75per,x12_75per,x13_75per,x14_75per,x15_75per],dtype=float) - x1_med, np.asarray([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per],dtype=float) - y1_med
+			x2_err_max, y2_err_max = np.asarray([x21_75per,x22_75per,x23_75per,x24_75per,x25_75per],dtype=float) - x2_med, np.asarray([y21_75per,y22_75per,y23_75per,y24_75per,y25_75per],dtype=float) - y2_med
+			x3_err_max, y3_err_max = np.asarray([x31_75per,x32_75per,x33_75per,x34_75per,x35_75per],dtype=float) - x3_med, np.asarray([y31_75per,y32_75per,y33_75per,y34_75per,y35_75per],dtype=float) - y3_med
 
 		# elif Median == 'Lx':
 		# 	x_1_med, y_1_med, x_1_lim, y_1_lim = self.make_median_bins(x[zbins1],y[zbins1],5)
@@ -418,6 +422,8 @@ class Plotter_Letter2():
 			ax1.scatter(x_15, y_15, color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		if Median != 'None':
+			print('HERE: ', type(x1_med),type(y1_med),type(x1_err_min),type(y1_err_min),type(x1_err_max),type(y1_err_max))
+			print('HERE: ', type(x1_med[0]),type(y1_med[0]),type(x1_err_min[0]),type(y1_err_min[0]),type(x1_err_max[0]),type(y1_err_max[0]))
 			ax1.errorbar(x1_med, y1_med, xerr=[x1_err_min, x1_err_max], yerr=[y1_err_min, y1_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
 			ax1.scatter(x11_med, y11_med, color=c1m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
 			ax1.scatter(x12_med, y12_med, color=c2m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
@@ -565,9 +571,13 @@ class Plotter_Letter2():
 			x = f1
 			x_var = r'0.25$\mu$m'
 
-		elif X == 'MIR':
+		elif X == 'MIR10':
 			x = f4
 			x_var = r'10$\mu$m'
+
+		elif X == 'MIR6':
+			x = f2
+			x_var = r'6$\mu$m'
 
 		elif X == 'FIR':
 			x = f3
@@ -580,9 +590,13 @@ class Plotter_Letter2():
 			y = f1
 			y_var = r'0.25$\mu$m'
 
-		elif Y == 'MIR':
+		elif Y == 'MIR10':
 			y = f4
 			y_var = r'10$\mu$m'
+
+		elif Y == 'MIR6':
+			y = f2
+			y_var = r'6$\mu$m'
 
 		elif Y == 'FIR':
 			y = f3
@@ -602,8 +616,8 @@ class Plotter_Letter2():
 			ylim1 = 42
 			ylim2 = 47
 
-			xlabel = r'log$_{10}$ L ('+x_var+') [erg/s]'
-			ylabel = r'log$_{10}$ L ('+y_var+') [erg/s]'
+			xlabel = r'log L ('+x_var+') [erg/s]'
+			ylabel = r'log L ('+y_var+') [erg/s]'
 
 		elif Norm == 'Both':
 
@@ -618,8 +632,8 @@ class Plotter_Letter2():
 			ylim1 = -2
 			ylim2 = 2
 
-			xlabel = r'log$_{10}$ L ('+x_var+r')/L (1$\mu$m)'
-			ylabel = r'log$_{10}$ L ('+y_var+r')/L (1$\mu$m)'
+			xlabel = r'log L ('+x_var+r')/L (1$\mu$m)'
+			ylabel = r'log L ('+y_var+r')/L (1$\mu$m)'
 
 		else:
 			print('Specify if each variable is normalized')
@@ -913,7 +927,7 @@ class Plotter_Letter2():
 		plt.show()
 
 
-	def Nh_frac_plots(self, savestring, Y, Median, Nh, Lx, L, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check):
+	def ratio_plots(self, savestring, X, Y, Median, Nh, Lx, L, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check):
 		plt.rcParams['font.size'] = 20
 		plt.rcParams['axes.linewidth'] = 2
 		plt.rcParams['xtick.major.size'] = 4
@@ -944,16 +958,25 @@ class Plotter_Letter2():
 			lx = np.asarray([10**i for i in Lx])
 			y = np.log10(f1/lx)
 			y_var = r'0.25$\mu$m'
-			ylabel = r'log$_{10}$ L (0.25$\mu$m)/ L$_{\mathrm{X}}$'
+			ylabel = r'log L (0.25$\mu$m)/ L$_{\mathrm{X}}$'
 			ylim1 = -2
 			ylim2 = 3
 
-		elif Y == 'MIR':
+		elif Y == 'MIR6':
+			f_2 = np.asarray([10**i for i in f2])
+			f2 = f_2*F1
+			lx = np.asarray([10**i for i in Lx])
+			y = np.log10(f2/lx)
+			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{X}}$'
+			ylim1 = -2
+			ylim2 = 3
+
+		elif Y == 'MIR10':
 			f_4 = np.asarray([10**i for i in f4])
 			f4 = f_4*F1
 			lx = np.asarray([10**i for i in Lx])
 			y = np.log10(f4/lx)
-			ylabel = r'log$_{10}$ L (10$\mu$m)/ L$_{\mathrm{X}}$'
+			ylabel = r'log L (10$\mu$m)/ L$_{\mathrm{X}}$'
 			ylim1 = -2
 			ylim2 = 3
 
@@ -962,17 +985,27 @@ class Plotter_Letter2():
 			f3 = f_3*F1
 			lx = np.asarray([10**i for i in Lx])
 			y = np.log10(f3/lx)
-			ylabel = r'log$_{10}$ L (100$\mu$m)/ L$_{\mathrm{X}}$'
+			ylabel = r'log L (100$\mu$m)/ L$_{\mathrm{X}}$'
 			ylim1 = -2
 			ylim2 = 3
 
-		elif Y == 'UV/MIR':
+		elif Y == 'UV/MIR6':
+			f_1 = np.asarray([10**i for i in f1])
+			f1 = f_1*F1
+			f_2 = np.asarray([10**i for i in f2])
+			f2 = f_4*F1
+			y = np.log10(f1/f2)
+			ylabel = r'log L (0.25$\mu$m)/ L (10$\mu$m)'
+			ylim1 = -3
+			ylim2 = 2
+
+		elif Y == 'UV/MIR10':
 			f_1 = np.asarray([10**i for i in f1])
 			f1 = f_1*F1
 			f_4 = np.asarray([10**i for i in f4])
 			f4 = f_4*F1
 			y = np.log10(f1/f4)
-			ylabel = r'log$_{10}$ L (0.25$\mu$m)/ L (10$\mu$m)'
+			ylabel = r'log L (0.25$\mu$m)/ L (10$\mu$m)'
 			ylim1 = -3
 			ylim2 = 2
 
@@ -982,17 +1015,27 @@ class Plotter_Letter2():
 			f_3 = np.asarray([10**i for i in f3])
 			f3 = f_3*F1
 			y = np.log10(f1/f3)
-			ylabel = r'log$_{10}$ L (0.25$\mu$m)/ L (100$\mu$m)'
+			ylabel = r'log L (0.25$\mu$m)/ L (100$\mu$m)'
 			ylim1 = -3
 			ylim2 = 2
 
-		elif Y == 'MIR/FIR':
+		elif Y == 'MIR6/FIR':
+			f_2 = np.asarray([10**i for i in f2])
+			f2 = f_2*F1
+			f_3 = np.asarray([10**i for i in f3])
+			f3 = f_3*F1
+			y = np.log10(f2/f3)
+			ylabel = r'log L (10$\mu$m)/ L (100$\mu$m)'
+			ylim1 = -3
+			ylim2 = 2
+
+		elif Y == 'MIR10/FIR':
 			f_4 = np.asarray([10**i for i in f4])
 			f4 = f_4*F1
 			f_3 = np.asarray([10**i for i in f3])
 			f3 = f_3*F1
 			y = np.log10(f4/f3)
-			ylabel = r'log$_{10}$ L (10$\mu$m)/ L (100$\mu$m)'
+			ylabel = r'log L (10$\mu$m)/ L (100$\mu$m)'
 			ylim1 = -3
 			ylim2 = 2
 
@@ -1000,10 +1043,37 @@ class Plotter_Letter2():
 			l = np.asarray([10**i for i in L])
 			lx = np.asarray([10**i for i in Lx])
 			y = np.log10(l/lx)
-			ylabel = r'log$_{10}$ L$_{\mathrm{bol}}$/ L$_{\mathrm{X}}$'
+			ylabel = r'log L$_{\mathrm{bol}}$/ L$_{\mathrm{X}}$'
 			ylim1 = -1
 			ylim2 = 4
-			
+
+		elif Y == 'UV/Lbol':
+			l = np.asarray([10**i for i in L])
+			f_1 = np.asarray([10**i for i in f1])
+			f1 = f_1*F1
+			y = np.log10(f1/l)
+			ylabel = r'log L (0.25$\mu$m)/ L$_{\mathrm{bol}}$'
+
+		elif Y == 'MIR6/Lbol':
+			l = np.asarray([10**i for i in L])
+			f_2 = np.asarray([10**i for i in f2])
+			f2 = f_2*F1
+			y = np.log10(f2/l)
+			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
+
+		elif Y == 'MIR10/Lbol':
+			l = np.asarray([10**i for i in L])
+			f_4 = np.asarray([10**i for i in f4])
+			f4 = f_4*F1
+			y = np.log10(f4/l)
+			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
+
+		elif Y == 'FIR/Lbol':
+			l = np.asarray([10**i for i in L])
+			f_2 = np.asarray([10**i for i in f3])
+			f3 = f_3*F1
+			y = np.log10(f3/l)
+			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
 
 		else:
 			print('Specify Y variable')
