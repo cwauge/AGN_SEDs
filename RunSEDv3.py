@@ -339,7 +339,7 @@ cosmos_flux_err_array = cosmos_flux_err_array.T
 ###############################################################################
 ########################### Read in Stripe82X files ###########################
 
-eboss = fits.open('/Users/connor_auge/Desktop/lamassa2019.fit')
+eboss = fits.open('/Users/connor_auge/Desktop/desktop_catalogs/lamassa2019.fit')
 eboss_data = eboss[1].data
 eboss.close()
 
@@ -348,8 +348,8 @@ lamassa_cols = lamassa[1].columns
 lamassa_data = lamassa[1].data
 lamassa.close()
 
-peca = ascii.read('/Users/connor_auge/Desktop/s82_spec_results/Auge_spec_results_safe.txt')
-unwise = ascii.read('/Users/connor_auge/Desktop/unwise_matches.csv')
+peca = ascii.read('/Users/connor_auge/Desktop/desktop_catalogs/s82_spec_results/Auge_spec_results_safe.txt')
+unwise = ascii.read('/Users/connor_auge/Desktop/desktop_catalogs/unwise_matches.csv')
 
 peca_ID = np.asarray(peca['ID'])
 peca_Lx_full = np.asarray(peca['lumin_f'])
