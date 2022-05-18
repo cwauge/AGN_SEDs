@@ -2036,9 +2036,9 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 # plt.legend()
 # plt.show()
 
-print(uv_lum)
-print(Lbol)
-print(np.log10((uv_lum+mir_lum+fir_lum)/Lbol))
+# print(uv_lum)
+# print(Lbol)
+# print(np.log10((uv_lum+mir_lum+fir_lum)/Lbol))
 
 # plt.figure(figsize=(10,9))
 # plt.hist(np.log10((uv_lum+mir_lum+fir_lum)/Lbol),bins=np.arange(-1,1,0.1))
@@ -2085,8 +2085,11 @@ print(np.log10((uv_lum+mir_lum+fir_lum)/Lbol))
 
 ### New Plots ### 
 
+print(Lx,np.log10(F10),np.log10(F6))
 # fig 13 & 14
-plot2.Lx_Scatter_Comp('Lx_MIR_plot_43_med_Lx','Lx','MIR','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+plot2.Lx_Scatter_Comp('Lx_MIR10_test','Lx','MIR10','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+plot2.Lx_Scatter_Comp('Lx_MIR6_test','Lx','MIR6','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+
 # plot2.Lx_Scatter_Comp('Lx_UV_plot_43_med_Lx','Lx','UV','None','Lx',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Lx_Scatter_Comp('Lx_FIR_plot_43_med_Lx','Lx','FIR','Y','Lx',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Lx_Scatter_Comp('Lx_Lbol','Lx','Lbol','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
