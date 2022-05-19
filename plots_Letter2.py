@@ -136,8 +136,8 @@ class Plotter_Letter2():
 			xlim1 = 42
 			xlim2 = 47
 
-			xlabel = r'log$ '+x_var+' [erg/s]'
-			ylabel = r'log$ '+y_var+' [erg/s]'
+			xlabel = r'log '+x_var+' [erg/s]'
+			ylabel = r'log '+y_var+' [erg/s]'
 			
 		elif Norm == 'Both':
 			x = np.asarray([10**i for i in x])
@@ -485,7 +485,7 @@ class Plotter_Letter2():
 		ax2.set_yticklabels([])
 		if Norm == 'None' or Norm == 'Y':
 			secax2 = ax2.secondary_xaxis('top', functions=(solar, ergs))
-			secax2.set_xlabel(r'log$_{10}$ '+x_var+r' [L$_{\odot}$]')
+			secax2.set_xlabel(r'log '+x_var+r' [L$_{\odot}$]')
 		ax2.set_title(f'{zlim2} < z < {zlim3}')
 		ax2.grid()
 
@@ -532,7 +532,7 @@ class Plotter_Letter2():
 			secax3 = ax3.secondary_xaxis('top', functions=(solar, ergs))
 			secax3.set_xlabel(r' ')
 			secax3 = ax3.secondary_yaxis('right', functions=(solar, ergs))
-			secax3.set_ylabel(r'log$_{10}$ '+y_var+r' [L$_{\odot}$]')
+			secax3.set_ylabel(r'log '+y_var+r' [L$_{\odot}$]')
 		elif Norm == 'Y':
 			secax3 = ax3.secondary_xaxis('top', functions=(solar, ergs))
 			secax3.set_xlabel(r' ')
@@ -951,7 +951,27 @@ class Plotter_Letter2():
 		zbins3 = (spec_z >= zlim3) & (spec_z <= zlim4)
 
 		Nh[Nh <= 0] = np.nan
-		x = np.log10(Nh)
+
+		if X == 'Nh':
+			x = np.log10(Nh)
+			xlim1 = 19
+			xlim2 = 24
+			xlabel = r'log N$_{\mathrm{H}}$'
+
+		elif X == 'Lx':
+			x = Lx
+			xlim1 = 42
+			xlim2 = 47
+			xlabel = r'log L$_{\mathrm{X}}$'
+
+
+		elif X == 'Lbol':
+			x = L
+			xlim1 = 43
+			xlim2 = 48
+			xlabel = r'log L$_{\mathrm{bol}}$'
+
+
 		if Y == 'UV':
 			f_1 = np.asarray([10**i for i in f1])
 			f1 = f_1*F1
@@ -1053,6 +1073,8 @@ class Plotter_Letter2():
 			f1 = f_1*F1
 			y = np.log10(f1/l)
 			ylabel = r'log L (0.25$\mu$m)/ L$_{\mathrm{bol}}$'
+			ylim1 = -3
+			ylim2 = 1
 
 		elif Y == 'MIR6/Lbol':
 			l = np.asarray([10**i for i in L])
@@ -1060,6 +1082,8 @@ class Plotter_Letter2():
 			f2 = f_2*F1
 			y = np.log10(f2/l)
 			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
+			ylim1 = -3
+			ylim2 = 1
 
 		elif Y == 'MIR10/Lbol':
 			l = np.asarray([10**i for i in L])
@@ -1067,6 +1091,8 @@ class Plotter_Letter2():
 			f4 = f_4*F1
 			y = np.log10(f4/l)
 			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
+			ylim1 = -3
+			ylim2 = 1
 
 		elif Y == 'FIR/Lbol':
 			l = np.asarray([10**i for i in L])
@@ -1074,16 +1100,12 @@ class Plotter_Letter2():
 			f3 = f_3*F1
 			y = np.log10(f3/l)
 			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
+			ylim1 = -3
+			ylim2 = 1
 
 		else:
 			print('Specify Y variable')
 			return
-
-		xlim1 = 19
-		xlim2 = 24
-	
-		
-		xlabel = r'log$_{10}$ N$_{\mathrm{H}}$'
 
 
 		c1 = '#377eb8'
