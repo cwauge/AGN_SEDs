@@ -2107,6 +2107,9 @@ plot2.Lx_Scatter_Comp('Lx_MIR6_test','Lx','MIR6','None','Lx' ,Lx,np.log10(Lbol),
 # plot2.Nh_frac_plots('Nh_MIR_FIR','MIR/FIR','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Nh_frac_plots('Nh_Lbol','Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
+plot2.ratio_plots('Nh_MIR','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+plot2.ratio_plots('Nh_MIR','Lbol','MIR6/Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
