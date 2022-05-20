@@ -61,7 +61,7 @@ class AGN():
 		self.flux_jy_err[self.flux_jy_err <= 0] = np.nan
 		self.flux_jy[np.isnan(self.flux_jy_err)] = np.nan
 		# print('3: ',self.flux_jy)
-		self.flux_jy[self.flux_jy_err/self.flux_jy > 0.5] = np.nan # Remove data points that have a high fractional error in flux
+		self.flux_jy[self.flux_jy_err/self.flux_jy > 0.475] = np.nan # Remove data points that have a high fractional error in flux
 
 		# print('4: ', self.flux_jy)
 			
@@ -327,6 +327,14 @@ class AGN():
 
 		x_interp = np.linspace(np.log10(xmin*1E-4), np.log10(xmax*1E-4))
 		y_interp = 10**Lbol_interp(x_interp)
+
+		# plt.figure(figsize=(9,6))
+		# plt.plot((10**x_interp)*1E4, y_interp, color='b',lw=4,alpha=0.25)
+		# plt.plot(self.FIRwave_out2, self.FIRnuLnu_out2, 'v', color='k')
+		# plt.plot(x*1E4, y, 'x', color='k')
+		# plt.xscale('log')
+		# plt.yscale('log')
+		# plt.show()
 
 		x_interp, y_interp = x_interp[::-1], y_interp[::-1]
 		freq = 3E10/10**x_interp
