@@ -297,7 +297,7 @@ class Plotter_Letter2():
 			x2_err_max, y2_err_max = np.asarray([x21_75per,x22_75per,x23_75per,x24_75per,x25_75per],dtype=float) - x2_med, np.asarray([y21_75per,y22_75per,y23_75per,y24_75per,y25_75per],dtype=float) - y2_med
 			x3_err_max, y3_err_max = np.asarray([x31_75per,x32_75per,x33_75per,x34_75per,x35_75per],dtype=float) - x3_med, np.asarray([y31_75per,y32_75per,y33_75per,y34_75per,y35_75per],dtype=float) - y3_med
 
-		elif Median == 'Lx':
+		elif Median == 'X-axis':
 
 			c1m = 'gray'
 			c2m = 'gray'
@@ -960,8 +960,8 @@ class Plotter_Letter2():
 
 		elif X == 'Lx':
 			x = Lx
-			xlim1 = 42
-			xlim2 = 47
+			xlim1 = 42.5
+			xlim2 = 46.5
 			xlabel = r'log L$_{\mathrm{X}}$'
 
 
@@ -1064,8 +1064,9 @@ class Plotter_Letter2():
 			lx = np.asarray([10**i for i in Lx])
 			y = np.log10(l/lx)
 			ylabel = r'log L$_{\mathrm{bol}}$/ L$_{\mathrm{X}}$'
-			ylim1 = -1
+			ylim1 = 0 
 			ylim2 = 4
+			yticks = [0,1,2,3,4]
 
 		elif Y == 'UV/Lbol':
 			l = np.asarray([10**i for i in L])
@@ -1239,7 +1240,7 @@ class Plotter_Letter2():
 			x2_err_max, y2_err_max = np.asarray([x21_75per,x22_75per,x23_75per,x24_75per,x25_75per]) - x2_med, np.asarray([y21_75per,y22_75per,y23_75per,y24_75per,y25_75per]) - y2_med
 			x3_err_max, y3_err_max = np.asarray([x31_75per,x32_75per,x33_75per,x34_75per,x35_75per]) - x3_med, np.asarray([y31_75per,y32_75per,y33_75per,y34_75per,y35_75per]) - y3_med
 
-		elif Median == 'Nh':
+		elif Median == 'X-axis':
 
 			c1m = 'gray'
 			c2m = 'gray'
@@ -1343,6 +1344,7 @@ class Plotter_Letter2():
 
 		ax1.set_xlim(xlim1,xlim2)
 		ax1.set_ylim(ylim1,ylim2)
+		ax1.set_yticks(yticks)
 		ax1.set_ylabel(ylabel)
 		ax1.set_title(f'{zlim1} < z < {zlim2}')
 		ax1.legend(fontsize=14)
@@ -1365,6 +1367,7 @@ class Plotter_Letter2():
 
 		ax2.set_xlim(xlim1, xlim2)
 		ax2.set_ylim(ylim1, ylim2)
+		ax2.set_yticks(yticks)
 		ax2.set_xlabel(xlabel)
 		ax2.set_yticklabels([])
 		# ax2.legend(fontsize=14)
@@ -1388,6 +1391,7 @@ class Plotter_Letter2():
 
 		ax3.set_xlim(xlim1, xlim2)
 		ax3.set_ylim(ylim1, ylim2)
+		ax3.set_yticks(yticks)
 		ax3.set_yticklabels([])
 		ax3.set_title(f'{zlim3} < z < {zlim4}')
 		ax3.grid()
