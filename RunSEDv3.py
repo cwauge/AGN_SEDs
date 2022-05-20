@@ -348,14 +348,25 @@ lamassa_cols = lamassa[1].columns
 lamassa_data = lamassa[1].data
 lamassa.close()
 
-peca = ascii.read('/Users/connor_auge/Desktop/desktop_catalogs/s82_spec_results/Auge_spec_results_safe.txt')
+# peca = ascii.read('/Users/connor_auge/Desktop/desktop_catalogs/s82_spec_results/Auge_spec_results_safe.txt')
+peca = fits.open(path+'Peca_S82X.fits')
+peca_cols = peca[1].columns
+peca_data = peca[1].data
+peca.close()
+
 unwise = ascii.read('/Users/connor_auge/Desktop/desktop_catalogs/unwise_matches.csv')
 
-peca_ID = np.asarray(peca['ID'])
-peca_Lx_full = np.asarray(peca['lumin_f'])
-peca_Lx_hard = np.asarray(peca['lumin_h'])
-peca_Lx_full_obs = np.asarray(peca['lumin_of'])
-peca_Nh = np.asarray(peca['nh'])
+# peca_ID = np.asarray(peca['ID'])
+# peca_Lx_full = np.asarray(peca['lumin_f'])
+# peca_Lx_hard = np.asarray(peca['lumin_h'])
+# peca_Lx_full_obs = np.asarray(peca['lumin_of'])
+# peca_Nh = np.asarray(peca['nh'])
+
+peca_ID = peca_data['srcid']
+peca_Lx_full = peca_data['lumin_f']
+peca_Lx_hard = peca_data['lumin_h']
+peca_Lx_full_obs = peca_data['lumin_of']
+peca_Nh = peca_data['nh']
 
 unwise_ID = np.asarray(unwise['ID'])
 # unwise_W1 = mag_to_flux(np.asarray(unwise['unW1']),'W1')*1E6
@@ -953,8 +964,8 @@ goodsN_auge_data = goodsN_auge[1].data
 goodsN_auge.close()
 
 goodsN_auge_ID = goodsN_auge_data['id_xray']
-goodsN_auge_Lx = goodsN_auge_data['Lx']*1.180
-goodsN_auge_Lx_hard = goodsN_auge_data['Lx']*0.721
+goodsN_auge_Lx = goodsN_auge_data['Lx']
+goodsN_auge_Lx_hard = goodsN_auge_data['Lx']*0.611
 goodsN_auge_z = goodsN_auge_data['z_spec']
 
 goodsN_auge_condition = (np.log10(goodsN_auge_Lx) >= Lx_min) & (np.log10(goodsN_auge_Lx) <= Lx_max) &(goodsN_auge_z > z_min) & (goodsN_auge_z <= z_max) & (goodsN_auge_z != 0.0)
@@ -976,13 +987,16 @@ goodsN_flux_array_auge = np.asarray([goodsN_auge_Fx_hard_match_mjy*1000, goodsN_
     goodsN_auge_data['FUV'][goodsN_auge_condition],
 	goodsN_auge_data['NUV'][goodsN_auge_condition],
     goodsN_auge_data['U'][goodsN_auge_condition],
+    goodsN_auge_data['F435W'][goodsN_auge_condition],
 	goodsN_auge_data['B'][goodsN_auge_condition], 
 	goodsN_auge_data['V'][goodsN_auge_condition],
     goodsN_auge_data['F606W'][goodsN_auge_condition],
 	goodsN_auge_data['R'][goodsN_auge_condition], 
 	goodsN_auge_data['I'][goodsN_auge_condition],
+    goodsN_auge_data['F775W'][goodsN_auge_condition],
     goodsN_auge_data['F814W'][goodsN_auge_condition],
 	goodsN_auge_data['z'][goodsN_auge_condition],
+    goodsN_auge_data['F105W'][goodsN_auge_condition],
     goodsN_auge_data['F125W'][goodsN_auge_condition],
 	goodsN_auge_data['J'][goodsN_auge_condition],
     goodsN_auge_data['F140W'][goodsN_auge_condition],
@@ -994,6 +1008,7 @@ goodsN_flux_array_auge = np.asarray([goodsN_auge_Fx_hard_match_mjy*1000, goodsN_
 	goodsN_auge_data['irac_ch3'][goodsN_auge_condition],
 	goodsN_auge_data['irac_ch4'][goodsN_auge_condition],
 	goodsN_auge_data['f24'][goodsN_auge_condition],
+    goodsN_auge_data['f70'][goodsN_auge_condition],
 	goodsN_auge_data['f100'][goodsN_auge_condition],
 	goodsN_auge_data['f160'][goodsN_auge_condition],
 	goodsN_auge_data['f250'][goodsN_auge_condition],
@@ -1006,13 +1021,16 @@ goodsN_flux_err_array_auge = np.asarray([goodsN_auge_Fx_hard_match_mjy*1000*0.2,
     goodsN_auge_data['FUVerr'][goodsN_auge_condition],
 	goodsN_auge_data['NUVerr'][goodsN_auge_condition],
     goodsN_auge_data['Uerr'][goodsN_auge_condition],
+    goodsN_auge_data['F435Werr'][goodsN_auge_condition], 
 	goodsN_auge_data['Berr'][goodsN_auge_condition], 
 	goodsN_auge_data['Verr'][goodsN_auge_condition],
     goodsN_auge_data['F606Werr'][goodsN_auge_condition],
 	goodsN_auge_data['Rerr'][goodsN_auge_condition], 
 	goodsN_auge_data['Ierr'][goodsN_auge_condition],
+    goodsN_auge_data['F775Werr'][goodsN_auge_condition],
     goodsN_auge_data['F814Werr'][goodsN_auge_condition],
 	goodsN_auge_data['zerr'][goodsN_auge_condition],
+    goodsN_auge_data['F105Werr'][goodsN_auge_condition],
     goodsN_auge_data['F125Werr'][goodsN_auge_condition],
 	goodsN_auge_data['Jerr'][goodsN_auge_condition],
     goodsN_auge_data['F140Werr'][goodsN_auge_condition],
@@ -1024,6 +1042,7 @@ goodsN_flux_err_array_auge = np.asarray([goodsN_auge_Fx_hard_match_mjy*1000*0.2,
 	goodsN_auge_data['irac_ch3err'][goodsN_auge_condition],
 	goodsN_auge_data['irac_ch4err'][goodsN_auge_condition],
 	goodsN_auge_data['f24err'][goodsN_auge_condition],
+    goodsN_auge_data['f70err'][goodsN_auge_condition],
 	goodsN_auge_data['f100err'][goodsN_auge_condition],
 	goodsN_auge_data['f160err'][goodsN_auge_condition],
 	goodsN_auge_data['f250err'][goodsN_auge_condition],
@@ -1037,15 +1056,15 @@ goodsN_flux_err_array_auge = goodsN_flux_err_array_auge.T
 
 ###############################################################################
 ###############################################################################
-############################ Read in GOODS-N files 2 ##########################
+############################ Read in GOODS-S files 2 ##########################
 
 goodsS_auge = fits.open(path+'GOODsS_full_cat.fits')
 goodsS_auge_data = goodsS_auge[1].data
 goodsS_auge.close()
 
 goodsS_auge_ID = goodsS_auge_data['id_xray']
-goodsS_auge_Lx = goodsS_auge_data['Lx']*1.180
-goodsS_auge_Lx_hard = goodsS_auge_data['Lx']*0.721
+goodsS_auge_Lx = goodsS_auge_data['Lxc']
+goodsS_auge_Lx_hard = goodsS_auge_data['Lxc']*0.611
 goodsS_auge_z = goodsS_auge_data['z_spec']
 
 goodsS_auge_condition = (np.log10(goodsS_auge_Lx) >= Lx_min) & (np.log10(goodsS_auge_Lx) <= Lx_max) &(goodsS_auge_z > z_min) & (goodsS_auge_z <= z_max) & (goodsS_auge_z != 0.0)
@@ -1325,11 +1344,13 @@ GOODSS_filters = np.asarray(['Fx_hard','Fx_soft','nan','u_FLUX_APER2','F435W','F
 # GOODSS_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'MAG_FUV', 'MAG_NUV','U', 'F435W', 'B_FLUX_APER2', 'V_FLUX_APER2', 'F606W', 'R', 'I', 'F775W', 'F814W', 'Z', 'F098M', 'F125W', 'JVHS', 'HVHS', 'KVHS', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 # GOODSS_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'IB427_FLUX', 'F435W', 'IB445_FLUX', 'B_FLUX_APER2', 'IB464_FLUX_APER2', 'IA484_FLUX_APER2', 'IB505_FLUX_APER2', 'IA527_FLUX_APER2', 'V_FLUX_APER2', 'IB550_FLUX', 'IB574_FLUX_APER2', 'F606W', 'IB598_FLUX', 'IA624_FLUX_APER2', 'R', 'IB651_FLUX', 'IA679_FLUX_APER2', 'IB709_FLUX_APER2', 'IA738_FLUX_APER2', 'I', 
                                 #   'F775W', 'IA767_FLUX_APER2', 'IA797_FLUX', 'F814W', 'IB827_FLUX_APER2', 'IA856_FLUX', 'Z','F850LP', 'F098M', 'F105W', 'F125W', 'JVHS', 'F140W', 'F160W', 'HVHS', 'KVHS', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
-GOODSN_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'F606W', 'R', 'I', 'F814W', 'Z', 'F125W', 'JVHS', 'F140W', 'F160W', 'HVHS', 'KVHS',
-                                 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+# GOODSN_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'F606W', 'R', 'I', 'F814W', 'Z', 'F125W', 'JVHS', 'F140W', 'F160W', 'HVHS', 'KVHS',
+                                #  'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 GOODSS_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'F435W', 'B_FLUX_APER2', 'V_FLUX_APER2', 'F606W', 'R', 'I',
                                   'F775W', 'F814W', 'Z', 'F850LP', 'F098M', 'F105W', 'F125W', 'JVHS', 'F140W', 'F160W', 'HVHS', 'KVHS', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
-print('HERE: ',len(GOODSS_auge_filters))
+
+GOODSN_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'F435W', 'B_FLUX_APER2', 'V_FLUX_APER2', 'F606W', 'R', 'I', 'F775W', 'F814W', 'Z', 'F105W', 'F125W', 'JVHS', 'F140W', 'F160W', 'HVHS', 'KVHS',
+                                   'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'MIPS2','FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 ###############################################################################
 tfl = time.perf_counter()
 print(f'Done with file reading ({tfl - ti:0.4f} second)')
@@ -1517,6 +1538,11 @@ for i in range(len(lamassa_id_use)):
             opt_lum.append(source.find_Lum_range(0.35,3))
             mir_lum.append(source.find_Lum_range(3,30))
             fir_lum.append(source.find_Lum_range(30,500/(1+s82x_z_sp[i])))
+
+            # if check_sed[i] == 'GOOD':
+            #     source.find_Lum_range(3,30)
+            # else:
+            #     continue
 
             Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
             w = np.append(w,fill_nan)
@@ -2040,23 +2066,23 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 # print(Lbol)
 # print(np.log10((uv_lum+mir_lum+fir_lum)/Lbol))
 
-# plt.figure(figsize=(10,9))
-# plt.hist(np.log10((uv_lum+mir_lum+fir_lum)/Lbol),bins=np.arange(-1,1,0.1))
-# plt.xlim(-0.7,0.25)
-# plt.xlabel('L(UV+MIR+FIR)/Lbol')
-# plt.grid()
-# plt.show()
+plt.figure(figsize=(10,9))
+plt.hist(np.log10((uv_lum+mir_lum+fir_lum+opt_lum)/Lbol),bins=np.arange(-1,1,0.05))
+plt.xlim(-0.7,0.25)
+plt.xlabel('L(UV+MIR+FIR)/Lbol')
+plt.grid()
+plt.show()
 
 
 # plot.plot_1panel('43',all_w,all_f,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_w,median_f,F1=norm,F2=marker,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
 
 ################ Paper Plots ###################
 # fig 3
-# plot.multi_SED('TEST_backup',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
+# plot.multi_SED('TEST_GOODS',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
 
 # fig 4 & 5
 # plot.multi_SED_zbins('All',all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
-# plot.multi_SED_field('TEST_backup', all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort], wfir=WFIR[sort], ffir=FFIR[sort])
+# plot.multi_SED_field('TEST_GOODS', all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort], wfir=WFIR[sort], ffir=FFIR[sort])
 
 # fig 6
 # plot.plot_5panel_zbins('43',all_x,all_y,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_x,median_y,F1=F1,F2=field,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
@@ -2085,10 +2111,9 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 
 ### New Plots ### 
 
-print(Lx,np.log10(F10),np.log10(F6))
 # fig 13 & 14
-plot2.Lx_Scatter_Comp('Lx_MIR10_test','Lx','MIR10','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-plot2.Lx_Scatter_Comp('Lx_MIR6_test','Lx','MIR6','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Lx_Scatter_Comp('Lx_MIR10_test','Lx','MIR10','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Lx_Scatter_Comp('Lx_MIR6_test','Lx','MIR6','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
 # plot2.Lx_Scatter_Comp('Lx_UV_plot_43_med_Lx','Lx','UV','None','Lx',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Lx_Scatter_Comp('Lx_FIR_plot_43_med_Lx','Lx','FIR','Y','Lx',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
@@ -2107,8 +2132,10 @@ plot2.Lx_Scatter_Comp('Lx_MIR6_test','Lx','MIR6','None','Lx' ,Lx,np.log10(Lbol),
 # plot2.Nh_frac_plots('Nh_MIR_FIR','MIR/FIR','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Nh_frac_plots('Nh_Lbol','Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
-plot2.ratio_plots('Nh_MIR','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-plot2.ratio_plots('Nh_MIR','Lbol','MIR6/Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.ratio_plots('Nh_MIR','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.ratio_plots('Lbol_MIR','Lbol','MIR6/Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.ratio_plots('Lbol_Lx_ratio_medBins','Lx','Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.ratio_plots('Lbol_Lx_ratio_medLx','Lx','Lbol','Nh',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
 ###############################################################################
 ###############################################################################
