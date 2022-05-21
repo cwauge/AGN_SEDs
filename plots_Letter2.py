@@ -408,22 +408,20 @@ class Plotter_Letter2():
 			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], marker=3, color=c4, rasterized=True, alpha=0.8,zorder=0)
 			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], marker=3, color=c5, rasterized=True, alpha=0.8,zorder=0)
 
-			ax1.scatter(x_11[up_check_11 == 0], y_11[up_check_11 == 0], color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax1.scatter(x_12[up_check_12 == 0], y_12[up_check_12 == 0], color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax1.scatter(x_13[up_check_13 == 0], y_13[up_check_13 == 0], color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+			ax1.scatter(x_11[up_check_11 == 0], y_11[up_check_11 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax1.scatter(x_12[up_check_12 == 0], y_12[up_check_12 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax1.scatter(x_13[up_check_13 == 0], y_13[up_check_13 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		else:
-			ax1.scatter(x_11, y_11, color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax1.scatter(x_12, y_12, color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax1.scatter(x_13, y_13, color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax1.scatter(x_14, y_14, color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax1.scatter(x_15, y_15, color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+			ax1.scatter(x_11, y_11, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax1.scatter(x_12, y_12, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax1.scatter(x_13, y_13, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax1.scatter(x_14, y_14, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax1.scatter(x_15, y_15, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		if Median != 'None':
-			print('HERE: ', type(x1_med),type(y1_med),type(x1_err_min),type(y1_err_min),type(x1_err_max),type(y1_err_max))
-			print('HERE: ', type(x1_med[0]),type(y1_med[0]),type(x1_err_min[0]),type(y1_err_min[0]),type(x1_err_max[0]),type(y1_err_max[0]))
 			ax1.errorbar(x1_med, y1_med, xerr=[x1_err_min, x1_err_max], yerr=[y1_err_min, y1_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
 			ax1.scatter(x11_med, y11_med, color=c1m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
 			ax1.scatter(x12_med, y12_med, color=c2m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
@@ -464,11 +462,11 @@ class Plotter_Letter2():
 			ax2.scatter(x_25[up_check_25 == 0], y_25[up_check_25 == 0], color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		else:
-			ax2.scatter(x_21, y_21, color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax2.scatter(x_22, y_22, color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax2.scatter(x_23, y_23, color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax2.scatter(x_24, y_24, color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax2.scatter(x_25, y_25, color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+			ax2.scatter(x_21, y_21, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax2.scatter(x_22, y_22, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax2.scatter(x_23, y_23, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax2.scatter(x_24, y_24, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax2.scatter(x_25, y_25, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		if Median != 'None':
 			ax2.errorbar(x2_med, y2_med, xerr=[x2_err_min, x2_err_max], yerr=[y2_err_min, y2_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -510,11 +508,11 @@ class Plotter_Letter2():
 			ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='P', rasterized=True, alpha=0.8,zorder=0)
 
 		else:
-			ax3.scatter(x_31, y_31, color=c1, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_32, y_32, color=c2, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_33, y_33, color=c3, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_34, y_34, color=c4, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_35, y_35, color=c5, marker='P', rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_31, y_31, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_32, y_32, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_33, y_33, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_34, y_34, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_35, y_35, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
 
 		if Median != 'None':
 			ax3.errorbar(x3_med, y3_med, xerr=[x3_err_min, x3_err_max], yerr=[y3_err_min, y3_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -802,11 +800,11 @@ class Plotter_Letter2():
 			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		else:
-			ax1.scatter(x_11, y_11, color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax1.scatter(x_12, y_12, color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax1.scatter(x_13, y_13, color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax1.scatter(x_14, y_14, color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax1.scatter(x_15, y_15, color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5', zorder=0)
+			ax1.scatter(x_11, y_11, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax1.scatter(x_12, y_12, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax1.scatter(x_13, y_13, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax1.scatter(x_14, y_14, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax1.scatter(x_15, y_15, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5', zorder=0)
 
 		if Median != 'None':
 			ax1.errorbar(x1_med, y1_med, xerr=[x1_err_min, x1_err_max], yerr=[y1_err_min, y1_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -848,11 +846,11 @@ class Plotter_Letter2():
 			ax2.scatter(x_25[up_check_25 == 0], y_25[up_check_25 == 0], color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		else:
-			ax2.scatter(x_21, y_21, color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax2.scatter(x_22, y_22, color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax2.scatter(x_23, y_23, color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax2.scatter(x_24, y_24, color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax2.scatter(x_25, y_25, color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+			ax2.scatter(x_21, y_21, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax2.scatter(x_22, y_22, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax2.scatter(x_23, y_23, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax2.scatter(x_24, y_24, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax2.scatter(x_25, y_25, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		if Median != 'None':
 			ax2.errorbar(x2_med, y2_med, xerr=[x2_err_min, x2_err_max], yerr=[y2_err_min, y2_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -869,7 +867,7 @@ class Plotter_Letter2():
 		ax2.set_yticklabels([])
 		if Norm == 'None' or Norm == 'Y':
 			secax2 = ax2.secondary_xaxis('top', functions=(solar, ergs))
-			secax2.set_xlabel(r'log$_{10}$ '+x_var+r' [L$_{\odot}$]')
+			secax2.set_xlabel(r'log '+x_var+r' [L$_{\odot}$]')
 		ax2.set_title(f'{zlim2} < z < {zlim3}')
 		ax2.grid()
 
@@ -894,11 +892,11 @@ class Plotter_Letter2():
 			ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='P', rasterized=True, alpha=0.8,zorder=0)
 
 		else:
-			ax3.scatter(x_31, y_31, color=c1, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_32, y_32, color=c2, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_33, y_33, color=c3, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_34, y_34, color=c4, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_35, y_35, color=c5, marker='P', rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_31, y_31, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_32, y_32, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_33, y_33, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_34, y_34, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_35, y_35, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
 
 		if Median != 'None':
 			ax3.errorbar(x3_med, y3_med, xerr=[x3_err_min, x3_err_max], yerr=[y3_err_min, y3_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -915,7 +913,7 @@ class Plotter_Letter2():
 			secax3 = ax3.secondary_xaxis('top', functions=(solar, ergs))
 			secax3.set_xlabel(r' ')
 			secax3 = ax3.secondary_yaxis('right', functions=(solar, ergs))
-			secax3.set_ylabel(r'log$_{10}$ L ('+y_var+r') [L$_{\odot}$]')
+			secax3.set_ylabel(r'log L ('+y_var+r') [L$_{\odot}$]')
 		elif Norm == 'Y':
 			secax3 = ax3.secondary_xaxis('top', functions=(solar, ergs))
 			secax3.set_xlabel(r' ')
@@ -970,8 +968,7 @@ class Plotter_Letter2():
 			xlim1 = 43
 			xlim2 = 48
 			xlabel = r'log L$_{\mathrm{bol}}$'
-
-
+			
 		if Y == 'UV':
 			f_1 = np.asarray([10**i for i in f1])
 			f1 = f_1*F1
@@ -1327,11 +1324,11 @@ class Plotter_Letter2():
 
 		fig = plt.figure(figsize=(18, 7))
 		ax1 = plt.subplot(131, aspect='equal', adjustable='box')
-		ax1.scatter(x_11, y_11, color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-		ax1.scatter(x_12, y_12, color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-		ax1.scatter(x_13, y_13, color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-		ax1.scatter(x_14, y_14, color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-		ax1.scatter(x_15, y_15, color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+		ax1.scatter(x_11, y_11, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+		ax1.scatter(x_12, y_12, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+		ax1.scatter(x_13, y_13, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+		ax1.scatter(x_14, y_14, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+		ax1.scatter(x_15, y_15, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		if Median != 'None':
 			ax1.errorbar(x1_med, y1_med, xerr=[x1_err_min, x1_err_max], yerr=[y1_err_min, y1_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -1351,11 +1348,11 @@ class Plotter_Letter2():
 		ax1.grid()
 
 		ax2 = plt.subplot(132, aspect='equal', adjustable='box')
-		ax2.scatter(x_21, y_21, color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-		ax2.scatter(x_22, y_22, color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-		ax2.scatter(x_23, y_23, color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-		ax2.scatter(x_24, y_24, color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-		ax2.scatter(x_25, y_25, color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+		ax2.scatter(x_21, y_21, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+		ax2.scatter(x_22, y_22, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+		ax2.scatter(x_23, y_23, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+		ax2.scatter(x_24, y_24, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+		ax2.scatter(x_25, y_25, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		if Median != 'None':
 			ax2.errorbar(x2_med, y2_med, xerr=[x2_err_min, x2_err_max], yerr=[y2_err_min, y2_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -1375,11 +1372,11 @@ class Plotter_Letter2():
 		ax2.grid()
 
 		ax3 = plt.subplot(133, aspect='equal', adjustable='box')
-		ax3.scatter(x_31, y_31, color=c1, marker='P', rasterized=True, alpha=0.8,zorder=0)
-		ax3.scatter(x_32, y_32, color=c2, marker='P', rasterized=True, alpha=0.8,zorder=0)
-		ax3.scatter(x_33, y_33, color=c3, marker='P', rasterized=True, alpha=0.8,zorder=0)
-		ax3.scatter(x_34, y_34, color=c4, marker='P', rasterized=True, alpha=0.8,zorder=0)
-		ax3.scatter(x_35, y_35, color=c5, marker='P', rasterized=True, alpha=0.8,zorder=0)
+		ax3.scatter(x_31, y_31, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+		ax3.scatter(x_32, y_32, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+		ax3.scatter(x_33, y_33, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+		ax3.scatter(x_34, y_34, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+		ax3.scatter(x_35, y_35, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
 
 		if Median != 'None':
 			ax3.errorbar(x3_med, y3_med, xerr=[x3_err_min, x3_err_max], yerr=[y3_err_min, y3_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -1400,4 +1397,816 @@ class Plotter_Letter2():
 		plt.savefig(f'/Users/connor_auge/Desktop/New_plots3/{savestring}.pdf')
 		plt.show()
 
+	def Upanels_ratio_plots(self, savestring, X, Y, Median, Nh, Lx, L, L1, L2, L3, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check):
+			plt.rcParams['font.size'] = 20
+			plt.rcParams['axes.linewidth'] = 2
+			plt.rcParams['xtick.major.size'] = 4
+			plt.rcParams['xtick.major.width'] = 3
+			plt.rcParams['ytick.major.size'] = 4
+			plt.rcParams['ytick.major.width'] = 3
 
+			B1 = (uv_slope < -0.3) & (mir_slope1 >= -0.2)
+			B2 = (uv_slope >= -0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2)
+			B3 = (uv_slope > 0.2) & (mir_slope1 >= -0.2)
+			B4 = (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0)
+			B5 = (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0)
+
+
+			Nh[Nh <= 0] = np.nan
+
+			if X == 'Nh':
+				x = np.log10(Nh)
+				xlim1 = 19.5
+				xlim2 = 24.5
+				xticks = [20,21,22,23,24]
+				xlabel = r'log N$_{\mathrm{H}}$ [cm$^{-2}$]'
+
+			elif X == 'Lx':
+				x = Lx
+				xlim1 = 42.5
+				xlim2 = 46.5
+				xticks = [43,44,45,46]
+				xlabel = r'log L$_{\mathrm{X}}$ [erg/s]'
+
+
+			elif X == 'Lbol':
+				x = L
+				xlim1 = 43.5
+				xlim2 = 47
+				xticks = [44,45,46,47]
+				xlabel = r'log L$_{\mathrm{bol}}$ [erg/s]'
+
+
+			if Y == 'UV-MIR-FIR/Lbol':
+				y1 = L1 - L
+				y2 = L2 - L
+				y3 = L3 - L
+			
+				ylabel1 = r'log L (UV)/ L$_{\mathrm{bol}}$'
+				ylabel2 = r'log L (MIR)/ L$_{\mathrm{bol}}$'
+				ylabel3 = r'log L (FIR)/ L$_{\mathrm{bol}}$'
+				ylim1 = -3
+				ylim2 = 0.5
+				yticks = [-3,-2,-1,0]
+
+			elif Y == 'UV/MIR-UV/Lx-MIR/Lx':
+				lx = np.asarray([10**i for i in Lx])
+				f_1 = np.asarray([10**i for i in f1])
+				f_2 = np.asarray([10**i for i in f2])
+				f_3 = np.asarray([10**i for i in f3])
+				f1 = f_1*F1
+				f2 = f_2*F1
+				f3 = f_3*F1
+				y1 = np.log10(f1/f2)
+				y2 = np.log10(f1/lx)
+				y3 = np.log10(f2/lx)
+
+				ylabel1 = r'log L (0.25$\mu$m)/ L(6$\mu$m)'
+				ylabel2 = r'log L (UV)/ L$_{\mathrm{X}}$'
+				ylabel3 = r'log L (MIR)/ L$_{\mathrm{X}}$'
+				ylim1 = -2.5
+				ylim2 = 2.5
+				yticks = [-2,-1,0,1,2]
+
+			elif Y == 'UV-MIR-FIR/Lx':
+				y1 = L1 - Lx
+				y2 = L2 - Lx
+				y3 = L3 - Lx
+
+				ylabel1 = r'log L (UV)/ L$_{\mathrm{X}}$'
+				ylabel2 = r'log L (MIR)/ L$_{\mathrm{X}}$'
+				ylabel3 = r'log L (FIR)/ L$_{\mathrm{X}}$'
+				ylim1 = -3
+				ylim2 = 1
+				yticks = [-3,-2,-1,0,1]
+
+			else:
+				print('Specify all three Y axis variabls. Options are:  UV-MIR-FIR/Lbol;   UV/MIR-UV/Lx-MIR/Lx;   UV-MIR-FIR/Lx')
+				return
+
+
+			c1 = '#377eb8'
+			c2 = '#984ea3'
+			c3 = '#4daf4a'
+			c4 = '#ff7f00'
+			c5 = '#e41a1c'
+
+			x_11 = x[B1]
+			y_11 = y1[B1]
+			up_check_11 = up_check[B1]
+			x_12 = x[B2]
+			y_12 = y1[B2]
+			up_check_12 = up_check[B2]
+			x_13 = x[B3]
+			y_13 = y1[B3]
+			up_check_13 = up_check[B3]
+			x_14 = x[B4]
+			y_14 = y1[B4]
+			up_check_14 = up_check[B4]
+			x_15 = x[B5]
+			y_15 = y1[B5]
+			up_check_15 = up_check[B5]
+
+			x_21 = x[B1]
+			y_21 = y2[B1]
+			up_check_21 = up_check[B1]
+			x_22 = x[B2]
+			y_22 = y2[B2]
+			up_check_22 = up_check[B2]
+			x_23 = x[B3]
+			y_23 = y2[B3]
+			up_check_23 = up_check[B3]
+			x_24 = x[B4]
+			y_24 = y2[B4]
+			up_check_24 = up_check[B4]
+			x_25 = x[B5]
+			y_25 = y2[B5]
+			up_check_25 = up_check[B5]
+
+			x_31 = x[B1]
+			y_31 = y3[B1]
+			up_check_31 = up_check[B1]
+			x_32 = x[B2]
+			y_32 = y3[B2]
+			up_check_32 = up_check[B2]
+			x_33 = x[B3]
+			y_33 = y3[B3]
+			up_check_33 = up_check[B3]
+			x_34 = x[B4]
+			y_34 = y3[B4]
+			up_check_34 = up_check[B4]
+			x_35 = x[B5]
+			y_35 = y3[B5]
+			up_check_35 = up_check[B5]
+
+			if Median == 'Bins':
+				c1m = c1
+				c2m = c2
+				c3m = c3
+				c4m = c4
+				c5m = c5
+
+				# Median
+				x11_med, y11_med = np.nanmedian(x_11), np.nanmedian(y_11)
+				x12_med, y12_med = np.nanmedian(x_12), np.nanmedian(y_12)
+				x13_med, y13_med = np.nanmedian(x_13), np.nanmedian(y_13)
+				x14_med, y14_med = np.nanmedian(x_14), np.nanmedian(y_14)
+				x15_med, y15_med = np.nanmedian(x_15), np.nanmedian(y_15)
+
+				x21_med, y21_med = np.nanmedian(x_21), np.nanmedian(y_21)
+				x22_med, y22_med = np.nanmedian(x_22), np.nanmedian(y_22)
+				x23_med, y23_med = np.nanmedian(x_23), np.nanmedian(y_23)
+				x24_med, y24_med = np.nanmedian(x_24), np.nanmedian(y_24)
+				x25_med, y25_med = np.nanmedian(x_25), np.nanmedian(y_25)
+
+				x31_med, y31_med = np.nanmedian(x_31), np.nanmedian(y_31)
+				x32_med, y32_med = np.nanmedian(x_32), np.nanmedian(y_32)
+				x33_med, y33_med = np.nanmedian(x_33), np.nanmedian(y_33)
+				x34_med, y34_med = np.nanmedian(x_34), np.nanmedian(y_34)
+				x35_med, y35_med = np.nanmedian(x_35), np.nanmedian(y_35)
+
+				x1_med, y1_med = np.asarray([x11_med,x12_med,x13_med,x14_med,x15_med]), np.asarray([y11_med,y12_med,y13_med,y14_med,y15_med])
+				x2_med, y2_med = np.asarray([x21_med,x22_med,x23_med,x24_med,x25_med]), np.asarray([y21_med,y22_med,y23_med,y24_med,y25_med])
+				x3_med, y3_med = np.asarray([x31_med,x32_med,x33_med,x34_med,x35_med]), np.asarray([y31_med,y32_med,y33_med,y34_med,y35_med])
+
+
+				# 25 Percentile 
+				x11_25per, y11_25per = np.nanpercentile(x_11, 25), np.nanpercentile(y_11, 25)
+				x12_25per, y12_25per = np.nanpercentile(x_12, 25), np.nanpercentile(y_12, 25)
+				x13_25per, y13_25per = np.nanpercentile(x_13, 25), np.nanpercentile(y_13, 25)
+				x14_25per, y14_25per = np.nanpercentile(x_14, 25), np.nanpercentile(y_14, 25)
+				x15_25per, y15_25per = np.nanpercentile(x_15, 25), np.nanpercentile(y_15, 25)
+
+				x21_25per, y21_25per = np.nanpercentile(x_21, 25), np.nanpercentile(y_21, 25)
+				x22_25per, y22_25per = np.nanpercentile(x_22, 25), np.nanpercentile(y_22, 25)
+				x23_25per, y23_25per = np.nanpercentile(x_23, 25), np.nanpercentile(y_23, 25)
+				x24_25per, y24_25per = np.nanpercentile(x_24, 25), np.nanpercentile(y_24, 25)
+				x25_25per, y25_25per = np.nanpercentile(x_25, 25), np.nanpercentile(y_25, 25)
+
+				x31_25per, y31_25per = np.nanpercentile(x_31, 25), np.nanpercentile(y_31, 25)
+				x32_25per, y32_25per = np.nanpercentile(x_32, 25), np.nanpercentile(y_32, 25)
+				x33_25per, y33_25per = np.nanpercentile(x_33, 25), np.nanpercentile(y_33, 25)
+				x34_25per, y34_25per = np.nanpercentile(x_34, 25), np.nanpercentile(y_34, 25)
+				x35_25per, y35_25per = np.nanpercentile(x_35, 25), np.nanpercentile(y_35, 25)
+
+				x1_err_min, y1_err_min = x1_med - np.asarray([x11_25per,x12_25per,x13_25per,x14_25per,x15_25per]), y1_med - np.asarray([y11_25per,y12_25per,y13_25per,y14_25per,y15_25per])
+				x2_err_min, y2_err_min = x2_med - np.asarray([x21_25per,x22_25per,x23_25per,x24_25per,x25_25per]), y2_med - np.asarray([y21_25per,y22_25per,y23_25per,y24_25per,y25_25per])
+				x3_err_min, y3_err_min = x3_med - np.asarray([x31_25per,x32_25per,x33_25per,x34_25per,x35_25per]), y3_med - np.asarray([y31_25per,y32_25per,y33_25per,y34_25per,y35_25per])
+
+				# 75 Percentile 
+				x11_75per, y11_75per = np.nanpercentile(x_11, 75), np.nanpercentile(y_11, 75)
+				x12_75per, y12_75per = np.nanpercentile(x_12, 75), np.nanpercentile(y_12, 75)
+				x13_75per, y13_75per = np.nanpercentile(x_13, 75), np.nanpercentile(y_13, 75)
+				x14_75per, y14_75per = np.nanpercentile(x_14, 75), np.nanpercentile(y_14, 75)
+				x15_75per, y15_75per = np.nanpercentile(x_15, 75), np.nanpercentile(y_15, 75)
+
+				x21_75per, y21_75per = np.nanpercentile(x_21, 75), np.nanpercentile(y_21, 75)
+				x22_75per, y22_75per = np.nanpercentile(x_22, 75), np.nanpercentile(y_22, 75)
+				x23_75per, y23_75per = np.nanpercentile(x_23, 75), np.nanpercentile(y_23, 75)
+				x24_75per, y24_75per = np.nanpercentile(x_24, 75), np.nanpercentile(y_24, 75)
+				x25_75per, y25_75per = np.nanpercentile(x_25, 75), np.nanpercentile(y_25, 75)
+
+				x31_75per, y31_75per = np.nanpercentile(x_31, 75), np.nanpercentile(y_31, 75)
+				x32_75per, y32_75per = np.nanpercentile(x_32, 75), np.nanpercentile(y_32, 75)
+				x33_75per, y33_75per = np.nanpercentile(x_33, 75), np.nanpercentile(y_33, 75)
+				x34_75per, y34_75per = np.nanpercentile(x_34, 75), np.nanpercentile(y_34, 75)
+				x35_75per, y35_75per = np.nanpercentile(x_35, 75), np.nanpercentile(y_35, 75)
+
+				x1_err_max, y1_err_max = np.asarray([x11_75per,x12_75per,x13_75per,x14_75per,x15_75per]) - x1_med, np.asarray([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per]) - y1_med
+				x2_err_max, y2_err_max = np.asarray([x21_75per,x22_75per,x23_75per,x24_75per,x25_75per]) - x2_med, np.asarray([y21_75per,y22_75per,y23_75per,y24_75per,y25_75per]) - y2_med
+				x3_err_max, y3_err_max = np.asarray([x31_75per,x32_75per,x33_75per,x34_75per,x35_75per]) - x3_med, np.asarray([y31_75per,y32_75per,y33_75per,y34_75per,y35_75per]) - y3_med
+
+			elif Median == 'X-axis':
+
+				c1m = 'gray'
+				c2m = 'gray'
+				c3m = 'gray'
+				c4m = 'gray'
+				c5m = 'gray'
+
+				b1 = (Lx > 43)&(Lx < 43.5)
+				b2 = (Lx > 43.5)&(Lx < 44)
+				b3 = (Lx > 44)&(Lx < 44.5)
+				b4 = (Lx > 44.5)&(Lx < 45)
+				b5 = (Lx > 45)
+
+				# Median
+				x11_med, y11_med = np.nanmedian(x[b1]), np.nanmedian(y1[b1])
+				x12_med, y12_med = np.nanmedian(x[b2]), np.nanmedian(y1[b2])
+				x13_med, y13_med = np.nanmedian(x[b3]), np.nanmedian(y1[b3])
+				x14_med, y14_med = np.nanmedian(x[b4]), np.nanmedian(y1[b4])
+				x15_med, y15_med = np.nanmedian(x[b5]), np.nanmedian(y1[b5])
+
+				x21_med, y21_med = np.nanmedian(x[b1]), np.nanmedian(y2[b1])
+				x22_med, y22_med = np.nanmedian(x[b2]), np.nanmedian(y2[b2])
+				x23_med, y23_med = np.nanmedian(x[b3]), np.nanmedian(y2[b3])
+				x24_med, y24_med = np.nanmedian(x[b4]), np.nanmedian(y2[b4])
+				x25_med, y25_med = np.nanmedian(x[b5]), np.nanmedian(y2[b5])
+
+				x31_med, y31_med = np.nanmedian(x[b1]), np.nanmedian(y3[b1])
+				x32_med, y32_med = np.nanmedian(x[b2]), np.nanmedian(y3[b2])
+				x33_med, y33_med = np.nanmedian(x[b3]), np.nanmedian(y3[b3])
+				x34_med, y34_med = np.nanmedian(x[b4]), np.nanmedian(y3[b4])
+				x35_med, y35_med = np.nanmedian(x[b5]), np.nanmedian(y3[b5])
+
+				x1_med, y1_med = np.asarray([x11_med,x12_med,x13_med,x14_med,x15_med]), np.asarray([y11_med,y12_med,y13_med,y14_med,y15_med])
+				x2_med, y2_med = np.asarray([x21_med,x22_med,x23_med,x24_med,x25_med]), np.asarray([y21_med,y22_med,y23_med,y24_med,y25_med])
+				x3_med, y3_med = np.asarray([x31_med,x32_med,x33_med,x34_med,x35_med]), np.asarray([y31_med,y32_med,y33_med,y34_med,y35_med])
+
+				# 25 Percentile 
+				x11_25per, y11_25per = np.nanpercentile(x[b1], 25), np.nanpercentile(y1[b1], 25)
+				x12_25per, y12_25per = np.nanpercentile(x[b2], 25), np.nanpercentile(y1[b2], 25)
+				x13_25per, y13_25per = np.nanpercentile(x[b3], 25), np.nanpercentile(y1[b3], 25)
+				x14_25per, y14_25per = np.nanpercentile(x[b4], 25), np.nanpercentile(y1[b4], 25)
+				x15_25per, y15_25per = np.nanpercentile(x[b5], 25), np.nanpercentile(y1[b5], 25)
+
+				x21_25per, y21_25per = np.nanpercentile(x[b1], 25), np.nanpercentile(y2[b1], 25)
+				x22_25per, y22_25per = np.nanpercentile(x[b2], 25), np.nanpercentile(y2[b2], 25)
+				x23_25per, y23_25per = np.nanpercentile(x[b3], 25), np.nanpercentile(y2[b3], 25)
+				x24_25per, y24_25per = np.nanpercentile(x[b4], 25), np.nanpercentile(y2[b4], 25)
+				x25_25per, y25_25per = np.nanpercentile(x[b5], 25), np.nanpercentile(y2[b5], 25)
+
+				x31_25per, y31_25per = np.nanpercentile(x[b1], 25), np.nanpercentile(y3[b1], 25)
+				x32_25per, y32_25per = np.nanpercentile(x[b2], 25), np.nanpercentile(y3[b2], 25)
+				x33_25per, y33_25per = np.nanpercentile(x[b3], 25), np.nanpercentile(y3[b3], 25)
+				x34_25per, y34_25per = np.nanpercentile(x[b4], 25), np.nanpercentile(y3[b4], 25)
+				x35_25per, y35_25per = np.nanpercentile(x[b5], 25), np.nanpercentile(y3[b5], 25)
+
+				x1_err_min, y1_err_min = x1_med - np.asarray([x11_25per,x12_25per,x13_25per,x14_25per,x15_25per]), y1_med - np.asarray([y11_25per,y12_25per,y13_25per,y14_25per,y15_25per])
+				x2_err_min, y2_err_min = x2_med - np.asarray([x21_25per,x22_25per,x23_25per,x24_25per,x25_25per]), y2_med - np.asarray([y21_25per,y22_25per,y23_25per,y24_25per,y25_25per])
+				x3_err_min, y3_err_min = x3_med - np.asarray([x31_25per,x32_25per,x33_25per,x34_25per,x35_25per]), y3_med - np.asarray([y31_25per,y32_25per,y33_25per,y34_25per,y35_25per])
+
+				# 75 Percentile 
+				x11_75per, y11_75per = np.nanpercentile(x[b1], 75), np.nanpercentile(y1[b1], 75)
+				x12_75per, y12_75per = np.nanpercentile(x[b2], 75), np.nanpercentile(y1[b2], 75)
+				x13_75per, y13_75per = np.nanpercentile(x[b3], 75), np.nanpercentile(y1[b3], 75)
+				x14_75per, y14_75per = np.nanpercentile(x[b4], 75), np.nanpercentile(y1[b4], 75)
+				x15_75per, y15_75per = np.nanpercentile(x[b5], 75), np.nanpercentile(y1[b5], 75)
+
+				x21_75per, y21_75per = np.nanpercentile(x[b1], 75), np.nanpercentile(y2[b1], 75)
+				x22_75per, y22_75per = np.nanpercentile(x[b2], 75), np.nanpercentile(y2[b2], 75)
+				x23_75per, y23_75per = np.nanpercentile(x[b3], 75), np.nanpercentile(y2[b3], 75)
+				x24_75per, y24_75per = np.nanpercentile(x[b4], 75), np.nanpercentile(y2[b4], 75)
+				x25_75per, y25_75per = np.nanpercentile(x[b5], 75), np.nanpercentile(y2[b5], 75)
+
+				x31_75per, y31_75per = np.nanpercentile(x[b1], 75), np.nanpercentile(y3[b1], 75)
+				x32_75per, y32_75per = np.nanpercentile(x[b2], 75), np.nanpercentile(y3[b2], 75)
+				x33_75per, y33_75per = np.nanpercentile(x[b3], 75), np.nanpercentile(y3[b3], 75)
+				x34_75per, y34_75per = np.nanpercentile(x[b4], 75), np.nanpercentile(y3[b4], 75)
+				x35_75per, y35_75per = np.nanpercentile(x[b5], 75), np.nanpercentile(y3[b5], 75)
+
+				x1_err_max, y1_err_max = np.asarray([x11_75per,x12_75per,x13_75per,x14_75per,x15_75per]) - x1_med, np.asarray([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per]) - y1_med
+				x2_err_max, y2_err_max = np.asarray([x21_75per,x22_75per,x23_75per,x24_75per,x25_75per]) - x2_med, np.asarray([y21_75per,y22_75per,y23_75per,y24_75per,y25_75per]) - y2_med
+				x3_err_max, y3_err_max = np.asarray([x31_75per,x32_75per,x33_75per,x34_75per,x35_75per]) - x3_med, np.asarray([y31_75per,y32_75per,y33_75per,y34_75per,y35_75per]) - y3_med
+
+			def solar(x):
+				return x - np.log10(3.8E33)
+
+			def ergs(x):
+				return x + np.log10(3.8E33)
+
+			fig = plt.figure(figsize=(18, 7))
+			ax1 = plt.subplot(131, aspect='equal', adjustable='box')
+
+			ax1.scatter(x_11, y_11, color=c1, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 1',zorder=0)
+			ax1.scatter(x_12, y_12, color=c2, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 2',zorder=0)
+			ax1.scatter(x_13, y_13, color=c3, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 3',zorder=0)
+			ax1.scatter(x_14, y_14, color=c4, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 4',zorder=0)
+			ax1.scatter(x_15, y_15, color=c5, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 5',zorder=0)
+
+			if Median != 'None':
+				ax1.errorbar(x1_med, y1_med, xerr=[x1_err_min, x1_err_max], yerr=[y1_err_min, y1_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+				ax1.scatter(x11_med, y11_med, color=c1m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax1.scatter(x12_med, y12_med, color=c2m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax1.scatter(x13_med, y13_med, color=c3m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax1.scatter(x14_med, y14_med, color=c4m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax1.scatter(x15_med, y15_med, color=c5m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+
+
+			ax1.set_xlim(xlim1,xlim2)
+			ax1.set_ylim(ylim1,ylim2)
+			ax1.set_xticks(xticks)
+			ax1.set_yticks(yticks)
+			ax1.set_ylabel(ylabel1)
+			ax1.set_xlabel(' ')
+			if X == 'Lbol':
+				secax1 = ax1.secondary_xaxis('top', functions=(solar, ergs))
+				secax1.set_xlabel(r' ')
+			ax1.legend(fontsize=14)
+			ax1.grid()
+
+			ax2 = plt.subplot(132, aspect='equal', adjustable='box')
+			ax2.scatter(x_21, y_21, color=c1, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 1',zorder=0)
+			ax2.scatter(x_22, y_22, color=c2, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 2',zorder=0)
+			ax2.scatter(x_23, y_23, color=c3, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 3',zorder=0)
+			ax2.scatter(x_24, y_24, color=c4, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 4',zorder=0)
+			ax2.scatter(x_25, y_25, color=c5, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 5',zorder=0)
+
+			if Median != 'None':
+				ax2.errorbar(x2_med, y2_med, xerr=[x2_err_min, x2_err_max], yerr=[y2_err_min, y2_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+				ax2.scatter(x21_med, y21_med, color=c1m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax2.scatter(x22_med, y22_med, color=c2m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax2.scatter(x23_med, y23_med, color=c3m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax2.scatter(x24_med, y24_med, color=c4m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax2.scatter(x25_med, y25_med, color=c5m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+
+			ax2.set_xlim(xlim1, xlim2)
+			ax2.set_ylim(ylim1, ylim2)
+			ax2.set_xticks(xticks)
+			ax2.set_yticks(yticks)
+			ax2.set_xlabel(xlabel)
+			ax2.set_ylabel(ylabel2)
+			if X == 'Lbol':
+				secax2 = ax2.secondary_xaxis('top', functions=(solar, ergs))
+				secax2.set_xlabel(r'log L$_{\mathrm{bol}}$ [L$_{\odot}$]' )
+			ax2.grid()
+
+			ax3 = plt.subplot(133, aspect='equal', adjustable='box')
+			if 'FIR' in Y:
+				print('yes')
+				ax3.scatter(x_31[up_check_31 == 1], y_31[up_check_31 == 1], facecolor='none', edgecolors=c1, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_32[up_check_32 == 1], y_32[up_check_32 == 1], facecolor='none', edgecolors=c2, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_33[up_check_33 == 1], y_33[up_check_33 == 1], facecolor='none', edgecolors=c3, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_34[up_check_34 == 1], y_34[up_check_34 == 1], facecolor='none', edgecolors=c4, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_35[up_check_35 == 1], y_35[up_check_35 == 1], facecolor='none', edgecolors=c5, rasterized=True, alpha=0.4,zorder=0)
+
+				ax3.scatter(x_31[up_check_31 == 1], y_31[up_check_31 == 1], marker=3, color=c1, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_32[up_check_32 == 1], y_32[up_check_32 == 1], marker=3, color=c2, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_33[up_check_33 == 1], y_33[up_check_33 == 1], marker=3, color=c3, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_34[up_check_34 == 1], y_34[up_check_34 == 1], marker=3, color=c4, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_35[up_check_35 == 1], y_35[up_check_35 == 1], marker=3, color=c5, rasterized=True, alpha=0.4,zorder=0)
+
+				ax3.scatter(x_31[up_check_31 == 0], y_31[up_check_31 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 1',zorder=0)
+				ax3.scatter(x_32[up_check_32 == 0], y_32[up_check_32 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 2',zorder=0)
+				ax3.scatter(x_33[up_check_33 == 0], y_33[up_check_33 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 3',zorder=0)
+				ax3.scatter(x_34[up_check_34 == 0], y_34[up_check_34 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 4',zorder=0)
+				ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.4, label='Panel 5',zorder=0)
+
+			else:
+				ax3.scatter(x_31, y_31, color=c1, marker='P', lw=0, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_32, y_32, color=c2, marker='P', lw=0, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_33, y_33, color=c3, marker='P', lw=0, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_34, y_34, color=c4, marker='P', lw=0, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_35, y_35, color=c5, marker='P', lw=0, rasterized=True, alpha=0.4,zorder=0)
+
+			if Median != 'None':
+				ax3.errorbar(x3_med, y3_med, xerr=[x3_err_min, x3_err_max], yerr=[y3_err_min, y3_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+				ax3.scatter(x31_med, y31_med, color=c1m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax3.scatter(x32_med, y32_med, color=c2m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax3.scatter(x33_med, y33_med, color=c3m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax3.scatter(x34_med, y34_med, color=c4m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+				ax3.scatter(x35_med, y35_med, color=c5m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+
+			ax3.set_xlim(xlim1, xlim2)
+			ax3.set_ylim(ylim1, ylim2)
+			ax3.set_xticks(xticks)
+			ax3.set_yticks(yticks)
+			ax3.set_ylabel(ylabel3)
+			ax3.set_xlabel(' ')
+			if X == 'Lbol':
+				secax3 = ax3.secondary_xaxis('top', functions=(solar, ergs))
+				secax3.set_xlabel(r' ')
+			ax3.grid()
+
+			plt.tight_layout()
+			plt.savefig(f'/Users/connor_auge/Desktop/New_plots3/{savestring}.pdf')
+			plt.show()
+
+
+	def Box_1panel(self, savestring, var, x, uv_slope, mir_slope1, mir_slope2):
+		plt.rcParams['font.size'] = 22
+		plt.rcParams['axes.linewidth'] = 2
+		plt.rcParams['xtick.major.size'] = 4
+		plt.rcParams['xtick.major.width'] = 3
+		plt.rcParams['ytick.major.size'] = 4
+		plt.rcParams['ytick.major.width'] = 3
+
+		B1 = np.where(np.logical_and(uv_slope < -0.3, mir_slope1 >= -0.1))[0]
+		B2 = np.where(np.logical_and(np.logical_and(uv_slope >= -0.3, uv_slope <=0.2),mir_slope1 >= -0.2))[0]	
+		B3 = np.where(np.logical_and(uv_slope > 0.2, mir_slope1 >= -0.2))[0]
+		B4 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 > 0.0)))[0]
+		B5 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 <= 0.0)))[0]
+
+		if var == 'Nh':
+			ylabel = r'log N$_{\mathrm{H}}$'
+			units = r' [cm$^{-2}$]'
+			ylim1 = 19.5
+			ylim2 = 24.5
+
+		elif var == 'Lx':
+			x -= np.log10(3.8E33)
+
+			ylabel = r'log L$_{\mathrm{X}}$'
+			units = r' [L$_{\odot}$]'
+			ylim1 = 8
+			ylim2 = 13
+
+		elif var == 'Lbol':
+			x -= np.log10(3.8E33)
+
+			ylabel = r'log L$_{\mathrm{bol}}$'
+			units = r' [L$_{\odot}$]'
+			ylim1 = 9.5
+			ylim2 = 14.5
+
+		x1 = x[B1]
+		x2 = x[B2]
+		x3 = x[B3]
+		x4 = x[B4]
+		x5 = x[B5]
+
+		c1 = '#377eb8'
+		c2 = '#984ea3'
+		c3 = '#4daf4a'
+		c4 = '#ff7f00'
+		c5 = '#e41a1c'
+
+		def solar(x):
+				return x - np.log10(3.8E33)
+
+		def ergs(x):
+			return x + np.log10(3.8E33)
+
+		fig = plt.figure(figsize=(9, 9))
+		ax1 = plt.subplot(111, aspect='equal', adjustable='box')
+		ax1.plot([1,2,3,4,5],[np.nanmean(x1),np.nanmean(x2),np.nanmean(x3),np.nanmean(x4),np.nanmean(x5)],color='k')
+		ax1.boxplot(x1,positions=[1],patch_artist=True,boxprops=dict(facecolor=c1, color=c1),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
+		ax1.boxplot(x2,positions=[2],patch_artist=True,boxprops=dict(facecolor=c2, color=c2),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
+		ax1.boxplot(x3,positions=[3],patch_artist=True,boxprops=dict(facecolor=c3, color=c3),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
+		ax1.boxplot(x4,positions=[4],patch_artist=True,boxprops=dict(facecolor=c4, color=c4),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
+		ax1.boxplot(x5,positions=[5],patch_artist=True,boxprops=dict(facecolor=c5, color=c5),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
+		ax1.set_ylim(ylim1, ylim2)
+		plt.gca().invert_xaxis()		
+		ax1.set_ylabel(ylabel+units)
+		ax1.set_xlabel('Panel Number')
+		if var != 'Nh':
+			secax1 = ax1.secondary_yaxis('right', functions=(ergs, solar))
+			secax1.set_ylabel(ylabel+' [erg/s]')
+		ax1.grid()
+		plt.tight_layout()
+		plt.savefig('/Users/connor_auge/Desktop/New_plots3/'+savestring+'.pdf')
+		plt.show()
+
+	def ratios_1panel(self, savestring, X, Y, Median, Nh, Lx, L, F1, f1, f2, f3, f4, uv_slope, mir_slope1, mir_slope2, up_check):
+		plt.rcParams['font.size'] = 22
+		plt.rcParams['axes.linewidth'] = 2
+		plt.rcParams['xtick.major.size'] = 4
+		plt.rcParams['xtick.major.width'] = 3
+		plt.rcParams['ytick.major.size'] = 4
+		plt.rcParams['ytick.major.width'] = 3
+
+		B1 = np.where(np.logical_and(uv_slope < -0.3, mir_slope1 >= -0.1))[0]
+		B2 = np.where(np.logical_and(np.logical_and(uv_slope >= -0.3, uv_slope <=0.2),mir_slope1 >= -0.2))[0]	
+		B3 = np.where(np.logical_and(uv_slope > 0.2, mir_slope1 >= -0.2))[0]
+		B4 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 > 0.0)))[0]
+		B5 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 <= 0.0)))[0]
+
+		if X == 'Nh':
+			x = np.log10(Nh)
+			xlim1 = 19
+			xlim2 = 24
+			xlabel = r'log N$_{\mathrm{H}}$'
+			xunits = r' [cm$^{-2}$]'
+
+		elif X == 'Lx':
+			x = Lx
+			xlim1 = 42.5
+			xlim2 = 46.5
+			xlabel = r'log L$_{\mathrm{X}}$'
+			xunits = ' [erg/s]'
+
+		elif X == 'Lbol':
+			x = L
+			xlim1 = 43
+			xlim2 = 48
+			xlabel = r'log L$_{\mathrm{bol}}$'
+			xunits = '[erg/s]'
+
+		if Y == 'UV':
+			f_1 = np.asarray([10**i for i in f1])
+			f1 = f_1*F1
+			lx = np.asarray([10**i for i in Lx])
+			y = np.log10(f1/lx)
+			y_var = r'0.25$\mu$m'
+			ylabel = r'log L (0.25$\mu$m)/ L$_{\mathrm{X}}$'
+			ylim1 = -2
+			ylim2 = 3
+
+		elif Y == 'MIR6':
+			f_2 = np.asarray([10**i for i in f2])
+			f2 = f_2*F1
+			lx = np.asarray([10**i for i in Lx])
+			y = np.log10(f2/lx)
+			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{X}}$'
+			ylim1 = -2
+			ylim2 = 3
+
+		elif Y == 'MIR10':
+			f_4 = np.asarray([10**i for i in f4])
+			f4 = f_4*F1
+			lx = np.asarray([10**i for i in Lx])
+			y = np.log10(f4/lx)
+			ylabel = r'log L (10$\mu$m)/ L$_{\mathrm{X}}$'
+			ylim1 = -2
+			ylim2 = 3
+
+		elif Y == 'FIR':
+			f_3 = np.asarray([10**i for i in f3])
+			f3 = f_3*F1
+			lx = np.asarray([10**i for i in Lx])
+			y = np.log10(f3/lx)
+			ylabel = r'log L (100$\mu$m)/ L$_{\mathrm{X}}$'
+			ylim1 = -2
+			ylim2 = 3
+
+		elif Y == 'UV/MIR6':
+			f_1 = np.asarray([10**i for i in f1])
+			f1 = f_1*F1
+			f_2 = np.asarray([10**i for i in f2])
+			f2 = f_4*F1
+			y = np.log10(f1/f2)
+			ylabel = r'log L (0.25$\mu$m)/ L (10$\mu$m)'
+			ylim1 = -3
+			ylim2 = 2
+
+		elif Y == 'UV/MIR10':
+			f_1 = np.asarray([10**i for i in f1])
+			f1 = f_1*F1
+			f_4 = np.asarray([10**i for i in f4])
+			f4 = f_4*F1
+			y = np.log10(f1/f4)
+			ylabel = r'log L (0.25$\mu$m)/ L (10$\mu$m)'
+			ylim1 = -3
+			ylim2 = 2
+
+		elif Y == 'UV/FIR':
+			f_1 = np.asarray([10**i for i in f1])
+			f1 = f_1*F1
+			f_3 = np.asarray([10**i for i in f3])
+			f3 = f_3*F1
+			y = np.log10(f1/f3)
+			ylabel = r'log L (0.25$\mu$m)/ L (100$\mu$m)'
+			ylim1 = -3
+			ylim2 = 2
+
+		elif Y == 'MIR6/FIR':
+			f_2 = np.asarray([10**i for i in f2])
+			f2 = f_2*F1
+			f_3 = np.asarray([10**i for i in f3])
+			f3 = f_3*F1
+			y = np.log10(f2/f3)
+			ylabel = r'log L (10$\mu$m)/ L (100$\mu$m)'
+			ylim1 = -3
+			ylim2 = 2
+
+		elif Y == 'MIR10/FIR':
+			f_4 = np.asarray([10**i for i in f4])
+			f4 = f_4*F1
+			f_3 = np.asarray([10**i for i in f3])
+			f3 = f_3*F1
+			y = np.log10(f4/f3)
+			ylabel = r'log L (10$\mu$m)/ L (100$\mu$m)'
+			ylim1 = -3
+			ylim2 = 2
+
+		elif Y == 'Lbol/Lx':
+			l = np.asarray([10**i for i in L])
+			lx = np.asarray([10**i for i in Lx])
+			y = np.log10(l/lx)
+			ylabel = r'log L$_{\mathrm{bol}}$/ L$_{\mathrm{X}}$'
+			ylim1 = 0 
+			ylim2 = 4
+			yticks = [0,1,2,3,4]
+
+		elif Y == 'UV/Lbol':
+			l = np.asarray([10**i for i in L])
+			f_1 = np.asarray([10**i for i in f1])
+			f1 = f_1*F1
+			y = np.log10(f1/l)
+			ylabel = r'log L (0.25$\mu$m)/ L$_{\mathrm{bol}}$'
+			ylim1 = -3
+			ylim2 = 1
+
+		elif Y == 'MIR6/Lbol':
+			l = np.asarray([10**i for i in L])
+			f_2 = np.asarray([10**i for i in f2])
+			f2 = f_2*F1
+			y = np.log10(f2/l)
+			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
+			ylim1 = -3
+			ylim2 = 1
+
+		elif Y == 'MIR10/Lbol':
+			l = np.asarray([10**i for i in L])
+			f_4 = np.asarray([10**i for i in f4])
+			f4 = f_4*F1
+			y = np.log10(f4/l)
+			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
+			ylim1 = -3
+			ylim2 = 1
+
+		elif Y == 'FIR/Lbol':
+			l = np.asarray([10**i for i in L])
+			f_2 = np.asarray([10**i for i in f3])
+			f3 = f_3*F1
+			y = np.log10(f3/l)
+			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
+			ylim1 = -3
+			ylim2 = 1
+
+		else:
+			print('Specify Y variable')
+			return
+
+		c1 = '#377eb8'
+		c2 = '#984ea3'
+		c3 = '#4daf4a'
+		c4 = '#ff7f00'
+		c5 = '#e41a1c'
+
+		x_11 = x[B1]
+		y_11 = y[B1]
+		up_check_11 = up_check[B1]
+		x_12 = x[B2]
+		y_12 = y[B2]
+		up_check_12 = up_check[B2]
+		x_13 = x[B3]
+		y_13 = y[B3]
+		up_check_13 = up_check[B3]
+		x_14 = x[B4]
+		y_14 = y[B4]
+		up_check_14 = up_check[B4]
+		x_15 = x[B5]
+		y_15 = y[B5]
+		up_check_15 = up_check[B5]
+
+		if Median == 'Bins':
+			c1m = c1
+			c2m = c2
+			c3m = c3
+			c4m = c4
+			c5m = c5
+
+			# Median
+			x11_med, y11_med = np.nanmedian(x_11), np.nanmedian(y_11)
+			x12_med, y12_med = np.nanmedian(x_12), np.nanmedian(y_12)
+			x13_med, y13_med = np.nanmedian(x_13), np.nanmedian(y_13)
+			x14_med, y14_med = np.nanmedian(x_14), np.nanmedian(y_14)
+			x15_med, y15_med = np.nanmedian(x_15), np.nanmedian(y_15)
+
+			x1_med, y1_med = np.asarray([x11_med,x12_med,x13_med,x14_med,x15_med]), np.asarray([y11_med,y12_med,y13_med,y14_med,y15_med])
+
+			# 25 Percentile 
+			x11_25per, y11_25per = np.nanpercentile(x_11, 25), np.nanpercentile(y_11, 25)
+			x12_25per, y12_25per = np.nanpercentile(x_12, 25), np.nanpercentile(y_12, 25)
+			x13_25per, y13_25per = np.nanpercentile(x_13, 25), np.nanpercentile(y_13, 25)
+			x14_25per, y14_25per = np.nanpercentile(x_14, 25), np.nanpercentile(y_14, 25)
+			x15_25per, y15_25per = np.nanpercentile(x_15, 25), np.nanpercentile(y_15, 25)
+
+			x1_err_min, y1_err_min = x1_med - np.asarray([x11_25per,x12_25per,x13_25per,x14_25per,x15_25per]), y1_med - np.asarray([y11_25per,y12_25per,y13_25per,y14_25per,y15_25per])
+			# 75 Percentile 
+			x11_75per, y11_75per = np.nanpercentile(x_11, 75), np.nanpercentile(y_11, 75)
+			x12_75per, y12_75per = np.nanpercentile(x_12, 75), np.nanpercentile(y_12, 75)
+			x13_75per, y13_75per = np.nanpercentile(x_13, 75), np.nanpercentile(y_13, 75)
+			x14_75per, y14_75per = np.nanpercentile(x_14, 75), np.nanpercentile(y_14, 75)
+			x15_75per, y15_75per = np.nanpercentile(x_15, 75), np.nanpercentile(y_15, 75)
+
+			x1_err_max, y1_err_max = np.asarray([x11_75per,x12_75per,x13_75per,x14_75per,x15_75per]) - x1_med, np.asarray([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per]) - y1_med
+		
+		elif Median == 'X-axis':
+
+			c1m = 'gray'
+			c2m = 'gray'
+			c3m = 'gray'
+			c4m = 'gray'
+			c5m = 'gray'
+
+			b1 = (Lx > 43)&(Lx < 43.5)
+			b2 = (Lx > 43.5)&(Lx < 44)
+			b3 = (Lx > 44)&(Lx < 44.5)
+			b4 = (Lx > 44.5)&(Lx < 45)
+			b5 = (Lx > 45)
+
+			# Median
+			x11_med, y11_med = np.nanmedian(x[b1]), np.nanmedian(y[b1])
+			x12_med, y12_med = np.nanmedian(x[b2]), np.nanmedian(y[b2])
+			x13_med, y13_med = np.nanmedian(x[b3]), np.nanmedian(y[b3])
+			x14_med, y14_med = np.nanmedian(x[b4]), np.nanmedian(y[b4])
+			x15_med, y15_med = np.nanmedian(x[b5]), np.nanmedian(y[b5])
+
+			x1_med, y1_med = np.asarray([x11_med,x12_med,x13_med,x14_med,x15_med]), np.asarray([y11_med,y12_med,y13_med,y14_med,y15_med])
+
+			# 25 Percentile 
+			x11_25per, y11_25per = np.nanpercentile(x[b1], 25), np.nanpercentile(y[b1], 25)
+			x12_25per, y12_25per = np.nanpercentile(x[b2], 25), np.nanpercentile(y[b2], 25)
+			x13_25per, y13_25per = np.nanpercentile(x[b3], 25), np.nanpercentile(y[b3], 25)
+			x14_25per, y14_25per = np.nanpercentile(x[b4], 25), np.nanpercentile(y[b4], 25)
+			x15_25per, y15_25per = np.nanpercentile(x[b5], 25), np.nanpercentile(y[b5], 25)
+
+			x1_err_min, y1_err_min = x1_med - np.asarray([x11_25per,x12_25per,x13_25per,x14_25per,x15_25per]), y1_med - np.asarray([y11_25per,y12_25per,y13_25per,y14_25per,y15_25per])
+			
+			# 75 Percentile 
+			x11_75per, y11_75per = np.nanpercentile(x[b1], 75), np.nanpercentile(y[b1], 75)
+			x12_75per, y12_75per = np.nanpercentile(x[b2], 75), np.nanpercentile(y[b2], 75)
+			x13_75per, y13_75per = np.nanpercentile(x[b3], 75), np.nanpercentile(y[b3], 75)
+			x14_75per, y14_75per = np.nanpercentile(x[b4], 75), np.nanpercentile(y[b4], 75)
+			x15_75per, y15_75per = np.nanpercentile(x[b5], 75), np.nanpercentile(y[b5], 75)
+
+			x1_err_max, y1_err_max = np.asarray([x11_75per,x12_75per,x13_75per,x14_75per,x15_75per]) - x1_med, np.asarray([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per]) - y1_med
+
+		def solar(x):
+			return x - np.log10(3.8E33)
+
+		def ergs(x):
+			return x + np.log10(3.8E33)
+		
+		fig = plt.figure(figsize=(9,9))
+		ax1 = plt.subplot(111, aspect='equal', adjustable='box')
+		if 'Lbol' in Y:
+			ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], facecolor='none', edgecolors=c1, rasterized=True, alpha=0.8,zorder=0)
+			ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], facecolor='none', edgecolors=c2, rasterized=True, alpha=0.8,zorder=0)
+			ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], facecolor='none', edgecolors=c3, rasterized=True, alpha=0.8,zorder=0)
+			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], facecolor='none', edgecolors=c4, rasterized=True, alpha=0.8,zorder=0)
+			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], facecolor='none', edgecolors=c5, rasterized=True, alpha=0.8,zorder=0)
+
+			ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], marker=3, color=c1, rasterized=True, alpha=0.8,zorder=0)
+			ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], marker=3, color=c2, rasterized=True, alpha=0.8,zorder=0)
+			ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], marker=3, color=c3, rasterized=True, alpha=0.8,zorder=0)
+			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], marker=3, color=c4, rasterized=True, alpha=0.8,zorder=0)
+			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], marker=3, color=c5, rasterized=True, alpha=0.8,zorder=0)
+
+			ax1.scatter(x_11[up_check_11 == 0], y_11[up_check_11 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax1.scatter(x_12[up_check_12 == 0], y_12[up_check_12 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax1.scatter(x_13[up_check_13 == 0], y_13[up_check_13 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+
+		else:
+			ax1.scatter(x_11, y_11, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax1.scatter(x_12, y_12, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax1.scatter(x_13, y_13, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax1.scatter(x_14, y_14, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax1.scatter(x_15, y_15, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+
+		if Median != 'None':
+			ax1.errorbar(x1_med, y1_med, xerr=[x1_err_min, x1_err_max], yerr=[y1_err_min, y1_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+			ax1.scatter(x11_med, y11_med, color=c1m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+			ax1.scatter(x12_med, y12_med, color=c2m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+			ax1.scatter(x13_med, y13_med, color=c3m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+			ax1.scatter(x14_med, y14_med, color=c4m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+			ax1.scatter(x15_med, y15_med, color=c5m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+
+
+		ax1.set_xlim(xlim1,xlim2)
+		ax1.set_ylim(ylim1,ylim2)
+		ax1.set_yticks(yticks)
+		ax1.set_ylabel(ylabel)
+		ax1.set_xlabel(xlabel+xunits)
+		if X != 'Nh':
+			secax3 = ax1.secondary_xaxis('top', functions=(solar, ergs))
+			secax3.set_xlabel(xlabel+r' [L$_{\odot}$]')
+		ax1.legend(fontsize=14)
+		ax1.grid()
+		plt.savefig('/Users/connor_auge/Desktop/New_plots3/'+savestring+'.pdf')
+		plt.show()
+				
