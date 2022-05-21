@@ -2066,12 +2066,12 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 # print(Lbol)
 # print(np.log10((uv_lum+mir_lum+fir_lum)/Lbol))
 
-plt.figure(figsize=(10,9))
-plt.hist(np.log10((uv_lum+mir_lum+fir_lum+opt_lum)/Lbol),bins=np.arange(-1,1,0.05))
-plt.xlim(-0.7,0.25)
-plt.xlabel('L(UV+MIR+FIR)/Lbol')
-plt.grid()
-plt.show()
+# plt.figure(figsize=(10,9))
+# plt.hist(np.log10((uv_lum+mir_lum+fir_lum+opt_lum)/Lbol),bins=np.arange(-1,1,0.05))
+# plt.xlim(-0.7,0.25)
+# plt.xlabel('L(UV+MIR+FIR)/Lbol')
+# plt.grid()
+# plt.show()
 
 
 # plot.plot_1panel('43',all_w,all_f,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_w,median_f,F1=norm,F2=marker,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
@@ -2135,7 +2135,14 @@ plt.show()
 # plot2.ratio_plots('Nh_MIR','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.ratio_plots('Lbol_MIR','Lbol','MIR6/Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.ratio_plots('Lbol_Lx_ratio_medBins','Lx','Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.ratio_plots('Lbol_Lx_ratio_medLx','Lx','Lbol','Nh',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+plot2.ratio_plots('Lbol_Lx_ratio_medLx','Lx','Lbol','X-axis',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+
+
+# plot2.Upanels_ratio_plots('Lum_Lbol','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Upanels_ratio_plots('Nh_ratios','Nh','UV/MIR-UV/Lx-MIR/Lx','Bins',Nh,Lx,np.log10(Lbol),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Box_1panel('Nh_box_1panel', 'Nh', np.log10(Nh[Nh > 0]), UVslope[Nh>0], MIRslope1[Nh>0], MIRslope2[Nh>0])
+# plot2.Box_1panel('Lbol_box_1panel', 'Lbol', np.log10(Lbol), UVslope, MIRslope1, MIRslope2)
+plot2.ratios_1panel('Lx_Lbol_1panel','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 
 ###############################################################################
 ###############################################################################
