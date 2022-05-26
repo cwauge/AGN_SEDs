@@ -1392,6 +1392,9 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         source = AGN(chandra_cosmos_phot_id_match[i],chandra_cosmos_z_match[i],COSMOS_filters,cosmos_flux_array[i],cosmos_flux_err_array[i])
         source.MakeSED()
         check_sed.append(source.CheckSED(10, check_span=2.75))
+        # if check_sed[i] == 'GOOD':
+        #     source.SED_output('Test_out_cosmos.fits','w')
+
 
         F1.append(source.Find_nuFnu(1.0))
         F025.append(source.Find_nuFnu(0.25)/source.Find_nuFnu(1.0))
@@ -2116,13 +2119,16 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 # plot2.Lx_Scatter_Comp('Lx_MIR6_test','Lx','MIR6','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
 # plot2.Lx_Scatter_Comp('Lx_UV_plot_43_med_Lx','Lx','UV','None','Lx',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.Lx_Scatter_Comp('Lx_FIR_plot_43_med_Lx','Lx','FIR','Y','Lx',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Lx_Scatter_Comp('Lx_FIR_norm','Lx','FIR','Y','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Lx_Scatter_Comp('Lx_FIR','Lx','FIR','None','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Lx_Scatter_Comp('Lx_FIR_both','Lx','FIR','Both','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+
 # plot2.Lx_Scatter_Comp('Lx_Lbol','Lx','Lbol','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
 
 # # fig 10, 11 & 12
 # plot2.Emission_Scatter_Comp('UV_MIR_plot_43_med_bins','MIR','UV','None','Bins' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.Emission_Scatter_Comp('UV_FIR_NEWplot_43_med_bins','FIR','UV','Both','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+plot2.Emission_Scatter_Comp('UV_FIR','FIR','UV','Both','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Emission_Scatter_Comp('MIR10_FIR_NEWplot_43_normY_med_bins','FIR','MIR','Both','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
 # plot2.Nh_frac_plots('Nh_MIR','MIR','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
@@ -2135,14 +2141,14 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 # plot2.ratio_plots('Nh_MIR','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.ratio_plots('Lbol_MIR','Lbol','MIR6/Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.ratio_plots('Lbol_Lx_ratio_medBins','Lx','Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-plot2.ratio_plots('Lbol_Lx_ratio_medLx','Lx','Lbol','X-axis',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.ratio_plots('Lbol_Lx_ratio_medLx','Lx','Lbol','X-axis',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
 
 # plot2.Upanels_ratio_plots('Lum_Lbol','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Upanels_ratio_plots('Nh_ratios','Nh','UV/MIR-UV/Lx-MIR/Lx','Bins',Nh,Lx,np.log10(Lbol),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Box_1panel('Nh_box_1panel', 'Nh', np.log10(Nh[Nh > 0]), UVslope[Nh>0], MIRslope1[Nh>0], MIRslope2[Nh>0])
 # plot2.Box_1panel('Lbol_box_1panel', 'Lbol', np.log10(Lbol), UVslope, MIRslope1, MIRslope2)
-plot2.ratios_1panel('Lx_Lbol_1panel','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.ratios_1panel('Lx_Lbol_1panel','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 
 ###############################################################################
 ###############################################################################
