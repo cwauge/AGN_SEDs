@@ -1,5 +1,5 @@
 '''
-Connor Auge - Latest Edits on April 27, 2020
+Connor Auge - Latest Edits on May 23, 2022
 AGN class
     Create SEDs
     Calculate Lbol
@@ -10,10 +10,13 @@ import numpy as np
 import matplotlib.pyplot as plt 
 from matplotlib.collections import LineCollection
 from astropy.cosmology import FlatLambdaCDM
+from astropy.io import fits
 from astropy.io import ascii
+from astropy.table import Table
 from scipy import interpolate 
 from scipy import integrate
 from filters import Filters
+
 
 def main(ID,z,filter_name,obs_flux,obs_flux_err,abs_corr=None):
 	source = AGN(ID,z,filter_name,obs_flux,obs_flux_err,abs_corr)
@@ -51,20 +54,13 @@ class AGN():
 		self.rest_w_microns = rest_w*1E-4
 		self.rest_freq = 3E10/self.rest_w_cgs
 
-		# print('1.2',self.obs_f)
-		# print('1.2',len(self.obs_f[np.isnan(self.obs_f)]))
 		self.flux_jy = self.obs_f*1E-6
-		# print('1: ',self.flux_jy)
 		self.flux_jy_err = self.obs_f_err*1E-6
 		self.flux_jy[self.flux_jy <= 0] = np.nan
-		# print('2: ',self.flux_jy)
 		self.flux_jy_err[self.flux_jy_err <= 0] = np.nan
 		self.flux_jy[np.isnan(self.flux_jy_err)] = np.nan
-		# print('3: ',self.flux_jy)
 		self.flux_jy[self.flux_jy_err/self.flux_jy > 0.475] = np.nan # Remove data points that have a high fractional error in flux
 
-		# print('4: ', self.flux_jy)
-			
 		self.flux_cgs = self.flux_jy*1E-23 # flux in cgs: erg s^-1 cm^-2 Hz^-1
 		self.Fnu = self.flux_cgs
 		self.Flambda = self.flux_cgs*(3E10/obs_w_cgs**2)
@@ -72,8 +68,6 @@ class AGN():
 		self.nuF_nu = self.rest_freq*self.Fnu
 		self.lambdaF_lambda = obs_w_cgs*self.Flambda
 		self.lambdaF_lambda_ext = obs_w_cgs*self.Flambda
-
-		# print('5: ', self.nuF_nu)
 
 		self.lambdaL_lambda = self.Flux_to_Lum(self.lambdaF_lambda,self.z)
 		self.nuL_nu = self.Flux_to_Lum(self.nuF_nu,self.z)
@@ -592,6 +586,42 @@ class AGN():
 			out = 'no detection'
 
 		return out
+
+	def SED_output(self,fname,opt):
+		flux_flux_err = np.empty(self.flux_jy.size+self.flux_jy_err.size, dtype=self.flux_jy.dtype)
+		filter_name_err = np.asarray([i+'_err' for i in self.filter_name])
+		filter_filter_err = np.empty(self.filter_name.size+filter_name_err.size, dtype=filter_name_err.dtype)
+
+		flux_flux_err[0::2] = self.flux_jy
+		flux_flux_err[1::2] = self.flux_jy_err
+
+		filter_filter_err[0::2] = self.filter_name
+		filter_filter_err[1::2] = filter_name_err
+
+		t = Table(data=flux_flux_err, names=filter_filter_err)
+
+		if 'w' in opt:
+			try:
+				fin = fits.open('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname)
+				fdata = fin[1].data
+				fcols = fin[1].columns.names
+				tin = Table(data=fdata,names=fcols)
+				tin.add_row(flux_flux_err)
+
+				tin.write('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname,format='fits',overwrite=True)
+
+			except FileNotFoundError:
+				t.write('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname,format='fits',overwrite=True)
+
+
+		elif 'a' in opt:
+				fin = fits.open('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname)
+				fdata = fin[1].data
+				fcols = fin[1].columns.names
+				tin = Table(data=fdata, names=fcols)
+				tin.add_row(flux_flux_err)
+
+				tin.write('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname, format='fits', overwrite=True)
 
 
 	def upper_limits(self):
