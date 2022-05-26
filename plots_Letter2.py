@@ -129,15 +129,20 @@ class Plotter_Letter2():
 
 				ylim1 = 42
 				ylim2 = 47
+				xticks = [43,44,45,46]
+				yticks = [43,44,45,46]
 			else:
 				ylim1 = 43
 				ylim2 = 48
+				xticks = [43,44,45,46]
+				yticks = [44,45,46,47]	
 
-			xlim1 = 42
-			xlim2 = 47
+			xlim1 = 42.5
+			xlim2 = 46.5
 
 			xlabel = r'log '+x_var+' [erg/s]'
 			ylabel = r'log '+y_var+' [erg/s]'
+
 			
 		elif Norm == 'Both':
 			x = np.asarray([10**i for i in x])
@@ -151,16 +156,20 @@ class Plotter_Letter2():
 
 			xlabel = r'log '+x_var+r'/L (1$\mu$m)'
 			ylabel = r'log '+y_var+r'/L (1$\mu$m)'
+			xticks = [-2,-1,0,1,2]
+			yticks = [-2,-1,0,1,2]
 
 		elif Norm == 'Y':
 			ylim1 = -2
 			ylim2 = 2
 
-			xlim1 = 42
-			xlim2 = 47
+			xlim1 = 42.5
+			xlim2 = 46.5
 
 			xlabel = r'log '+x_var+r'[erg/s]'
 			ylabel = r'log '+y_var+r'/L (1$\mu$m)'
+			xticks = [43,44,45,46]
+			yticks = [-2,-1,0,1,2]
 
 		else:
 			print('Specify if each variable is normalized')
@@ -433,6 +442,8 @@ class Plotter_Letter2():
 		ax1.set_xlim(xlim1,xlim2)
 		ax1.set_ylim(ylim1,ylim2)
 		ax1.set_ylabel(ylabel)
+		ax1.set_xticks(xticks)
+		ax1.set_yticks(yticks)
 		if Norm == 'None' or Norm == 'Y':
 			secax1 = ax1.secondary_xaxis('top',functions=(solar, ergs))
 			secax1.set_xlabel(r' ')
@@ -455,11 +466,11 @@ class Plotter_Letter2():
 			ax2.scatter(x_24[up_check_24 == 1], y_24[up_check_24 == 1], marker=3, color=c4, rasterized=True, alpha=0.8,zorder=0)
 			ax2.scatter(x_25[up_check_25 == 1], y_25[up_check_25 == 1], marker=3, color=c5, rasterized=True, alpha=0.8,zorder=0)
 
-			ax2.scatter(x_21[up_check_21 == 0], y_21[up_check_21 == 0], color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax2.scatter(x_22[up_check_22 == 0], y_22[up_check_22 == 0], color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax2.scatter(x_23[up_check_23 == 0], y_23[up_check_23 == 0], color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax2.scatter(x_24[up_check_24 == 0], y_24[up_check_24 == 0], color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax2.scatter(x_25[up_check_25 == 0], y_25[up_check_25 == 0], color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+			ax2.scatter(x_21[up_check_21 == 0], y_21[up_check_21 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax2.scatter(x_22[up_check_22 == 0], y_22[up_check_22 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax2.scatter(x_23[up_check_23 == 0], y_23[up_check_23 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax2.scatter(x_24[up_check_24 == 0], y_24[up_check_24 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax2.scatter(x_25[up_check_25 == 0], y_25[up_check_25 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		else:
 			ax2.scatter(x_21, y_21, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
@@ -480,6 +491,8 @@ class Plotter_Letter2():
 		ax2.set_xlim(xlim1, xlim2)
 		ax2.set_ylim(ylim1, ylim2)
 		ax2.set_xlabel(xlabel)
+		ax2.set_xticks(xticks)
+		ax2.set_yticks(yticks)
 		ax2.set_yticklabels([])
 		if Norm == 'None' or Norm == 'Y':
 			secax2 = ax2.secondary_xaxis('top', functions=(solar, ergs))
@@ -501,11 +514,11 @@ class Plotter_Letter2():
 			ax3.scatter(x_34[up_check_34 == 1], y_34[up_check_34 == 1], marker=3, color=c4, rasterized=True, alpha=0.8,zorder=0)
 			ax3.scatter(x_35[up_check_35 == 1], y_35[up_check_35 == 1], marker=3, color=c5, rasterized=True, alpha=0.8,zorder=0)
 
-			ax3.scatter(x_31[up_check_31 == 0], y_31[up_check_31 == 0], color=c1, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_32[up_check_32 == 0], y_32[up_check_32 == 0], color=c2, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_33[up_check_33 == 0], y_33[up_check_33 == 0], color=c3, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_34[up_check_34 == 0], y_34[up_check_34 == 0], color=c4, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='P', rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_31[up_check_31 == 0], y_31[up_check_31 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_32[up_check_32 == 0], y_32[up_check_32 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_33[up_check_33 == 0], y_33[up_check_33 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_34[up_check_34 == 0], y_34[up_check_34 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
 
 		else:
 			ax3.scatter(x_31, y_31, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
@@ -525,6 +538,8 @@ class Plotter_Letter2():
 
 		ax3.set_xlim(xlim1, xlim2)
 		ax3.set_ylim(ylim1, ylim2)
+		ax3.set_xticks(xticks)
+		ax3.set_yticks(yticks)
 		ax3.set_yticklabels([])
 		if Norm == 'None':
 			secax3 = ax3.secondary_xaxis('top', functions=(solar, ergs))
@@ -616,6 +631,8 @@ class Plotter_Letter2():
 
 			xlabel = r'log L ('+x_var+') [erg/s]'
 			ylabel = r'log L ('+y_var+') [erg/s]'
+			xticks = [42, 43, 44, 45, 46, 47]
+			yticks = [42, 43, 44, 45, 46, 47]
 
 		elif Norm == 'Both':
 
@@ -632,6 +649,8 @@ class Plotter_Letter2():
 
 			xlabel = r'log L ('+x_var+r')/L (1$\mu$m)'
 			ylabel = r'log L ('+y_var+r')/L (1$\mu$m)'
+			xticks = [-2, -1, 0, 1, 2]
+			yticks = [-2, -1, 0, 1, 2]
 
 		else:
 			print('Specify if each variable is normalized')
@@ -793,11 +812,11 @@ class Plotter_Letter2():
 			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], marker=0, color=c4, rasterized=True, alpha=0.8,zorder=0)
 			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], marker=0, color=c5, rasterized=True, alpha=0.8,zorder=0)
 
-			ax1.scatter(x_11[up_check_11 == 0], y_11[up_check_11 == 0], color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax1.scatter(x_12[up_check_12 == 0], y_12[up_check_12 == 0], color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax1.scatter(x_13[up_check_13 == 0], y_13[up_check_13 == 0], color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+			ax1.scatter(x_11[up_check_11 == 0], y_11[up_check_11 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax1.scatter(x_12[up_check_12 == 0], y_12[up_check_12 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax1.scatter(x_13[up_check_13 == 0], y_13[up_check_13 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		else:
 			ax1.scatter(x_11, y_11, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
@@ -818,6 +837,8 @@ class Plotter_Letter2():
 		ax1.set_xlim(xlim1,xlim2)
 		ax1.set_ylim(ylim1,ylim2)
 		ax1.set_ylabel(ylabel)
+		ax1.set_xticks(xticks)
+		ax1.set_yticks(yticks)
 		if Norm == 'None' or Norm == 'Y':
 			secax1 = ax1.secondary_xaxis('top',functions=(solar, ergs))
 			secax1.set_xlabel(r' ')
@@ -839,11 +860,11 @@ class Plotter_Letter2():
 			ax2.scatter(x_24[up_check_24 == 1], y_24[up_check_24 == 1], marker=0, color=c4, rasterized=True, alpha=0.8,zorder=0)
 			ax2.scatter(x_25[up_check_25 == 1], y_25[up_check_25 == 1], marker=0, color=c5, rasterized=True, alpha=0.8,zorder=0)
 
-			ax2.scatter(x_21[up_check_21 == 0], y_21[up_check_21 == 0], color=c1, marker='P', rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax2.scatter(x_22[up_check_22 == 0], y_22[up_check_22 == 0], color=c2, marker='P', rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax2.scatter(x_23[up_check_23 == 0], y_23[up_check_23 == 0], color=c3, marker='P', rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax2.scatter(x_24[up_check_24 == 0], y_24[up_check_24 == 0], color=c4, marker='P', rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax2.scatter(x_25[up_check_25 == 0], y_25[up_check_25 == 0], color=c5, marker='P', rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+			ax2.scatter(x_21[up_check_21 == 0], y_21[up_check_21 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+			ax2.scatter(x_22[up_check_22 == 0], y_22[up_check_22 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+			ax2.scatter(x_23[up_check_23 == 0], y_23[up_check_23 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+			ax2.scatter(x_24[up_check_24 == 0], y_24[up_check_24 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+			ax2.scatter(x_25[up_check_25 == 0], y_25[up_check_25 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		else:
 			ax2.scatter(x_21, y_21, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
@@ -864,6 +885,8 @@ class Plotter_Letter2():
 		ax2.set_xlim(xlim1, xlim2)
 		ax2.set_ylim(ylim1, ylim2)
 		ax2.set_xlabel(xlabel)
+		ax2.set_xticks(xticks)
+		ax2.set_yticks(yticks)
 		ax2.set_yticklabels([])
 		if Norm == 'None' or Norm == 'Y':
 			secax2 = ax2.secondary_xaxis('top', functions=(solar, ergs))
@@ -885,11 +908,11 @@ class Plotter_Letter2():
 			ax3.scatter(x_34[up_check_34 == 1], y_34[up_check_34 == 1], marker=0, color=c4, rasterized=True, alpha=0.8,zorder=0)
 			ax3.scatter(x_35[up_check_35 == 1], y_35[up_check_35 == 1], marker=0, color=c5, rasterized=True, alpha=0.8,zorder=0)
 
-			ax3.scatter(x_31[up_check_31 == 0], y_31[up_check_31 == 0], color=c1, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_32[up_check_32 == 0], y_32[up_check_32 == 0], color=c2, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_33[up_check_33 == 0], y_33[up_check_33 == 0], color=c3, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_34[up_check_34 == 0], y_34[up_check_34 == 0], color=c4, marker='P', rasterized=True, alpha=0.8,zorder=0)
-			ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='P', rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_31[up_check_31 == 0], y_31[up_check_31 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_32[up_check_32 == 0], y_32[up_check_32 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_33[up_check_33 == 0], y_33[up_check_33 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_34[up_check_34 == 0], y_34[up_check_34 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
+			ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
 
 		else:
 			ax3.scatter(x_31, y_31, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8,zorder=0)
@@ -909,6 +932,8 @@ class Plotter_Letter2():
 		ax3.set_xlim(xlim1, xlim2)
 		ax3.set_ylim(ylim1, ylim2)
 		ax3.set_yticklabels([])
+		ax3.set_xticks(xticks)
+		ax3.set_yticks(yticks)
 		if Norm == 'None':
 			secax3 = ax3.secondary_xaxis('top', functions=(solar, ergs))
 			secax3.set_xlabel(r' ')
@@ -1461,7 +1486,7 @@ class Plotter_Letter2():
 				y2 = np.log10(f1/lx)
 				y3 = np.log10(f2/lx)
 
-				ylabel1 = r'log L (0.25$\mu$m)/ L(6$\mu$m)'
+				ylabel1 = r'log L (UV)/ L(MIR)'
 				ylabel2 = r'log L (UV)/ L$_{\mathrm{X}}$'
 				ylabel3 = r'log L (MIR)/ L$_{\mathrm{X}}$'
 				ylim1 = -2.5
