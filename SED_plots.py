@@ -84,7 +84,7 @@ class Plotter():
 		ax.set_xscale('log')
 		ax.set_yscale('log')
 		ax.set_xlim(5E-5,7E2)
-		ax.set_ylim(1E-2,3E2)
+		# ax.set_ylim(1E-2,3E2)
 		# ax.set_ylim(7E-5,80)
 		ax.set_title(str(self.ID))
 		ax.text(0.05,0.7,r'L$_{X}$ = '+str(self.Lx),transform=ax.transAxes)
@@ -97,7 +97,7 @@ class Plotter():
 		self.SED_errs = ax.errorbar(self.wavelength_array,self.flux_array,yerr=self.flux_err)
 		# self.interp = ax.plot(self.wavelength_array,y,'r')
 		ax.plot(100,flux_point,'x',color='red')
-		plt.savefig('/Users/connor_auge/Desktop/checkS82X/'+str(self.ID))
+		# plt.savefig('/Users/connor_auge/Desktop/checkS82X/'+str(self.ID))
 		plt.show()
 
 
@@ -363,7 +363,7 @@ class Plotter():
 		upper_all = LineCollection(upper_seg,color='gray',alpha=0.3)
 		ax.add_collection(upper_all)
 
-		lc = self.multilines(x_data[L >= clim1-0.1],y_data[L >= clim1-0.1],L[L >= clim1-0.1],cmap=cmap,alpha=0.75,rasterized=True)
+		lc = self.multilines(x_data[L >= clim1-0.1],y_data[L >= clim1-0.1],L[L >= clim1-0.1],cmap=cmap,lw=2,alpha=0.85,rasterized=True)
 		# plt.plot(x_data[L >= clim1-0.1], y_data[L >= clim1-0.1],'.',color='k')
 		# upper_lim_points = plt.plot(upper_w,upper_lim,color='k')
 		# lc_upper = self.multilines(upper_w[L >= clim1-0.1],upper_lim[L >= clim1-0.1],L[L >= clim1-0.1],cmap='rainbow',ls='--')

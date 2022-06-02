@@ -571,8 +571,8 @@ class Plotter_Letter():
 		c4 = '#ff7f00'
 		c5 = '#e41a1c'
 
-		clim1 = 43
-		clim2 = 45.5
+		clim1 = 42.5
+		clim2 = 45
 		cmap = 'rainbow_r'
 		# cmap = mpl.colors.ListedColormap(['purple', 'blue', 'cyan', 'green', 'yellow', 'orange', 'red'])
 		# cmap = mpl.colors.ListedColormap([c2, c1, 'cyan', c3, 'yellow', c4, c5])
@@ -587,7 +587,11 @@ class Plotter_Letter():
 		loLx = min(L[~np.isnan(L)])-0.25
 		hiLx = max(L[~np.isnan(L)])+0.25
 
-		ffir = np.asarray([ffir[i]/norm[i] for i in range(len(ffir))])
+		try:
+			ffir = np.asarray([ffir[i]/norm[i] for i in range(len(ffir))])
+		except TypeError:
+			ffir = np.asarray([[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan]])
+			wfir = np.asarray([[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan]])
 
 
 
@@ -638,11 +642,11 @@ class Plotter_Letter():
 		# axcb = fig.colorbar(test,cmap=cmap, norm=norm)
 		# axcb.mappable.set_clim(clim1,clim2)
 		# axcb.set_label(r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]')
-		median_line = ax.plot(np.nanmedian(10**median_x,axis=0),np.nanmedian(10**median_y,axis=0),color='k',lw=5.5)
+		# median_line = ax.plot(np.nanmedian(10**median_x,axis=0),np.nanmedian(10**median_y,axis=0),color='k',lw=5.5)
 		# median_line2 = ax.plot(np.nanmedian(10**median_x2,axis=0),np.nanmedian(10**median_y2,axis=0),color='k',ls='--',lw=5.5)
 		# percentile_25 = ax.plot(np.nanmedian(10**median_x,axis=0),np.nanpercentile(10**median_y,25,axis=0),color='k',ls='--',lw=3.5)
 		# percentile_75 = ax.plot(np.nanmedian(10**median_x,axis=0),np.nanpercentile(10**median_y,75,axis=0),color='k',ls='--',lw=3.5)
-		xray = ax.plot(np.nanmedian(x_data[L >= clim1-0.1][:,:2],axis=0),np.nanmedian(y_data[L >= clim1-0.1][:,:2],axis=0),color='k',lw=5.5)
+		# xray = ax.plot(np.nanmedian(x_data[L >= clim1-0.1][:,:2],axis=0),np.nanmedian(y_data[L >= clim1-0.1][:,:2],axis=0),color='k',lw=5.5)
 		# xray_percentile_25 = ax.plot(np.nanmedian(x_data[L >= clim1-0.1][:,:2],axis=0),np.nanpercentile(y_data[L >= clim1-0.1][:,:2],25,axis=0),color='k',ls='--',lw=3.5)
 		# xray_percentile_75 = ax.plot(np.nanmedian(x_data[L >= clim1-0.1][:,:2],axis=0),np.nanpercentile(y_data[L >= clim1-0.1][:,:2],75,axis=0),color='k',ls='--',lw=3.5)
 
@@ -660,10 +664,14 @@ class Plotter_Letter():
 		# ax.plot(np.nanmean(wfir,axis=0),np.nanmean(ffir,axis=0)/np.nanmean(norm,axis=0),color='green',lw=7.0)
 		ax.plot(np.nanmedian(wfir,axis=0)[-3:],np.nanmedian(ffir,axis=0)[-3:],color='k',lw=5.0)
 		ax.plot(np.nanmedian(wfir,axis=0)[-3:],np.nanmedian(ffir,axis=0)[-3:],'v',color='k',ms=15.0)
-		MIR_x = np.append(np.nanmedian(10**median_x[up_check==0],axis=0)[-1],np.nanmedian(wfir[up_check==0],axis=0)[:2])
-		MIR_y = np.append(np.nanmedian(10**median_y[up_check==0],axis=0)[-1],np.nanmedian(ffir[up_check==0],axis=0)[:2])
-		MIR_x = np.append(MIR_x, np.nanmedian(wfir, axis=0)[-3])
-		MIR_y = np.append(MIR_y,np.nanmedian(ffir,axis=0)[-3])
+		try:
+			MIR_x = np.append(np.nanmedian(10**median_x[up_check==0],axis=0)[-1],np.nanmedian(wfir[up_check==0],axis=0)[:2])
+			MIR_y = np.append(np.nanmedian(10**median_y[up_check==0],axis=0)[-1],np.nanmedian(ffir[up_check==0],axis=0)[:2])
+			MIR_x = np.append(MIR_x, np.nanmedian(wfir, axis=0)[-3])
+			MIR_y = np.append(MIR_y,np.nanmedian(ffir,axis=0)[-3])
+		except IndexError:
+			MIR_x = np.asarray([np.nan,np.nan,np.nan])
+			MIR_y = np.asarray([np.nan,np.nan,np.nan])
 
 		ax.plot(MIR_x, MIR_y, '--',color='k',lw=5.0)
 		# ax.plot(np.nanmedian(10**med_x_fir[up_check == 0],axis=0),np.nanmedian(10**med_y_fir[up_check == 0],axis=0), '--',color='b',lw=5.0)

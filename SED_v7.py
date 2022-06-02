@@ -6,6 +6,8 @@ AGN class
     Create file for X-CIGALE
 Applicable to any data set (i.e., COSMOS, S82X, GOODS, or GOALS)
 '''
+import wave
+from xml.dom.expatbuilder import FILTER_INTERRUPT
 import numpy as np 
 import matplotlib.pyplot as plt 
 from matplotlib.collections import LineCollection
@@ -304,6 +306,7 @@ class AGN():
 			# print('no')
 		self.L_bol = L_bol
 		self.L_bol_FIR = L_bol_FIR
+		self.Lbol = L_bol
 
 		return L_bol
 
@@ -459,6 +462,11 @@ class AGN():
 		try:
 			if wave == 100.0:
 				nuFnu = self.FIR_extrapolation(100.0)
+
+				nuFnu_1 = self.FIR_extrapolation(60.0)
+				self.FIRwave_out2 = np.asarray([60,100])
+				self.FIRnuLnu_out2 = np.asarray([nuFnu_1, nuFnu])
+				self.upper_check = 1
 			else:
 				nuFnu = 10**self.f_interp(np.log10(wave))
 			return nuFnu
@@ -598,6 +606,9 @@ class AGN():
 		filter_filter_err[0::2] = self.filter_name
 		filter_filter_err[1::2] = filter_name_err
 
+		flux_flux_err = np.append(self.ID,flux_flux_err)
+		filter_filter_err = np.append('ID',filter_filter_err)
+
 		t = Table(data=flux_flux_err, names=filter_filter_err)
 
 		if 'w' in opt:
@@ -605,6 +616,7 @@ class AGN():
 				fin = fits.open('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname)
 				fdata = fin[1].data
 				fcols = fin[1].columns.names
+				fin.close()
 				tin = Table(data=fdata,names=fcols)
 				tin.add_row(flux_flux_err)
 
@@ -618,8 +630,40 @@ class AGN():
 				fin = fits.open('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname)
 				fdata = fin[1].data
 				fcols = fin[1].columns.names
+				fin.close()
 				tin = Table(data=fdata, names=fcols)
 				tin.add_row(flux_flux_err)
+
+				tin.write('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname, format='fits', overwrite=True)
+
+	def AGN_output(self,fname,Lx,Nh,Lone,opt):
+		
+		
+		data_out = np.asarray([self.ID,self.z,Lx,Nh,self.Lbol,Lone])
+		cols_out = np.asarray(['ID','z','Lx','Nh','Lbol','Lone'])
+
+		t = Table(data=data_out, names=cols_out)
+
+		if 'w' in opt:
+			try:
+				fin = fits.open('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname)
+				fdata = fin[1].data
+				fcols = fin[1].columns.names
+				tin = Table(data=fdata,names=fcols)
+				tin.add_row(data_out)
+
+				tin.write('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname,format='fits',overwrite=True)
+
+			except FileNotFoundError:
+				t.write('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname,format='fits',overwrite=True)
+
+
+		elif 'a' in opt:
+				fin = fits.open('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname)
+				fdata = fin[1].data
+				fcols = fin[1].columns.names
+				tin = Table(data=fdata, names=fcols)
+				tin.add_row(data_out)
 
 				tin.write('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname, format='fits', overwrite=True)
 

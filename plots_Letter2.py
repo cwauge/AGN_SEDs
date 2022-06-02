@@ -64,7 +64,7 @@ class Plotter_Letter2():
 		return x_out_med_list, y_out_med_list, x_out_lims_list, y_out_lims_list
 	
 
-	def Lx_Scatter_Comp(self, savestring, X, Y, Norm, Median, Lx, L, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check):
+	def Lx_Scatter_Comp(self, savestring, X, Y, Norm, Median, Lx, L, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check,ulirg_Lx=None,ulirg_Flux=None,ulirg_F1=None):
 		plt.rcParams['font.size'] = 20
 		plt.rcParams['axes.linewidth'] = 2
 		plt.rcParams['xtick.major.size'] = 4
@@ -127,8 +127,8 @@ class Plotter_Letter2():
 				y_s = np.asarray([10**i for i in y])
 				y = np.log10(y_s*F1)
 
-				ylim1 = 42
-				ylim2 = 47
+				ylim1 = 42.5
+				ylim2 = 46.5
 				xticks = [43,44,45,46]
 				yticks = [43,44,45,46]
 			else:
@@ -136,6 +136,13 @@ class Plotter_Letter2():
 				ylim2 = 48
 				xticks = [43,44,45,46]
 				yticks = [44,45,46,47]	
+
+			if any(ulirg_Flux) != None:
+				u_f = np.asarray([10**i for i in ulirg_Flux])
+				print(u_f)
+				print(u_f*ulirg_F1)
+				ulirg_Flux = np.log10(u_f*ulirg_F1)
+				print('HERE',ulirg_Flux)
 
 			xlim1 = 42.5
 			xlim2 = 46.5
@@ -158,6 +165,10 @@ class Plotter_Letter2():
 			ylabel = r'log '+y_var+r'/L (1$\mu$m)'
 			xticks = [-2,-1,0,1,2]
 			yticks = [-2,-1,0,1,2]
+
+			if any(ulirg_Lx) != None:
+				u_f = np.asarray([10**i for i in ulirg_Lx])
+				ulirg_Lx = np.log10(u_f/ulirg_F1)
 
 		elif Norm == 'Y':
 			ylim1 = -2
@@ -437,6 +448,9 @@ class Plotter_Letter2():
 			ax1.scatter(x13_med, y13_med, color=c3m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
 			ax1.scatter(x14_med, y14_med, color=c4m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
 			ax1.scatter(x15_med, y15_med, color=c5m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+
+		if any(ulirg_Flux) != None:
+			ax1.scatter(ulirg_Lx, ulirg_Flux, color='k', marker='s', s=50, rasterized=True,label='ULIRGS')
 
 
 		ax1.set_xlim(xlim1,xlim2)
@@ -950,7 +964,7 @@ class Plotter_Letter2():
 		plt.show()
 
 
-	def ratio_plots(self, savestring, X, Y, Median, Nh, Lx, L, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check):
+	def ratio_plots(self, savestring, X, Y, Median, Nh, Lx, L, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check, ulirg_Nh=None, ulirg_Lx=None, ulirg_Flux=None, ulirg_F1=None):
 		plt.rcParams['font.size'] = 20
 		plt.rcParams['axes.linewidth'] = 2
 		plt.rcParams['xtick.major.size'] = 4
@@ -1001,8 +1015,9 @@ class Plotter_Letter2():
 			y = np.log10(f1/lx)
 			y_var = r'0.25$\mu$m'
 			ylabel = r'log L (0.25$\mu$m)/ L$_{\mathrm{X}}$'
-			ylim1 = -2
-			ylim2 = 3
+			ylim1 = -2.5
+			ylim2 = 2.5
+			yticks = [-2,-1,0,1,2]
 
 		elif Y == 'MIR6':
 			f_2 = np.asarray([10**i for i in f2])
@@ -1010,8 +1025,9 @@ class Plotter_Letter2():
 			lx = np.asarray([10**i for i in Lx])
 			y = np.log10(f2/lx)
 			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{X}}$'
-			ylim1 = -2
-			ylim2 = 3
+			ylim1 = -2.5
+			ylim2 = 2.5
+			yticks = [-2, -1, 0, 1, 2]
 
 		elif Y == 'MIR10':
 			f_4 = np.asarray([10**i for i in f4])
@@ -1019,8 +1035,9 @@ class Plotter_Letter2():
 			lx = np.asarray([10**i for i in Lx])
 			y = np.log10(f4/lx)
 			ylabel = r'log L (10$\mu$m)/ L$_{\mathrm{X}}$'
-			ylim1 = -2
-			ylim2 = 3
+			ylim1 = -2.5
+			ylim2 = 2.5
+			yticks = [-2, -1, 0, 1, 2]
 
 		elif Y == 'FIR':
 			f_3 = np.asarray([10**i for i in f3])
@@ -1028,8 +1045,9 @@ class Plotter_Letter2():
 			lx = np.asarray([10**i for i in Lx])
 			y = np.log10(f3/lx)
 			ylabel = r'log L (100$\mu$m)/ L$_{\mathrm{X}}$'
-			ylim1 = -2
-			ylim2 = 3
+			ylim1 = -2.5
+			ylim2 = 2.5
+			yticks = [-2,-1,0,1,2]
 
 		elif Y == 'UV/MIR6':
 			f_1 = np.asarray([10**i for i in f1])
@@ -1038,8 +1056,9 @@ class Plotter_Letter2():
 			f2 = f_4*F1
 			y = np.log10(f1/f2)
 			ylabel = r'log L (0.25$\mu$m)/ L (10$\mu$m)'
-			ylim1 = -3
-			ylim2 = 2
+			ylim1 = -2.5
+			ylim2 = 2.5
+			yticks = [-2, -1, 0, 1, 2]
 
 		elif Y == 'UV/MIR10':
 			f_1 = np.asarray([10**i for i in f1])
@@ -1048,8 +1067,9 @@ class Plotter_Letter2():
 			f4 = f_4*F1
 			y = np.log10(f1/f4)
 			ylabel = r'log L (0.25$\mu$m)/ L (10$\mu$m)'
-			ylim1 = -3
-			ylim2 = 2
+			ylim1 = -2.5
+			ylim2 = 2.5
+			yticks = [-2,-1,0,1,2]
 
 		elif Y == 'UV/FIR':
 			f_1 = np.asarray([10**i for i in f1])
@@ -1058,8 +1078,9 @@ class Plotter_Letter2():
 			f3 = f_3*F1
 			y = np.log10(f1/f3)
 			ylabel = r'log L (0.25$\mu$m)/ L (100$\mu$m)'
-			ylim1 = -3
-			ylim2 = 2
+			ylim1 = -2.5
+			ylim2 = 2.5
+			yticks = [-2, -1, 0, 1, 2]
 
 		elif Y == 'MIR6/FIR':
 			f_2 = np.asarray([10**i for i in f2])
@@ -1068,8 +1089,9 @@ class Plotter_Letter2():
 			f3 = f_3*F1
 			y = np.log10(f2/f3)
 			ylabel = r'log L (10$\mu$m)/ L (100$\mu$m)'
-			ylim1 = -3
-			ylim2 = 2
+			ylim1 = -2.5
+			ylim2 = 2.5
+			yticks = [-2,-1,0,1,2]
 
 		elif Y == 'MIR10/FIR':
 			f_4 = np.asarray([10**i for i in f4])
@@ -1078,8 +1100,9 @@ class Plotter_Letter2():
 			f3 = f_3*F1
 			y = np.log10(f4/f3)
 			ylabel = r'log L (10$\mu$m)/ L (100$\mu$m)'
-			ylim1 = -3
-			ylim2 = 2
+			ylim1 = -2.5
+			ylim2 = 2.5
+			yticks = [-2, -1, 0, 1, 2]
 
 		elif Y == 'Lbol':
 			l = np.asarray([10**i for i in L])
@@ -1098,6 +1121,7 @@ class Plotter_Letter2():
 			ylabel = r'log L (0.25$\mu$m)/ L$_{\mathrm{bol}}$'
 			ylim1 = -3
 			ylim2 = 1
+			yticks = [-3,-2,-1,0,1]
 
 		elif Y == 'MIR6/Lbol':
 			l = np.asarray([10**i for i in L])
@@ -1107,6 +1131,7 @@ class Plotter_Letter2():
 			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
 			ylim1 = -3
 			ylim2 = 1
+			yticks = [-3,-2,-1,0,1]
 
 		elif Y == 'MIR10/Lbol':
 			l = np.asarray([10**i for i in L])
@@ -1116,6 +1141,7 @@ class Plotter_Letter2():
 			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
 			ylim1 = -3
 			ylim2 = 1
+			yticks = [-3,-2,-1,0,1]
 
 		elif Y == 'FIR/Lbol':
 			l = np.asarray([10**i for i in L])
@@ -1125,10 +1151,15 @@ class Plotter_Letter2():
 			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{bol}}$'
 			ylim1 = -3
 			ylim2 = 1
+			yticks = [-3, -2, -1, 0, 1]
 
 		else:
 			print('Specify Y variable')
 			return
+
+		if any(ulirg_Flux) != None:
+			u_f = np.asarray([10**i for i in ulirg_Flux])
+			ulirg_Flux = np.log10(u_f*ulirg_F1)
 
 
 		c1 = '#377eb8'
@@ -1362,6 +1393,9 @@ class Plotter_Letter2():
 			ax1.scatter(x13_med, y13_med, color=c3m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
 			ax1.scatter(x14_med, y14_med, color=c4m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
 			ax1.scatter(x15_med, y15_med, color=c5m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+
+		if any(ulirg_Nh) != None:
+			ax1.scatter(ulirg_Nh,ulirg_Flux,color='k',marker='s',s=75,label='ULIRGs')
 
 
 		ax1.set_xlim(xlim1,xlim2)
