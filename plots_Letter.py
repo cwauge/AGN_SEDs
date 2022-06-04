@@ -623,7 +623,7 @@ class Plotter_Letter():
 		upper_all = LineCollection(upper_seg,color='gray',alpha=0.3)
 		ax.add_collection(upper_all)
 
-		lc = self.multilines(x_data[L >= clim1-0.1],y_data[L >= clim1-0.1],L[L >= clim1-0.1],cmap=cmap,alpha=0.75,rasterized=True)
+		lc = self.multilines(x_data[L >= clim1-0.1],y_data[L >= clim1-0.1],L[L >= clim1-0.1],lw=2.5,cmap=cmap,alpha=0.85,rasterized=True)
 		# plt.plot(x_data[L >= clim1-0.1], y_data[L >= clim1-0.1],'.',color='k')
 		# upper_lim_points = plt.plot(upper_w,upper_lim,color='k')
 		# lc_upper = self.multilines(upper_w[L >= clim1-0.1],upper_lim[L >= clim1-0.1],L[L >= clim1-0.1],cmap='rainbow',ls='--')
@@ -4969,6 +4969,12 @@ class Plotter_Letter():
 		zlim_3 = 0.9
 		zlim_4 = 1.2
 
+		print('One Micron Luminosity: ')
+		print('0 < z < 0.6: ',np.nanmedian(F1[B1[(z1 <= zlim_2)&(z1 >= zlim_1)]]),np.nanmedian(F1[B2[(z2 <= zlim_2)&(z2 >= zlim_1)]]),np.nanmedian(F1[B3[(z3 <= zlim_2)&(z3 >= zlim_1)]]),np.nanmedian(F1[B4[(z4 <= zlim_2)&(z4 >= zlim_1)]]),np.nanmedian(F1[B5[(z5 <= zlim_2)&(z5 >= zlim_1)]]))
+		print('0.6 < z < 0.9: ',np.nanmedian(F1[B1[(z1 <= zlim_3)&(z1 > zlim_2)]]),np.nanmedian(F1[B2[(z2 <= zlim_3)&(z2 > zlim_2)]]),np.nanmedian(F1[B3[(z3 <= zlim_3)&(z3 > zlim_2)]]),np.nanmedian(F1[B4[(z4 <= zlim_3)&(z4 > zlim_2)]]),np.nanmedian(F1[B5[(z5 <= zlim_3)&(z5 > zlim_2)]]))
+		print('0.9 < z < 1.2: ',np.nanmedian(F1[B1[(z1 <= zlim_4)&(z1 > zlim_3)]]),np.nanmedian(F1[B2[(z2 <= zlim_4)&(z2 > zlim_3)]]),np.nanmedian(F1[B3[(z3 <= zlim_4)&(z3 > zlim_3)]]),np.nanmedian(F1[B4[(z4 <= zlim_4)&(z4 > zlim_3)]]),np.nanmedian(F1[B5[(z5 <= zlim_4)&(z5 > zlim_3)]]))
+
+
 		# temp1 = temp_comb[wave == 1.0050]
 		# # norm_temp = np.nanmedian(F1[B4])/temp1
 		# norm_temp = 4.215928239976833e+44/temp1
@@ -5260,7 +5266,7 @@ class Plotter_Letter():
 		median_FIR_wavelength_z2 = np.nanmedian(median_FIR_w[(spec_z <= zlim_3)&(spec_z >= zlim_2)],axis=0) 
 		median_FIR_wavelength_z3 = np.nanmedian(median_FIR_w[(spec_z <= zlim_3)&(spec_z >= zlim_2)],axis=0)  
 
-		print('HERE HERE: ',median_FIR_f5_z1[-3:]/np.nanmedian(F1[B5[(z5 <= zlim_2)&(z5 >= zlim_1)]]))
+
 
 
 		# median_flux_goals = np.nanmean(10**goals_median_f,axis=0)*np.nanmean(goals_f1)

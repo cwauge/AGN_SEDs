@@ -139,10 +139,7 @@ class Plotter_Letter2():
 
 			if any(ulirg_Flux) != None:
 				u_f = np.asarray([10**i for i in ulirg_Flux])
-				print(u_f)
-				print(u_f*ulirg_F1)
 				ulirg_Flux = np.log10(u_f*ulirg_F1)
-				print('HERE',ulirg_Flux)
 
 			xlim1 = 42.5
 			xlim2 = 46.5
@@ -991,8 +988,12 @@ class Plotter_Letter2():
 
 		if X == 'Nh':
 			x = np.log10(Nh)
-			xlim1 = 19
-			xlim2 = 24
+			if any(ulirg_Nh) != None:
+				xlim1 = 19.8
+				xlim2 = 24.8
+			else:
+				xlim1 = 19
+				xlim2 = 24
 			xlabel = r'log N$_{\mathrm{H}}$'
 
 		elif X == 'Lx':
@@ -1159,7 +1160,8 @@ class Plotter_Letter2():
 
 		if any(ulirg_Flux) != None:
 			u_f = np.asarray([10**i for i in ulirg_Flux])
-			ulirg_Flux = np.log10(u_f*ulirg_F1)
+			ulx = np.asarray([10**i for i in ulirg_Lx])
+			ulirg_Flux = np.log10((u_f*ulirg_F1)/ulx)
 
 
 		c1 = '#377eb8'
@@ -1395,6 +1397,7 @@ class Plotter_Letter2():
 			ax1.scatter(x15_med, y15_med, color=c5m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
 
 		if any(ulirg_Nh) != None:
+			print(ulirg_Flux)
 			ax1.scatter(ulirg_Nh,ulirg_Flux,color='k',marker='s',s=75,label='ULIRGs')
 
 
@@ -1908,6 +1911,12 @@ class Plotter_Letter2():
 			ylim1 = 9.5
 			ylim2 = 14.5
 
+		elif var == 'Lbol/Lx':
+			ylabel = r'log L$_{\mathrm{bol}}$/L$_{\mathrm{X}}$'
+			units = ''
+			ylim1 = -1
+			ylim2 = 4
+
 		x1 = x[B1]
 		x2 = x[B2]
 		x3 = x[B3]
@@ -1938,7 +1947,10 @@ class Plotter_Letter2():
 		plt.gca().invert_xaxis()		
 		ax1.set_ylabel(ylabel+units)
 		ax1.set_xlabel('Panel Number')
-		if var != 'Nh':
+		if var == 'Lbol':
+			secax1 = ax1.secondary_yaxis('right', functions=(ergs, solar))
+			secax1.set_ylabel(ylabel+' [erg/s]')
+		elif var == 'Lx':
 			secax1 = ax1.secondary_yaxis('right', functions=(ergs, solar))
 			secax1.set_ylabel(ylabel+' [erg/s]')
 		ax1.grid()

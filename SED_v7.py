@@ -241,9 +241,13 @@ class AGN():
 		return out
 
 
-	def Find_Lbol(self):
-		x = self.rest_w_cgs
-		y = self.nuL_nu
+	def Find_Lbol(self,xin=None,yin=None):
+		if xin is None:
+			x = self.rest_w_microns*1E-4
+			y = self.nuL_nu
+		else:
+			x = xin*1E-4
+			y = yin
 
 		# F100 = self.FIR_extrapolation(100.0)
 
@@ -340,7 +344,23 @@ class AGN():
 
 		return L_region
 
+	def Find_Lbol_temp_sub(self,scale_L,temp_x,temp_y):
+		Lone_temp = temp_y[temp_x == 1.0050][0]
+		if self.z <=0.6:
+			scale = scale_L[0]/Lone_temp
+		elif (self.z > 0.6) & (self.z < 0.9):
+			scale = scale_L[1]/Lone_temp
+		else:
+			scale = scale_L[2]/Lone_temp
+		scale_y = temp_y*scale
 
+		temp_interp = interpolate.interp1d(np.log10(temp_x), np.log10(scale_y),kind='linear',fill_value='extrapolate')
+		y_interp = 10**temp_interp(np.log10(self.rest_w_microns))
+
+
+		y_sub = self.nuL_nu - y_interp
+
+		return self.Find_Lbol(xin=self.rest_w_microns[y_sub > 0],yin=y_sub[y_sub > 0])
 
 
 	def FIR_frac(self):
@@ -570,6 +590,24 @@ class AGN():
 		slope = (np.log10(ff) - np.log10(fi))/(np.log10(wf) - np.log10(wi))
 
 		return slope
+
+	def SED_shape(self):
+		uv_slope = self.Find_slope(0.15, 1.0)
+		mir_slope1 = self.Find_slope(1.0, 6.5)
+		mir_slope2 = self.Find_slope(6.5, 10)
+
+		if (uv_slope < -0.3) & (mir_slope1 >= -0.2):
+			bin = 1
+		elif (uv_slope >= -0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2):
+			bin = 2
+		elif (uv_slope > 0.2) & (mir_slope1 >= -0.2):
+			bin = 3
+		elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0):
+			bin = 4
+		elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0):
+			bin = 5
+		else:
+			bin = 6
 
 	def morph(self,type_of_fit,COSMOS_ID):
 		self.name = type_of_fit
