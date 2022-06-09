@@ -5971,7 +5971,7 @@ class Plotter_Letter():
 		# x[y < 1E-4] = np.nan
 		# y[y < 1E-4] = np.nan
 
-		clim1 = 42.5
+		clim1 = 43
 		clim2 = 46
 
 		L = np.asarray(L)
@@ -6011,9 +6011,9 @@ class Plotter_Letter():
 		y1[(y1 < 0.3) & (x1 > 0.1)] = np.nan
 
 
-		test = ax1.scatter(np.ones(10)*-1,np.ones(10)*-1,c=np.linspace(clim1,clim2,10),cmap='rainbow')
+		test = ax1.scatter(np.ones(10)*-1,np.ones(10)*-1,c=np.linspace(clim1,clim2,10),cmap='rainbow_r')
 		
-		lc1 = self.multilines(x1,y1,L1,cmap='rainbow',lw=1.5,rasterized=True)
+		lc1 = self.multilines(x1,y1,L1,cmap='rainbow_r',lw=1.5,rasterized=True)
 		ax1.plot(np.nanmedian(10**median_wavelength[B1],axis=0),np.nanmedian(10**median_flux[B1],axis=0),color='k',lw=4)
 		ax1.plot(np.nanmedian(x1,axis=0)[0:2],np.nanmedian(y1,axis=0)[0:2],color='k',lw=4)
 		axcb1 = fig.colorbar(lc1,orientation='horizontal',pad=-0.1)
@@ -6039,7 +6039,7 @@ class Plotter_Letter():
 		y3 = y[B2]
 		L3 = L[B2]
 
-		lc2 = self.multilines(x3,y3,L3,cmap='rainbow',lw=1.5,rasterized=True)
+		lc2 = self.multilines(x3,y3,L3,cmap='rainbow_r',lw=1.5,rasterized=True)
 		ax2.plot(np.nanmedian(10**median_wavelength[B2],axis=0),np.nanmedian(10**median_flux[B2],axis=0),color='k',lw=4)
 		ax2.plot(np.nanmedian(x3,axis=0)[0:2],np.nanmedian(y3,axis=0)[0:2],color='k',lw=4)
 		axcb2 = fig.colorbar(lc2,orientation='horizontal',pad=-0.1)
@@ -6066,7 +6066,7 @@ class Plotter_Letter():
 
 		# y3[(y3 < 0.3) & (x3 > 10)] = np.nan
 		
-		lc3 = self.multilines(x3,y3,L3,cmap='rainbow',lw=1.5,rasterized=True)
+		lc3 = self.multilines(x3,y3,L3,cmap='rainbow_r',lw=1.5,rasterized=True)
 		ax3.plot(np.nanmedian(10**median_wavelength[B3],axis=0),np.nanmedian(10**median_flux[B3],axis=0),color='k',lw=4)
 		ax3.plot(np.nanmedian(x3,axis=0)[0:2],np.nanmedian(y3,axis=0)[0:2],color='k',lw=4)	
 		axcb3 = fig.colorbar(lc3,orientation='horizontal',pad=-0.1)
@@ -6095,7 +6095,7 @@ class Plotter_Letter():
 
 		# y4[(y4 < 0.3) & (x4 > 10)] = np.nan
 		
-		lc4 = self.multilines(x4,y4,L4,cmap='rainbow',lw=1.5,rasterized=True)
+		lc4 = self.multilines(x4,y4,L4,cmap='rainbow_r',lw=1.5,rasterized=True)
 		ax4.plot(np.nanmedian(10**median_wavelength[B4],axis=0),np.nanmedian(10**median_flux[B4],axis=0),color='k',lw=4)
 		ax4.plot(np.nanmedian(x4,axis=0)[0:2],np.nanmedian(y4,axis=0)[0:2],color='k',lw=4)	
 		axcb4 = fig.colorbar(lc4,orientation='horizontal',pad=-0.1)
@@ -6123,7 +6123,7 @@ class Plotter_Letter():
 
 		# y5[(y5 < 0.3) & (x5 > 10)] = np.nan
 		
-		lc5 = self.multilines(x5,y5,L5,cmap='rainbow',lw=1.5,rasterized=True)
+		lc5 = self.multilines(x5,y5,L5,cmap='rainbow_r',lw=1.5,rasterized=True)
 		ax5.plot(np.nanmedian(10**median_wavelength[B5],axis=0),np.nanmedian(10**median_flux[B5],axis=0),color='k',lw=4)
 		ax5.plot(np.nanmedian(x4,axis=0)[0:2],np.nanmedian(y4,axis=0)[0:2],color='k',lw=4)	
 		axcb5 = fig.colorbar(lc5,orientation='horizontal',pad=-0.1)

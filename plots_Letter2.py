@@ -10,6 +10,7 @@ from astropy.io import ascii
 from astropy.io import fits
 from match import match
 from SED_v7 import Flux_to_Lum
+import matplotlib.patheffects as pe
 
 class Plotter_Letter2():
 	
@@ -1874,8 +1875,7 @@ class Plotter_Letter2():
 			plt.savefig(f'/Users/connor_auge/Desktop/New_plots3/{savestring}.pdf')
 			plt.show()
 
-
-	def Box_1panel(self, savestring, var, x, uv_slope, mir_slope1, mir_slope2):
+	def Box_1panel(self, savestring, var, x, uv_slope, mir_slope1, mir_slope2, ulirg_x=None):
 		plt.rcParams['font.size'] = 22
 		plt.rcParams['axes.linewidth'] = 2
 		plt.rcParams['xtick.major.size'] = 4
@@ -1905,6 +1905,8 @@ class Plotter_Letter2():
 
 		elif var == 'Lbol':
 			x -= np.log10(3.8E33)
+			if any(ulirg_x) != None:
+				ulirg_x -= np.log10(3.8E33)
 
 			ylabel = r'log L$_{\mathrm{bol}}$'
 			units = r' [L$_{\odot}$]'
@@ -1916,6 +1918,16 @@ class Plotter_Letter2():
 			units = ''
 			ylim1 = -1
 			ylim2 = 4
+
+		xticklabels = ['1','2','3','4','5']
+
+		if any(ulirg_x) != None:
+			if var == 'Nh':
+				ylim2 += 1
+			else:
+				ylim1 -= 0.5
+				ylim2 += 0.5
+			xticklabels = ['1','2','3','4','5','GOALS']
 
 		x1 = x[B1]
 		x2 = x[B2]
@@ -1935,18 +1947,24 @@ class Plotter_Letter2():
 		def ergs(x):
 			return x + np.log10(3.8E33)
 
+
 		fig = plt.figure(figsize=(9, 9))
 		ax1 = plt.subplot(111, aspect='equal', adjustable='box')
 		ax1.plot([1,2,3,4,5],[np.nanmean(x1),np.nanmean(x2),np.nanmean(x3),np.nanmean(x4),np.nanmean(x5)],color='k')
-		ax1.boxplot(x1,positions=[1],patch_artist=True,boxprops=dict(facecolor=c1, color=c1),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
-		ax1.boxplot(x2,positions=[2],patch_artist=True,boxprops=dict(facecolor=c2, color=c2),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
-		ax1.boxplot(x3,positions=[3],patch_artist=True,boxprops=dict(facecolor=c3, color=c3),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
-		ax1.boxplot(x4,positions=[4],patch_artist=True,boxprops=dict(facecolor=c4, color=c4),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
-		ax1.boxplot(x5,positions=[5],patch_artist=True,boxprops=dict(facecolor=c5, color=c5),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
+		ax1.boxplot(x1,positions=[1],patch_artist=True,boxprops=dict(facecolor=c1, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4),whiskerprops=dict(color=c1,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=False)
+		ax1.boxplot(x2,positions=[2],patch_artist=True,boxprops=dict(facecolor=c2, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4),whiskerprops=dict(color=c2,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=False)
+		ax1.boxplot(x3,positions=[3],patch_artist=True,boxprops=dict(facecolor=c3, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4),whiskerprops=dict(color=c3,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=False)
+		ax1.boxplot(x4,positions=[4],patch_artist=True,boxprops=dict(facecolor=c4, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4),whiskerprops=dict(color=c4,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=False)
+		ax1.boxplot(x5,positions=[5],patch_artist=True,boxprops=dict(facecolor=c5, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4),whiskerprops=dict(color=c5,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=False)
+		
 		ax1.set_ylim(ylim1, ylim2)
 		plt.gca().invert_xaxis()		
 		ax1.set_ylabel(ylabel+units)
 		ax1.set_xlabel('Panel Number')
+		ax1.set_xticklabels(xticklabels)
+		if any(ulirg_x) != None:
+			ax1.boxplot(ulirg_x,positions=[6],patch_artist=True,boxprops=dict(facecolor='gray', color='gray'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
+
 		if var == 'Lbol':
 			secax1 = ax1.secondary_yaxis('right', functions=(ergs, solar))
 			secax1.set_ylabel(ylabel+' [erg/s]')
