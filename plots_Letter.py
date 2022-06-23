@@ -6,6 +6,7 @@ import matplotlib.gridspec as gridspec
 from matplotlib.collections import LineCollection
 from astropy.cosmology import FlatLambdaCDM
 from numpy.core.defchararray import lower
+# from RunSEDv3 import F100_2
 from filters import Filters
 from astropy.io import ascii
 from astropy.io import fits
@@ -571,8 +572,8 @@ class Plotter_Letter():
 		c4 = '#ff7f00'
 		c5 = '#e41a1c'
 
-		clim1 = 42.5
-		clim2 = 45
+		clim1 = 43
+		clim2 = 45.5
 		cmap = 'rainbow_r'
 		# cmap = mpl.colors.ListedColormap(['purple', 'blue', 'cyan', 'green', 'yellow', 'orange', 'red'])
 		# cmap = mpl.colors.ListedColormap([c2, c1, 'cyan', c3, 'yellow', c4, c5])
@@ -594,13 +595,12 @@ class Plotter_Letter():
 			wfir = np.asarray([[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan]])
 
 
-
-		plt.rcParams['font.size']=26
-		plt.rcParams['axes.linewidth']=2.5
-		plt.rcParams['xtick.major.size']=4.5
-		plt.rcParams['xtick.major.width'] = 3.5
-		plt.rcParams['ytick.major.size']=4.5
-		plt.rcParams['ytick.major.width'] = 3.5
+		plt.rcParams['font.size'] = 40
+		plt.rcParams['axes.linewidth'] = 3.5
+		plt.rcParams['xtick.major.size'] = 4.5
+		plt.rcParams['xtick.major.width'] = 4.5
+		plt.rcParams['ytick.major.size'] = 5.5
+		plt.rcParams['ytick.major.width'] = 4.5
 
 
 		fig, ax = plt.subplots(figsize=(20,15))
@@ -612,6 +612,7 @@ class Plotter_Letter():
 		# ax.set_xlim(8E-5,7E2)
 		# ax.set_xlim(8E-1,7E2)
 		ax.set_ylim(3E-3,120)
+		ax.set_xticks([1E-3,1E-2,1E-1,1E0,1E1,1E2,1E3])
 		# ax.set_title(suptitle)
 
 		plt.grid()
@@ -623,7 +624,7 @@ class Plotter_Letter():
 		upper_all = LineCollection(upper_seg,color='gray',alpha=0.3)
 		ax.add_collection(upper_all)
 
-		lc = self.multilines(x_data[L >= clim1-0.1],y_data[L >= clim1-0.1],L[L >= clim1-0.1],lw=2.5,cmap=cmap,alpha=0.85,rasterized=True)
+		lc = self.multilines(x_data[L >= clim1-0.1],y_data[L >= clim1-0.1],L[L >= clim1-0.1],lw=2.5,cmap=cmap,alpha=0.75,rasterized=True)
 		# plt.plot(x_data[L >= clim1-0.1], y_data[L >= clim1-0.1],'.',color='k')
 		# upper_lim_points = plt.plot(upper_w,upper_lim,color='k')
 		# lc_upper = self.multilines(upper_w[L >= clim1-0.1],upper_lim[L >= clim1-0.1],L[L >= clim1-0.1],cmap='rainbow',ls='--')
@@ -641,7 +642,7 @@ class Plotter_Letter():
 		axcb = fig.colorbar(test)
 		# axcb = fig.colorbar(test,cmap=cmap, norm=norm)
 		# axcb.mappable.set_clim(clim1,clim2)
-		# axcb.set_label(r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]')
+		axcb.set_label( r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]')
 		# median_line = ax.plot(np.nanmedian(10**median_x,axis=0),np.nanmedian(10**median_y,axis=0),color='k',lw=5.5)
 		# median_line2 = ax.plot(np.nanmedian(10**median_x2,axis=0),np.nanmedian(10**median_y2,axis=0),color='k',ls='--',lw=5.5)
 		# percentile_25 = ax.plot(np.nanmedian(10**median_x,axis=0),np.nanpercentile(10**median_y,25,axis=0),color='k',ls='--',lw=3.5)
@@ -949,9 +950,9 @@ class Plotter_Letter():
 		MIR_y = np.append(MIR_y,median_upper1[0])
 		# lc12 = self.multilines(wfir[B1][up_check[B1]==0],ffir[B1][up_check[B1]==0],L[B1][up_check[B1]==0],cmap='viridis',alpha=0.75,rasterized=True)	
 
-		ax1.plot(np.nanmedian(10**med_x_fir[B1][up_check[B1] == 0],axis=0),np.nanmedian(10**med_y_fir[B1][up_check[B1] == 0],axis=0), '--',color='b',lw=5.0)
-		ax1.plot(MIR_x, MIR_y, '--',color='r',lw=5.0)
-		ax1.plot(np.append(np.nanmedian(10**median_wavelength[B1],axis=0)[-1],median_upper_wave12),np.append(np.nanmedian(10**median_flux[B1],axis=0)[-1],median_upper12)*scale_goods,'--',color='k',lw=4.0)
+		# ax1.plot(np.nanmedian(10**med_x_fir[B1][up_check[B1] == 0],axis=0),np.nanmedian(10**med_y_fir[B1][up_check[B1] == 0],axis=0), '--',color='b',lw=5.0)
+		ax1.plot(MIR_x, MIR_y, '--',color='k',lw=5.0)
+		# ax1.plot(np.append(np.nanmedian(10**median_wavelength[B1],axis=0)[-1],median_upper_wave12),np.append(np.nanmedian(10**median_flux[B1],axis=0)[-1],median_upper12)*scale_goods,'--',color='k',lw=4.0)
 
 		# upper_lim_line1_25 = ax1.plot(median_upper_wave1,upper_25_1,'--',color='k',lw=3.0)
 		# upper_lim_line1_75 = ax1.plot(median_upper_wave1,upper_75_1,'--',color='k',lw=3.0)
@@ -1179,10 +1180,10 @@ class Plotter_Letter():
 
 
 
-		scale_s82x = np.nanmedian(norm[B3],axis=0)/np.nanmedian(norm[B2],axis=0)
-		scale_goods = np.nanmedian(norm[B1],axis=0)/np.nanmedian(norm[B2],axis=0)
-		# scale_s82x = 1.0
-		# scale_goods = 1.0
+		# scale_s82x = np.nanmedian(norm[B3],axis=0)/np.nanmedian(norm[B2],axis=0)
+		# scale_goods = np.nanmedian(norm[B1],axis=0)/np.nanmedian(norm[B2],axis=0)
+		scale_s82x = 1.0
+		scale_goods = 1.0
 
 		# median_upper_wave1 = np.nanmedian(cosmos_s82x_wave2[B1],axis=0)
 		# median_upper1 = np.nanmedian(cosmos_s82x_list2[B1],axis=0)
@@ -3094,7 +3095,7 @@ class Plotter_Letter():
 		z_med = np.nanmedian(spec_z)
 
 		clim1 = 43
-		clim2 = 46
+		clim2 = 45.5
 
 		cosmos_s82x_list, cosmos_s82x_list2 = [], []
 		cosmos_s82x_wave, cosmos_s82x_wave2 = [], []
@@ -5985,24 +5986,31 @@ class Plotter_Letter():
 		B4 = np.where(np.logical_and(uv_slope >= -0.3, np.logical_and(mir_slope1 < -0.2,mir_slope2 > 0.0)))[0]
 		B5 = np.where(np.logical_and(uv_slope >= -0.3, np.logical_and(mir_slope1 < -0.2,mir_slope2 <= 0.0)))[0]
 
-		plt.rcParams['font.size'] = 22
-		plt.rcParams['axes.linewidth'] = 2
-		plt.rcParams['xtick.major.size'] = 4
-		plt.rcParams['xtick.major.width'] = 3
-		plt.rcParams['ytick.major.size'] = 4
-		plt.rcParams['ytick.major.width'] = 3
+		scale1 = np.nanmedian(norm[B1],axis=0)/np.nanmedian(norm[B3],axis=0)
+		scale2 = np.nanmedian(norm[B2],axis=0)/np.nanmedian(norm[B3],axis=0)
+		scale4 = np.nanmedian(norm[B4],axis=0)/np.nanmedian(norm[B3],axis=0)
+		scale5 = np.nanmedian(norm[B5],axis=0)/np.nanmedian(norm[B3],axis=0)
+		print(scale1,scale2,scale4,scale5)
+		# scale_s82x = np.nanmedian(norm[B3],axis=0)/np.nanmedian(norm[B2],axis=0)
+		# scale_goods = np.nanmedian(norm[B1],axis=0)/np.nanmedian(norm[B2],axis=0)
+
+		plt.rcParams['font.size'] = 40
+		plt.rcParams['axes.linewidth'] = 4
+		plt.rcParams['xtick.major.size'] = 6
+		plt.rcParams['xtick.major.width'] = 5
+		plt.rcParams['ytick.major.size'] = 6
+		plt.rcParams['ytick.major.width'] = 5
 
 		xticks = [1E-4,1E-3,1E-2, 1E-1, 1, 10, 100]
 		yticks = [1E-2, 0.1, 1, 10]
 
 		xticklabels = ['-4',' ','-2',' ','0',' ','2']
-		yticklabels = [-2,-1,0,1]
+		yticklabels = [-2, -1, 0, 1]
 
-		fig = plt.figure(figsize=(30,6))
-		gs = fig.add_gridspec(nrows=2, ncols=5, left=0.1,right=0.9,wspace=0.05,hspace=0.05,height_ratios=[0.15,3])
+		fig = plt.figure(figsize=(50,11))
+		gs = fig.add_gridspec(nrows=2, ncols=5, left=0.1,right=0.9,wspace=0.05,hspace=0.01,height_ratios=[0.2,3])
 
-
-		ax1 = fig.add_subplot(gs[1,4])
+		ax1 = fig.add_subplot(gs[1, 4])#, aspect='equal', adjustable='box')
 		x1 = x[B1]
 		y1 = y[B1]
 		L1 = L[B1]
@@ -6013,9 +6021,9 @@ class Plotter_Letter():
 
 		test = ax1.scatter(np.ones(10)*-1,np.ones(10)*-1,c=np.linspace(clim1,clim2,10),cmap='rainbow_r')
 		
-		lc1 = self.multilines(x1,y1,L1,cmap='rainbow_r',lw=1.5,rasterized=True)
-		ax1.plot(np.nanmedian(10**median_wavelength[B1],axis=0),np.nanmedian(10**median_flux[B1],axis=0),color='k',lw=4)
-		ax1.plot(np.nanmedian(x1,axis=0)[0:2],np.nanmedian(y1,axis=0)[0:2],color='k',lw=4)
+		lc1 = self.multilines(x1,y1*scale1,L1,cmap='rainbow_r',lw=1.5,rasterized=True)
+		ax1.plot(np.nanmedian(10**median_wavelength[B1],axis=0),np.nanmedian(10**median_flux[B1],axis=0)*scale1,color='k',lw=4)
+		ax1.plot(np.nanmedian(x1,axis=0)[0:2],np.nanmedian(y1,axis=0)[0:2]*scale1,color='k',lw=4)
 		axcb1 = fig.colorbar(lc1,orientation='horizontal',pad=-0.1)
 		axcb1.mappable.set_clim(clim1,clim2)
 		axcb1.remove()
@@ -6028,20 +6036,20 @@ class Plotter_Letter():
 		ax1.set_xticks(xticks)
 		ax1.set_yticks(yticks)
 		ax1.set_yticklabels([])
-		ax1.text(0.05,0.85,'1',transform=ax1.transAxes,fontsize=28,weight='bold')
+		ax1.text(0.05,0.85,'1',transform=ax1.transAxes,fontsize=45,weight='bold')
 		ax1.text(0.05,0.7,f'n = {len(x1)}',transform=ax1.transAxes)
 		ax1.text(0.725,0.08,str((len(x1)/len(x))*100)[0:4]+'%',transform=ax1.transAxes,weight='bold')
 		# ax1.set_ylabel(r'Log $\lambda$L$_\lambda$ normalized at 1$\mu$m',fontsize=20)
 		# ax1.set_xlabel(r'Rest Wavelength [$\mu$m]')
 
-		ax2 = fig.add_subplot(gs[1,3])
+		ax2 = fig.add_subplot(gs[1, 3])#, aspect='equal', adjustable='box')
 		x3 = x[B2]
 		y3 = y[B2]
 		L3 = L[B2]
 
-		lc2 = self.multilines(x3,y3,L3,cmap='rainbow_r',lw=1.5,rasterized=True)
-		ax2.plot(np.nanmedian(10**median_wavelength[B2],axis=0),np.nanmedian(10**median_flux[B2],axis=0),color='k',lw=4)
-		ax2.plot(np.nanmedian(x3,axis=0)[0:2],np.nanmedian(y3,axis=0)[0:2],color='k',lw=4)
+		lc2 = self.multilines(x3,y3*scale2,L3,cmap='rainbow_r',lw=1.5,rasterized=True)
+		ax2.plot(np.nanmedian(10**median_wavelength[B2],axis=0),np.nanmedian(10**median_flux[B2],axis=0)*scale2,color='k',lw=4)
+		ax2.plot(np.nanmedian(x3,axis=0)[0:2],np.nanmedian(y3,axis=0)[0:2]*scale2,color='k',lw=4)
 		axcb2 = fig.colorbar(lc2,orientation='horizontal',pad=-0.1)
 		axcb2.mappable.set_clim(clim1,clim2)
 		axcb2.remove()
@@ -6054,12 +6062,12 @@ class Plotter_Letter():
 		ax2.set_xticklabels(xticklabels)
 		ax2.set_xticks(xticks)
 		ax2.set_yticks(yticks)
-		ax2.text(0.05,0.85,'2',transform=ax2.transAxes,fontsize=28,weight='bold')
+		ax2.text(0.05,0.85,'2',transform=ax2.transAxes,fontsize=45,weight='bold')
 		ax2.text(0.05,0.7,f'n = {len(x3)}',transform=ax2.transAxes)
 		ax2.text(0.725,0.08,str((len(x3)/len(x))*100)[0:4]+'%',transform=ax2.transAxes,weight='bold')
 		# ax2.set_xlabel(r'Log$_{10}$ Rest Wavelength [$\mu$m]',fontsize=22)
 
-		ax3 = fig.add_subplot(gs[1,2])
+		ax3 = fig.add_subplot(gs[1, 2])  # , aspect='equal', adjustable='box')
 		x3 = x[B3]
 		y3 = y[B3]
 		L3 = L[B3]
@@ -6082,22 +6090,22 @@ class Plotter_Letter():
 		ax3.set_yticks(yticks)
 		# ax3.set_yticklabels(ytick_labels)
 		ax3.set_yticklabels([])
-		ax3.text(0.05,0.85,'3',transform=ax3.transAxes,fontsize=28,weight='bold')
+		ax3.text(0.05,0.85,'3',transform=ax3.transAxes,fontsize=45,weight='bold')
 		ax3.text(0.05,0.7,f'n = {len(x3)}',transform=ax3.transAxes)
 		ax3.text(0.725,0.08,str((len(x3)/len(x))*100)[0:4]+'%',transform=ax3.transAxes,weight='bold')
 		# ax3.set_ylabel(r'Log$_{10}$ $\lambda$L$_\lambda$ normalized at 1$\mu$m',fontsize=20)
-		ax3.set_xlabel(r'Log$_{10}$ Rest Wavelength [$\mu$m]', fontsize=22)
+		ax3.set_xlabel(r'Log Rest Wavelength [$\mu$m]')
 
-		ax4 = fig.add_subplot(gs[1,1])
+		ax4 = fig.add_subplot(gs[1,1])#, aspect='equal', adjustable='box')
 		x4 = x[B4]
 		y4 = y[B4]
 		L4 = L[B4]
 
 		# y4[(y4 < 0.3) & (x4 > 10)] = np.nan
 		
-		lc4 = self.multilines(x4,y4,L4,cmap='rainbow_r',lw=1.5,rasterized=True)
-		ax4.plot(np.nanmedian(10**median_wavelength[B4],axis=0),np.nanmedian(10**median_flux[B4],axis=0),color='k',lw=4)
-		ax4.plot(np.nanmedian(x4,axis=0)[0:2],np.nanmedian(y4,axis=0)[0:2],color='k',lw=4)	
+		lc4 = self.multilines(x4,y4*scale4,L4,cmap='rainbow_r',lw=1.5,rasterized=True)
+		ax4.plot(np.nanmedian(10**median_wavelength[B4],axis=0),np.nanmedian(10**median_flux[B4],axis=0)*scale4,color='k',lw=4)
+		ax4.plot(np.nanmedian(x4,axis=0)[0:2],np.nanmedian(y4,axis=0)[0:2]*scale4,color='k',lw=4)	
 		axcb4 = fig.colorbar(lc4,orientation='horizontal',pad=-0.1)
 		axcb4.mappable.set_clim(clim1,clim2)
 		axcb4.remove()
@@ -6111,21 +6119,21 @@ class Plotter_Letter():
 		ax4.set_yticks(yticks)
 		ax4.set_yticklabels([])
 		ax4.text(0.05,0.7,f'n = {len(x4)}',transform=ax4.transAxes)
-		ax4.text(0.05,0.85,'4',transform=ax4.transAxes,fontsize=28,weight='bold')
+		ax4.text(0.05,0.85,'4',transform=ax4.transAxes,fontsize=45,weight='bold')
 		ax4.text(0.725,0.08,str((len(x4)/len(x))*100)[0:4]+'%',transform=ax4.transAxes,weight='bold')
 		# ax4.set_ylabel(r'Log$_{10}$ $\lambda$L$_\lambda$ normalized at 1$\mu$m',fontsize=20)
 		# ax4.set_xlabel(r'Rest Wavelength [$\mu$m]')
 
-		ax5 = fig.add_subplot(gs[1,0])
+		ax5 = fig.add_subplot(gs[1, 0])  # , aspect='equal', adjustable='box')
 		x5 = x[B5]
 		y5 = y[B5]
 		L5 = L[B5]
 
 		# y5[(y5 < 0.3) & (x5 > 10)] = np.nan
 		
-		lc5 = self.multilines(x5,y5,L5,cmap='rainbow_r',lw=1.5,rasterized=True)
-		ax5.plot(np.nanmedian(10**median_wavelength[B5],axis=0),np.nanmedian(10**median_flux[B5],axis=0),color='k',lw=4)
-		ax5.plot(np.nanmedian(x4,axis=0)[0:2],np.nanmedian(y4,axis=0)[0:2],color='k',lw=4)	
+		lc5 = self.multilines(x5,y5*scale5,L5,cmap='rainbow_r',lw=1.5,rasterized=True)
+		ax5.plot(np.nanmedian(10**median_wavelength[B5],axis=0),np.nanmedian(10**median_flux[B5],axis=0)*scale5,color='k',lw=4)
+		ax5.plot(np.nanmedian(x4,axis=0)[0:2],np.nanmedian(y4,axis=0)[0:2]*scale5,color='k',lw=4)	
 		axcb5 = fig.colorbar(lc5,orientation='horizontal',pad=-0.1)
 		axcb5.mappable.set_clim(clim1,clim2)
 		axcb5.remove()
@@ -6139,9 +6147,9 @@ class Plotter_Letter():
 		ax5.set_yticks(yticks)
 		ax5.set_yticklabels(yticklabels)
 		ax5.text(0.05,0.7,f'n = {len(x5)}',transform=ax5.transAxes)
-		ax5.text(0.05,0.85,'5',transform=ax5.transAxes,fontsize=28,weight='bold')
+		ax5.text(0.05,0.85,'5',transform=ax5.transAxes,fontsize=45,weight='bold')
 		ax5.text(0.725,0.08,str((len(x5)/len(x))*100)[0:4]+'%',transform=ax5.transAxes,weight='bold')
-		ax5.set_ylabel(r'Log$_{10}$ $\lambda$L$_\lambda$ normalized at 1$\mu$m',fontsize=20)
+		ax5.set_ylabel(r'Normalized Log $\lambda$L$_\lambda$')
 		# ax5.set_xlabel(r'Rest Wavelength [$\mu$m]')
 
 		ax1.grid()
@@ -6152,13 +6160,13 @@ class Plotter_Letter():
 		
 		cbar_ax = fig.add_subplot(gs[:-1, :])
 		cb = fig.colorbar(test, cax=cbar_ax, orientation='horizontal')
-		cb.set_label(r'log$_{10}$ L$_{\mathrm{X}}$ (0.5-10kev) [erg/s]')
+		cb.set_label(r'log L$_{\mathrm{X}}$ (0.5-10kev) [erg/s]')
 		cb.ax.xaxis.set_ticks_position('top')
 		cb.ax.xaxis.set_label_position('top')
 
 
 
-
+		# plt.tight_layout()
 		plt.savefig('/Users/connor_auge/Desktop/SEDs_horizontal_5panel.pdf')
 		plt.show()
 
@@ -8355,8 +8363,8 @@ class Plotter_Letter():
 
 		# ax1.set_ylim(43,47.5)
 		# ax1.set_ylim(42,46.1)
-		ax1.set_ylim(10,14)
-		# ax1.set_ylim(8.5,12.6)
+		# ax1.set_ylim(10,14)
+		ax1.set_ylim(8.5,12.6)
 		plt.gca().invert_xaxis()		
 		# ax1.set_ylim(0,40)
 		ax1.set_ylabel(r'log L$_{\mathrm{bol}}$ [L$_\odot$]')
@@ -8381,8 +8389,8 @@ class Plotter_Letter():
 		ax2.boxplot(L5[(z5 > zlim_2)&(z5 <= zlim_3)],positions=[5],patch_artist=True,boxprops=dict(facecolor=c5,color=c5),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
 		# ax2.set_ylim(43,47.5)
 		# ax2.set_ylim(42,46.1)
-		ax2.set_ylim(10,14)
-		# ax2.set_ylim(8.5,12.6)
+		# ax2.set_ylim(10,14)
+		ax2.set_ylim(8.5,12.6)
 		# ax2.set_ylim(0,40)
 		plt.gca().invert_xaxis()
 		ax2.set_yticklabels([])
@@ -8401,8 +8409,8 @@ class Plotter_Letter():
 		ax3.boxplot(L5[(z5 > zlim_3)&(z5 <= zlim_4)],positions=[5],patch_artist=True,boxprops=dict(facecolor=c5,color=c5),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=4))
 		# ax3.set_ylim(43,47.5)
 		# ax3.set_ylim(42,46.1)
-		ax3.set_ylim(10,14)
-		# ax3.set_ylim(8.5,12.6)
+		# ax3.set_ylim(10,14)
+		ax3.set_ylim(8.5,12.6)
 		# ax3.set_ylim(0,40)
 		plt.gca().invert_xaxis()
 		ax3.set_yticklabels([])

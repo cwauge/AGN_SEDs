@@ -24,7 +24,7 @@ z_max = 1.2
 Lx_min = 43
 Lx_max = 50
 
-goals_Lx_min = 42.5
+goals_Lx_min = 43
 
 ###################################################################################
 ###################################################################################
@@ -1385,6 +1385,7 @@ ulirg_cgoals_Lx_match = 10**ulirg_Lx[ulirg_iy]
 # ulirg_cgoals_Lx_match = (10**ulirg_Lx[ulirg_iy])*0.638 # convert Lx(2-10keV) to Lx(0.5-2keV)
 ulirg_cgoals_Lx_obs_match = 10**ulirg_Lx_obs[ulirg_iy]
 ulirg_cgoals_Nh_match = np.log10(ulirg_Nh[ulirg_iy])
+ulirg_cgoals_Lir_match = 10**ulirg_LIR[ulirg_iy]
 
 # cgoals_z = cgoals_z[iy]
 # cgoals_Lx_match = cgoals_Lx[iy]
@@ -1480,10 +1481,10 @@ for i in range(len(goals_data['HX'][ulirg_ix])):
 ulirg_cgoals_nan_array = np.zeros(np.shape(goals_data['HX'][ulirg_ix]))
 ulirg_cgoals_nan_array[ulirg_cgoals_nan_array == 0] = np.nan
 ulirg_cgoals_flux = np.asarray([
-	# ulirg_cgoals_Fx_hard_match_mjy*1000,
-	# ulirg_cgoals_Fx_soft_match_mjy*1000,
-	goals_data['HX'][ulirg_ix]*1E6,
-	goals_data['SX'][ulirg_ix]*1E6,
+	ulirg_cgoals_Fx_hard_match_mjy*1000,
+	ulirg_cgoals_Fx_soft_match_mjy*1000,
+	# goals_data['HX'][ulirg_ix]*1E6,
+	# goals_data['SX'][ulirg_ix]*1E6,
 	ulirg_cgoals_nan_array,
 	goals_data['FUV'][ulirg_ix]*1E6,
 	goals_data['NUV'][ulirg_ix]*1E6,
@@ -1515,10 +1516,10 @@ ulirg_cgoals_flux = np.asarray([
 	])
 
 ulirg_cgoals_flux_err = np.asarray([
-	# ulirg_cgoals_Fx_hard_match_mjy*1000*0.2,
-	# ulirg_cgoals_Fx_soft_match_mjy*1000*0.2,
-	goals_data['HXerr'][ulirg_ix]*1E6*0.2,
-	goals_data['SXerr'][ulirg_ix]*1E6*0.2,
+	ulirg_cgoals_Fx_hard_match_mjy*1000*0.2,
+	ulirg_cgoals_Fx_soft_match_mjy*1000*0.2,
+	# goals_data['HXerr'][ulirg_ix]*1E6*0.2,
+	# goals_data['SXerr'][ulirg_ix]*1E6*0.2,
 	ulirg_cgoals_nan_array,
 	goals_data['FUVerr'][ulirg_ix]*1E6,
 	goals_data['NUVerr'][ulirg_ix]*1E6,
@@ -1641,6 +1642,7 @@ print('NED ID: ', ned_goals_ID)
 ix,iy = match(ned_goals_ID,ulirg_ID)
 
 ned_goals_ID_match = ned_goals_ID[ix]
+ned_goals_LIR_match = 10**ulirg_LIR[iy]
 
 ned_goals_Lx = 10**ulirg_Lx[iy]
 # ned_goals_Lx = np.log10((10**ulirg_Lx[iy])*0.638) # convert Lx(2-10keV) to Lx(0.5-2keV)
@@ -1655,10 +1657,10 @@ for i in range(len(np.asarray(ned_data['HX'][ix],dtype=float))):
 	ulirgs_corrected_soft.append(np.asarray(ulirg_Fsx[iy],dtype=float)[i]*4.136E8/(2-0.5)*1000)
 
 
-# ned_goals_Fhx = np.asarray(ulirg_Fhx[iy],dtype=float)
-# ned_goals_Fsx = np.asarray(ulirg_Fsx[iy],dtype=float)
-ned_goals_Fhx = np.asarray(ned_data['HX'][ix],dtype=float)
-ned_goals_Fsx = np.asarray(ned_data['SX'][ix],dtype=float)
+ned_goals_Fhx = np.asarray(ulirg_Fhx[iy],dtype=float)
+ned_goals_Fsx = np.asarray(ulirg_Fsx[iy],dtype=float)
+# ned_goals_Fhx = np.asarray(ned_data['HX'][ix],dtype=float)
+# ned_goals_Fsx = np.asarray(ned_data['SX'][ix],dtype=float)
 
 ned_goals_Fx_hard_match_mjy = ned_goals_Fhx*4.136E8/(10-2)
 ned_goals_Fx_soft_match_mjy = ned_goals_Fsx*4.136E8/(2-0.5)
@@ -2364,7 +2366,7 @@ ulirg_Lx_out, ulirg_Lx_corr_out = [], []
 Lbol_ulirg, Lbol_ulirg_sub = [], []
 ulirg_field = []
 ulirg_up_check = []
-ulirg_Nh_out = []
+ulirg_Nh_out, ulirg_LIR_out = [], []
 
 # '''
 # fill_nan = np.zeros(len(ned_goals_filter_name)-len(cgoals_filter_name))
@@ -2418,6 +2420,7 @@ for i in range(len(ulirg_cgoals_ID_match)):
         ulirg_Lx_out.append(np.log10(ulirg_cgoals_Lx_match[i]))
         ulirg_Lx_corr_out.append(np.log10(ulirg_cgoals_Lx_match[i]))
         ulirg_Nh_out.append(ulirg_cgoals_Nh_match[i])
+        ulirg_LIR_out.append(ulirg_cgoals_Lir_match[i])
 
         Lbol_ulirg.append(source.Find_Lbol())
         Lbol_ulirg_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
@@ -2485,6 +2488,7 @@ for i in range(len(ned_goals_ID_match)):
 
         Lbol_ulirg.append(source.Find_Lbol())
         Lbol_ulirg_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
+        ulirg_LIR_out.append(ned_goals_LIR_match[i])
 
 
         ulirg_field.append(6)
@@ -2492,13 +2496,6 @@ for i in range(len(ned_goals_ID_match)):
 
 # '''
 print('Done with ULIRGS')
-
-plt.rcParams['font.size']=24
-plt.rcParams['axes.linewidth']=3
-plt.rcParams['xtick.major.size']=3
-plt.rcParams['xtick.major.width'] = 3
-plt.rcParams['ytick.major.size']=3
-plt.rcParams['ytick.major.width'] = 3
 
 
 
@@ -2513,7 +2510,7 @@ plt.rcParams['ytick.major.width'] = 3
 # plt.rcParams['ytick.major.size'] = 2
 # plt.rcParams['ytick.major.width'] = 2
 
-plt.rcParams['font.size'] = 24
+plt.rcParams['font.size'] = 36
 plt.rcParams['axes.linewidth'] = 3
 plt.rcParams['xtick.major.size'] = 3
 plt.rcParams['xtick.major.width'] = 3
@@ -2565,6 +2562,18 @@ uv_lum_ulirg, opt_lum_ulirg, mir_lum_ulirg, fir_lum_ulirg = np.asarray(uv_lum_ul
 ulirg_field = np.asarray(ulirg_field)
 ulirg_up_check = np.asarray(ulirg_up_check)
 ulirg_Nh_out = np.asarray(ulirg_Nh_out)
+ulirg_LIR_out = np.asarray(ulirg_LIR_out)
+
+# print('HERE: ', len(ulirg_LIR_out), len(ulirg_Nh_out))
+# print(np.log10(ulirg_LIR_out))
+# print(np.log10(Lbol_ulirg/3.8E33))
+# print(ulirg_id)
+
+# plt.plot(np.log10(ulirg_LIR_out),np.log10(Lbol_ulirg/3.8E33),'.')
+# plt.plot(np.arange(0,15),np.arange(0,15))
+# plt.xlim(10,13)
+# plt.ylim(10,13)
+# plt.show()
 
 
 
@@ -2699,18 +2708,18 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 
 # plot.plot_1panel('43',all_w,all_f,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_w,median_f,F1=norm,F2=marker,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
 
-plot.NSF_seds_3panel(all_x[sort],all_y[sort],Lx[sort],UVslope[sort],MIRslope1[sort],MIRslope2[sort],median_x[sort],median_y[sort],F1[sort])
+# plot.NSF_seds_3panel(all_x[sort],all_y[sort],Lx[sort],UVslope[sort],MIRslope1[sort],MIRslope2[sort],median_x[sort],median_y[sort],F1[sort])
 
 ################ Paper Plots ###################
 # fig 3
-# plot.multi_SED('TEST_GOODS',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
+# plot.multi_SED('AAS',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
 
 # fig 4 & 5
-# plot.multi_SED_zbins('All',all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
-# plot.multi_SED_field('TEST_GOODS', all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort], wfir=WFIR[sort], ffir=FFIR[sort])
+# plot.multi_SED_zbins('AAS',all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
+# plot.multi_SED_field('AAS', all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort], wfir=WFIR[sort], ffir=FFIR[sort])
 
 # fig 6
-# plot.plot_5panel_zbins('43',all_x,all_y,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_x,median_y,F1=F1,F2=field,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
+# plot.plot_5panel_zbins('AAS',all_x,all_y,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_x,median_y,F1=F1,F2=field,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
 
 # fig 7 
 # plot.plot_median_zbins(np.asarray(FFIR),all_x,all_y,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_x,median_y,F1=F1,F2=field,median_FIR_w=np.asarray(WFIR),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2)
@@ -2738,9 +2747,9 @@ plot.NSF_seds_3panel(all_x[sort],all_y[sort],Lx[sort],UVslope[sort],MIRslope1[so
 
 # fig 13 & 14
 # plot2.Lx_Scatter_Comp('Lx_MIR10_test','Lx','MIR10','None','Lx' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.Lx_Scatter_Comp('Lx_MIR6_bins','Lx','MIR6','None','Bins' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Lx_Scatter_Comp('Lx_MIR6','Lx','MIR6','None','X-axis' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
-# plot2.Lx_Scatter_Comp('Lx_UV_bins','Lx','UV','None','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Lx_Scatter_Comp('Lx_UV','Lx','UV','None','X-axis',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Lx_Scatter_Comp('Lx_FIR_norm','Lx','FIR','Y','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Lx_Scatter_Comp('Lx_FIR','Lx','FIR','None','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Lx_Scatter_Comp('Lx_FIR_both','Lx','FIR','Both','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
@@ -2749,6 +2758,9 @@ plot.NSF_seds_3panel(all_x[sort],all_y[sort],Lx[sort],UVslope[sort],MIRslope1[so
 # plot2.Lx_Scatter_Comp('Lx_Lbol_sub','Lx','Lbol','None','X-axis' ,Lx,np.log10(Lbol_sub),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
 
+# plot2.Box_3panel('Lx_box_3panel_AAS', 'Lx', Lx, all_z, UVslope, MIRslope1, MIRslope2)
+# plot2.Box_3panel('Nh_box_3panel_AAS', 'Nh', np.log10(Nh[Nh > 0]), all_z[Nh > 0], UVslope[Nh > 0], MIRslope1[Nh > 0], MIRslope2[Nh > 0])
+# plot2.Box_3panel('Lbol_box_3panel_AAS', 'Lbol', np.log10(Lbol_sub), all_z, UVslope, MIRslope1, MIRslope2)
 
 # # fig 10, 11 & 12
 # plot2.Emission_Scatter_Comp('UV_MIR_plot_43_med_bins','MIR','UV','None','Bins' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
@@ -2771,27 +2783,33 @@ plot.NSF_seds_3panel(all_x[sort],all_y[sort],Lx[sort],UVslope[sort],MIRslope1[so
 # plot2.Upanels_ratio_plots('Lum_Lbol','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Upanels_ratio_plots('Nh_ratios','Nh','UV/MIR-UV/Lx-MIR/Lx','Bins',Nh,Lx,np.log10(Lbol),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Box_1panel('Nh_box_1panel', 'Nh', np.log10(Nh[Nh > 0]), UVslope[Nh>0], MIRslope1[Nh>0], MIRslope2[Nh>0])
-plot2.Box_1panel('Lbol_box_1panel', 'Lbol', np.log10(Lbol), UVslope, MIRslope1, MIRslope2)
+# plot2.Box_1panel('Lbol_box_1panel', 'Lbol', np.log10(Lbol), UVslope, MIRslope1, MIRslope2)
 # plot2.ratios_1panel('Lx_Lbol_1panel','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 
 # plot2.Upanels_ratio_plots('Lum_Lbol_sub','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,Lx,np.log10(Lbol_sub),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Box_1panel('Lbol_box_1panel_sub', 'Lbol', np.log10(Lbol_sub), UVslope, MIRslope1, MIRslope2)
-# plot2.ratios_1panel('Lx_Lbol_1panel_sub','Lx','Lbol/Lx','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.Box_1panel('Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol_sub)-Lx, UVslope, MIRslope1, MIRslope2)
+plot2.ratios_1panel('Lx_Lbol_1panel_sub','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.ratios_1panel('MIR_Nh_1panel','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.ratios_1panel('UV_Nh_1panel','Nh','UV','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Box_1panel('Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol)-Lx, UVslope, MIRslope1, MIRslope2)
 # plot2.Box_1panel('Lx_box_1panel', 'Lx', Lx, UVslope, MIRslope1, MIRslope2)
+# plot2.scatter_1panel('UV_Lx_1panel','Lx','UV','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('MIR6_Lx_1panel','Lx','MIR6','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 
-
+print(ulirg_Lx_out)
 ### ULIRG Plots ###
-# ulirg_plot.multi_SED('ULIRG',ulirg_x,ulirg_y,ulirg_Lx_out,median_x_ulirg,median_y_ulirg,suptitle='SEDs of ULIRGs',norm=F1_ulirg,mark=ulirg_field,spec_z=ulirg_z,wfir=None,ffir=None,up_check=ulirg_up_check,med_x_fir=median_fir_x_ulirg,med_y_fir=median_fir_y_ulirg)
+# ulirg_plot.multi_SED('ULIRG_n',ulirg_x,ulirg_y,ulirg_Lx_out,median_x_ulirg,median_y_ulirg,suptitle='SEDs of ULIRGs',norm=F1_ulirg,mark=ulirg_field,spec_z=ulirg_z,wfir=None,ffir=None,up_check=ulirg_up_check,med_x_fir=median_fir_x_ulirg,med_y_fir=median_fir_y_ulirg)
 # plot2.Lx_Scatter_Comp('ULIRG_Lx_MIR_bins','Lx','MIR6','None','Bins' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check,ulirg_Lx=ulirg_Lx_out,ulirg_Flux = np.log10(F6_ulirg),ulirg_F1 = F1_ulirg)
 # plot2.Lx_Scatter_Comp('ULIRG_Lx_UV_bins','Lx','UV','None','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check,ulirg_Lx=ulirg_Lx_out,ulirg_Flux = np.log10(F025_ulirg),ulirg_F1 = F1_ulirg)
 # plot2.ratio_plots('ULIRG_Nh_MIR','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check,ulirg_Nh=ulirg_Nh_out,ulirg_Lx=ulirg_Lx_out,ulirg_Flux=np.log10(F6_ulirg),ulirg_F1=F1_ulirg)
 # plot2.ratio_plots('ULIRG_Nh_UV','Nh','UV','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check,ulirg_Nh=ulirg_Nh_out,ulirg_Lx=ulirg_Lx_out,ulirg_Flux=np.log10(F025_ulirg),ulirg_F1=F1_ulirg)
-# plot2.Box_1panel('ULIRG_Lx_box_1panel', 'Lx', Lx, UVslope, MIRslope1, MIRslope2, ulirg_x=ulirg_Lx_out)
-# plot2.Box_1panel('ULIRG_Nh_box_1panel', 'Nh', np.log10(Nh[Nh > 0]), UVslope[Nh > 0], MIRslope1[Nh > 0], MIRslope2[Nh > 0], ulirg_x=ulirg_Nh_out[ulirg_Nh_out > 21])
-# plot2.Box_1panel('ULIRG_Lbol_box_1panel_sub', 'Lbol', np.log10(Lbol_sub), UVslope, MIRslope1, MIRslope2, ulirg_x=np.log10(Lbol_ulirg_sub[Lbol_ulirg_sub > 0]))
+# plot2.Box_1panel('ULIRG_Lx_box_1panel_n', 'Lx', Lx, UVslope, MIRslope1, MIRslope2, ulirg_x=ulirg_Lx_out-np.log10(3.8E33))
+# plot2.Box_1panel('ULIRG_Nh_box_1panel_n', 'Nh', np.log10(Nh[Nh > 0]), UVslope[Nh > 0], MIRslope1[Nh > 0], MIRslope2[Nh > 0], ulirg_x=ulirg_Nh_out[ulirg_Nh_out > 21])
+# plot2.Box_1panel('ULIRG_Lbol_box_1panel_n', 'Lbol', np.log10(Lbol_sub), UVslope, MIRslope1, MIRslope2, ulirg_x=np.log10(ulirg_LIR_out*3.8E33))
 # plot2.Box_1panel('ULIRG_Lbol_Lx_box_1panel', 'Lbol/Lx', np.log10(Lbol)-Lx, UVslope, MIRslope1, MIRslope2, ulirg_x=np.log10(Lbol_ulirg[Lbol_ulirg > 0])-ulirg_Lx_out[Lbol_ulirg > 0])
-# plot2.Box_1panel('ULIRG_Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol_sub)-Lx, UVslope, MIRslope1, MIRslope2, ulirg_x=np.log10(Lbol_ulirg_sub[Lbol_ulirg_sub > 0])-ulirg_Lx_out)
+# plot2.Box_1panel('ULIRG_Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol_sub)-Lx, UVslope, MIRslope1, MIRslope2, ulirg_x=np.log10(ulirg_LIR_out*3.8E33)-ulirg_Lx_out)
+# plot2.ratios_1panel('ULIRG_MIR_Nh_1panel','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,ulirg_Nh=ulirg_Nh_out,ulirg_Lx=ulirg_Lx_out,ulirg_Flux=np.log10(F6_ulirg),ulirg_F1=F1_ulirg)
+# plot2.ratios_1panel('ULIRG_UV_Nh_1panel','Nh','UV','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,ulirg_Nh=ulirg_Nh_out,ulirg_Lx=ulirg_Lx_out,ulirg_Flux=np.log10(F025_ulirg),ulirg_F1=F1_ulirg)
 
 ###############################################################################
 ###############################################################################
