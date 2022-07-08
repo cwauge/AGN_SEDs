@@ -633,6 +633,29 @@ class AGN():
 
 		return out
 
+	def SED_shape(self,uv_slope=None,mir_slope1=None,mir_slope2=None):
+		if uv_slope == None:
+			uv_slope = self.Find_slope(0.15,1.0)
+		if mir_slope1 == None:
+			mir_slope1 = self.Find_slope(1.0,6.5)
+		if mir_slope2 == None:
+			mir_slope2 = self.Find_slope(6.5,10)
+
+		if (uv_slope < -0.3) & (mir_slope1 >= -0.2):
+			B = 1
+		elif (uv_slope >= -0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2):
+			B = 2
+		elif (uv_slope > 0.2) & (mir_slope1 >= -0.2):
+			B = 3
+		elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0):
+			B = 4
+		elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0):
+			B = 5
+		else:
+			B = -1
+		return B
+
+
 	def SED_output(self,fname,opt):
 		flux_flux_err = np.empty(self.flux_jy.size+self.flux_jy_err.size, dtype=self.flux_jy.dtype)
 		filter_name_err = np.asarray([i+'_err' for i in self.filter_name])

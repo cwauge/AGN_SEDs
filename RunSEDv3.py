@@ -1,6 +1,7 @@
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
@@ -53,6 +54,8 @@ deimos_z = np.asarray(deimos['zspec'])
 deimos_remarks = np.asarray(deimos['Remarks'])
 deimos_ID = np.asarray([int(i[1:]) for i in deimos_id if 'L' in i])
 deimos_z_spec = np.asarray([deimos_z[i] for i in range(len(deimos_z)) if 'L' in deimos_id[i]])
+
+cosmos_cutouts = os.listdir('./cosmos_cutouts/')
 
 chandra_cosmos_phot_id = chandra_cosmos_data['id_k_uv']
 cosmos_laigle_id = cosmos_data['ID_COSMOS2015']
@@ -1849,6 +1852,7 @@ s82x_Lx = []
 check_sed = []
 uv_lum, opt_lum, mir_lum, fir_lum = [], [], [], []
 Lbol_sub = []
+sed_shape = []
 
 ###############################################################################
 ###############################################################################
@@ -1903,14 +1907,14 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         all_frac_err.append(frac_err)
         upper_check.append(up_check)
 
-        # if chandra_cosmos_phot_id_match[i] == 282350:
-        # #     print(chandra_cosmos_xid_match[i])
-        #     plot = Plotter(Id,redshift,w,f,frac_err,np.log10(chandra_cosmos_Lx_full_match[i]))
-        #     plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
-        # elif chandra_cosmos_phot_id_match[i] == 818825:
+        if chandra_cosmos_phot_id_match[i] == 100728:
         #     print(chandra_cosmos_xid_match[i])
-        #     plot = Plotter(Id,redshift,w,f,frac_err,np.log10(chandra_cosmos_Lx_full_match[i]))
-        #     plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
+            plot = Plotter(Id,redshift,w,f,frac_err,np.log10(chandra_cosmos_Lx_full_match[i]))
+            plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
+        elif chandra_cosmos_phot_id_match[i] == 110707:
+            # print(chandra_cosmos_xid_match[i])
+            plot = Plotter(Id,redshift,w,f,frac_err,np.log10(chandra_cosmos_Lx_full_match[i]))
+            plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
 
         med_x, med_y = source.median_SED(['U'], ['FLUX_24'])
         median_x.append(med_x)
@@ -1932,6 +1936,8 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         cosmos_target_id.append(chandra_cosmos_phot_id_match[i])
         cosmos_target_ra.append(chandra_cosmos_RA_match[i])
         cosmos_target_dec.append(chandra_cosmos_DEC_match[i])
+
+        sed_shape.append(source.SED_shape(UV_slope[i],MIR_slope1[i],MIR_slope2[i]))
 
         # if check_sed[i] == 'GOOD':
         #     source.SED_output('Test_out_cosmos2.fits','w')
@@ -1969,7 +1975,7 @@ dec_out = []
 ############################# Run Stripe82X SEDs ##############################
 fill_nan = np.zeros(len(GOODSS_auge_filters)-len(S82X_filters))
 fill_nan[fill_nan == 0] = np.nan
-# '''
+'''
 for i in range(len(lamassa_id_use)):
         try:
             source = AGN(lamassa_id_use[i], s82x_z_sp[i], S82X_filters, s82x_flux_array[i], s82x_flux_err_array[i])
@@ -2041,7 +2047,7 @@ for i in range(len(lamassa_id_use)):
         except ValueError:
             continue
 
-# '''
+'''
 # outf = open('/Users/connor_auge/Desktop/s82x_check_coords.csv','w')
 # outf.writelines('ID,RA,DEC\n')
 # for i in range(len(ra_out)):
@@ -2060,7 +2066,7 @@ fill_nan[fill_nan == 0] = np.nan
 goodsN_id_candels = []
 goodsN_id_auge = []
 
-# '''
+'''
 for i in range(len(goodsN_phot_id_match)):
     # if goodsN_flux_array[i][GOODSN_filters == 'FLUX_24'] <= 0:
     #     continue
@@ -2215,7 +2221,7 @@ goodsS_id_auge = []
 fill_nan = np.zeros(len(GOODSS_auge_filters)-len(GOODSS_filters))
 fill_nan[fill_nan == 0] = np.nan
 
-# '''
+'''
 for i in range(len(goodsS_phot_id_match)):
     # if goodsS_flux_array[i][GOODSS_filters == 'FLUX_24'] <= 0:
     #     continue
@@ -2345,7 +2351,7 @@ for i in range(len(goodsS_auge_ID_match)):
             field.append(3)
         except ValueError:
             continue
-# '''
+'''
 
 tgs = time.perf_counter()   
 print(f'Done with GOODS-S sources ({tgs - tgn:0.4f} second)')
@@ -2368,7 +2374,7 @@ ulirg_field = []
 ulirg_up_check = []
 ulirg_Nh_out, ulirg_LIR_out = [], []
 
-# '''
+'''
 # fill_nan = np.zeros(len(ned_goals_filter_name)-len(cgoals_filter_name))
 # fill_nan[fill_nan == 0] = np.nan
 for i in range(len(ulirg_cgoals_ID_match)):
@@ -2494,7 +2500,7 @@ for i in range(len(ned_goals_ID_match)):
         ulirg_field.append(6)
 
 
-# '''
+'''
 print('Done with ULIRGS')
 
 
@@ -2549,7 +2555,7 @@ Nh = np.asarray(Nh)[GOOD_SEDs]
 # FFIR_2, WFIR_2 = np.asarray(FFIR_2)[GOOD_SEDs], np.asarray(WFIR_2)[GOOD_SEDs]
 median_fir_x, median_fir_y = np.asarray(median_fir_x)[GOOD_SEDs], np.asarray(median_fir_y)[GOOD_SEDs]
 uv_lum, opt_lum, mir_lum, fir_lum = np.asarray(uv_lum)[GOOD_SEDs], np.asarray(opt_lum)[GOOD_SEDs], np.asarray(mir_lum)[GOOD_SEDs], np.asarray(fir_lum)[GOOD_SEDs]
-
+sed_shape = np.asarray(sed_shape)[GOOD_SEDs]
 
 
 ulirg_id, ulirg_z, ulirg_x, ulirg_y, ulirg_Lx_out, ulirg_Lx_corr_out, median_x_ulirg, median_y_ulirg = np.asarray(ulirg_id), np.asarray(ulirg_z), np.asarray(ulirg_x), np.asarray(ulirg_y), np.asarray(ulirg_Lx_out), np.asarray(ulirg_Lx_corr_out), np.asarray(median_x_ulirg), np.asarray(median_y_ulirg)
@@ -2788,7 +2794,7 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 
 # plot2.Upanels_ratio_plots('Lum_Lbol_sub','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,Lx,np.log10(Lbol_sub),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Box_1panel('Lbol_box_1panel_sub', 'Lbol', np.log10(Lbol_sub), UVslope, MIRslope1, MIRslope2)
-plot2.ratios_1panel('Lx_Lbol_1panel_sub','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.ratios_1panel('Lx_Lbol_1panel_sub','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.ratios_1panel('MIR_Nh_1panel','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.ratios_1panel('UV_Nh_1panel','Nh','UV','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Box_1panel('Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol)-Lx, UVslope, MIRslope1, MIRslope2)
@@ -2796,7 +2802,7 @@ plot2.ratios_1panel('Lx_Lbol_1panel_sub','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(
 # plot2.scatter_1panel('UV_Lx_1panel','Lx','UV','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.scatter_1panel('MIR6_Lx_1panel','Lx','MIR6','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 
-print(ulirg_Lx_out)
+# print(ulirg_Lx_out)
 ### ULIRG Plots ###
 # ulirg_plot.multi_SED('ULIRG_n',ulirg_x,ulirg_y,ulirg_Lx_out,median_x_ulirg,median_y_ulirg,suptitle='SEDs of ULIRGs',norm=F1_ulirg,mark=ulirg_field,spec_z=ulirg_z,wfir=None,ffir=None,up_check=ulirg_up_check,med_x_fir=median_fir_x_ulirg,med_y_fir=median_fir_y_ulirg)
 # plot2.Lx_Scatter_Comp('ULIRG_Lx_MIR_bins','Lx','MIR6','None','Bins' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check,ulirg_Lx=ulirg_Lx_out,ulirg_Flux = np.log10(F6_ulirg),ulirg_F1 = F1_ulirg)
