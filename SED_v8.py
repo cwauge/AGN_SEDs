@@ -1,0 +1,277 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
+import astropy.constants as const
+from astropy import units as u
+from astropy.cosmology import FlatLambdaCDM
+from astropy.io import fits
+from astropy.io import ascii
+from astropy.table import Table
+from scipy import interpolate
+from scipy import integrate
+from filters import Filters
+
+def main(ID,z,filter_name,obs_flux,obs_flux_err):
+    source = AGN(ID,z,filter_name,obs_flux,obs_flux_err)
+
+
+class AGN():
+
+    def __init__(self,ID,z,filter_name,obs_flux,obs_flux_err):
+        self.ID = ID
+        self.filter_name = filter_name
+        self.z = z
+        self.obs_f = obs_flux
+        self.obs_f_err = obs_flux_err
+        
+        filter_list = ascii.read('filter_list.dat')
+        self.f_name = np.asarray(filter_list['Name'])
+        self.f_name_err = np.asarray(filter_list['Name_err'])
+        self.cent_wavelength = np.asarray(filter_list['central_wavelength'])
+        self.upper_lim = np.asarray(filter_list['upper_lim'])
+
+        self.obs_w = Filters('filter_list.dat').pull_filter(self.filter_name,'central wavelength')
+
+    def MakeSED(self):
+        '''Function to make the SED in the restframe'''
+        self.c = const.c.to('cm/s').value #speed of light in cgs
+
+        # unit conversions and rest-frame corrections for wavelength values
+        rest_w = self.obs_w/(1+self.z) # bring the wavelength to the rest frame
+        self.obs_w_cgs = self.obs_w*1E-8 # observed wavelength from Angstroms to cm
+        self.rest_w_cgs = rest_w*1E-8 # rest wavelength from Angstroms to cm
+        self.rest_w_microns = rest_w*8E-4 # rest wavelength  from Angstroms to microns
+        self.rest_freq = self.c/self.rest_w_cgs # convert rest wavelength to a frequency
+
+        # unit converstion and quality check for flux values
+        self.flux_jy = self.obs_f*1E-6 # convert the flux values from microJy to Jy
+        self.flux_jy_err = self.obs_f_err*1E-6 # convert the flux errors from microJyto Jy
+        self.flux_jy[self.flux_jy <= 0] = np.nan # replace negative or zero flux values with nan
+        self.flux_jy_err[self.flux_jy_err <= 0] = np.nan # replace negative or zero error values with nan
+        self.flux_jy[np.isnan(self.flux_jy_err)] # replace flux values with no errors with nan
+        self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove flux values with frac error > 50%
+
+        # convert flux from frequency space to wavelength
+        self.Fnu = self.flux_jy*1E-23 # convert flux from Jy to cgs: erg s^-1 cm^-2 Hz^-1
+        self.Flambda = self.Fnu*(self.c/self.obs_w_cgs**2) 
+
+        self.lambdaF_lambda = self.obs_w_cgs*self.Flambda # convert units to erg s^-1 cm^-2
+        self.lambdaL_lambda = self.Flux_to_Lum(self.lambdaF_lambda,self.z) # convert flux to luminosity [erg s^-1]
+        
+        x = np.log10(self.rest_w_microns[~np.isnan(self.lambdaL_lambda)])
+        y = np.log10(self.lambdaL_lambda[~np.isnan(self.lambdaL_lambda)])
+        self.f_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
+
+    def Find_value(self,wave):
+        try:
+            value = 10**self.f_interp(np.log10(wave))
+            return value
+        except AttributeError:
+            value = np.nan
+            print(f'Object {self.ID} does not have enought valid flux values to find Luminosity at {wave} through SED interpolation.')
+            return value
+
+    def Find_slope(self,wi,wf):
+        '''Function to make the SED in the restframe'''
+        fi = self.Find_value(wi)
+        ff = self.Find_value(wf)
+        slope = np.log10(ff/fi)/np.log10(wf/wi)
+
+        return slope
+
+    def SED_shape(self):
+        uv_slope = self.Find_slope(0.15, 1.0)
+        mir_slope1 = self.Find_slope(1.0, 6.5)
+        mir_slope2 = self.Find_slope(6.5, 10)
+
+        if (uv_slope < -0.3) & (mir_slope1 >= 0.2):
+            bin = 1
+        elif (uv_slope >= 0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2):
+            bin = 2 
+        elif (uv_slope > 0.2) & (mir_slope1 >= -0.2):
+            bin = 3
+        elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0):
+            bin = 4
+        elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0):
+            bin = 5
+        else:
+            bin = 6
+        
+        return bin
+    
+    def pull_plot_info(self):
+        F1 = self.Find_value(1.0)
+        norm_lambdaL_lambda = self.lambdaL_lambda/F1
+        x_out = np.linspace(min(self.rest_w_microns),max(self.rest_w_microns))
+        y_out = 10**self.f_interp(np.log10(x_out))/F1
+        
+        try:
+            return self.ID, self.z, self.rest_w_microns, norm_lambdaL_lambda, self.flux_jy_err/self.flux_jy, self.upper_check
+        except AttributeError:
+            return self.ID, self.z, self.rest_w_microns, norm_lambdaL_lambda, self.flux_jy_err/self.flux_jy
+
+    def Find_Lbol(self,xin=None,yin=None):
+        if xin is None:
+            x = self.rest_w_microns*1E-4
+            y = self.lambdaL_lambda
+        else:
+            x = xin*1E-4
+            y = yin
+
+        x = np.append(x, self.FIR_wave*1E-4)
+        y = np.append(y, self.FIR_lambdaL_lambda)
+        sort = x.argsort()
+        x,y = x[sort], y[sort]
+
+        x = np.log10(x[~np.isnan(y)])
+        y = np.log10(y[~np.isnan(y)])
+
+        Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
+
+        x_interp = np.linspace(min(x),max(x))
+        y = 10**Lbol_interp(x_interp)
+
+        x_interp, y_interp = x_interp[::-1], y_interp[::-1]
+
+        freq = self.c/10((x_interp))
+        y_interp = y_interp/freq
+
+        self.Lbol = integrate.trapz(y_interp,freq)
+
+        return self.Lbol
+
+    def find_Lum_range(self,xmin,xmax):
+        x = np.log10(self.rest_w_cgs[~np.isnan(self.lambdaL_lambda)])
+        y = np.log10(self.lambdaL_lambda[~np.isnan(self.lambdaL_lambda)])
+
+        Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
+
+        x_interp = np.linspace(np.log10(xmin*1E-4),np.log10(xmax*1E-4))
+        y_interp = 10**Lbol_interp(x_interp)
+
+        x_interp, y_interp = x_interp[::-1], y_interp[::-1]
+        freq = self.c/10**x_interp
+        y_interp = y_interp/freq
+        L_region = integrate.trapz(y_interp,freq)
+
+        return L_region
+
+    def FIR_extrapolation(self,w):
+        regime = Filters('filter_list.dat').pull_filter(self.filter_name,'wavelength range')
+        flux_upper = Filters('filter_list.dat').pull_filter(self.filter_name,' upper limit')*1E-29 # 3 sigma upper limits in cgs
+        
+        fir_flux_jy = self.flux_jy[regime == 'FIR']*1E-6 # Flux values for the FIR filters
+        fir_rest_w_microns = self.rest_w_microns[regime == 'FIR']
+        flux_upper /= 3 # 1 sigma upper limit
+        Flambda_upper = flux_upper*(self.c/self.obs_w_cgs*2)
+        lambdaF_lambda_upper = self.obs_w_cgs*Flambda_upper
+        FIR_lambdaF_lambda_upper = lambdaF_lambda_upper[self.regime == 'FIR']
+
+        FIR_lambdaL_lambda_upper = self.Flux_to_Lum(FIR_lambdaF_lambda_upper,self.z)
+
+        FIR_lambdaL_lambda_upper_interp = interpolate.interp1d(np.log10(fir_rest_w_microns),np.log10(FIR_lambdaL_lambda_upper),kind='linear',fill_value='extrapolate')
+        Fw_upper = 10**FIR_lambdaL_lambda_upper_interp(np.log10(w))
+        Fw = 10**self.f_interp(np.log10(w))
+
+        if ~np.isnan(fir_flux_jy[-3]):
+            Fw_use = Fw
+            self.upper_check = 0
+        elif ~np.isnan(fir_flux_jy[-2]):
+            Fw_use = Fw
+            self.upper_check = 0
+        elif ~np.isnan(fir_flux_jy[-1]):
+            Fw_use = Fw
+            self.upper_check = 0
+
+        elif ~np.isnan(fir_flux_jy[0]) and ~np.isnan(fir_flux_jy[1]):
+            if Fw > Fw_upper:
+                Fw_use = Fw_upper
+                self.upper_check = 1
+            else:
+                Fw_use = Fw
+                self.upper_check = 0
+        else:
+            Fw_use = Fw_upper
+            self.upper_check = 1
+        return Fw_use
+        
+    def median_FIR(self,filtername,Find_value=np.nan):
+        regime = Filters('filter_list.dat').pull_filter(self.filter_name,'wavelength range')
+        flux_upper = Filters('filter_list.dat').pull_filter(filtername,'upper limit')*1E-6 # 3 sigma upper limits
+        flux_upper /= 3 # 1 sigma upper limits
+
+        filt_rest_w_mircons = np.asarray([self.rest_w_micron[self.f_name == i] for i in filtername])
+        filt_rest_w_cgs = np.asarray([self.rest_w_cgs[self.f_name == i] for i in filtername])
+        fir_flux_jy = self.flux_jy[regime == 'FIR']*1E-6 # Flux values for the FIR filters
+
+
+        flux_jy = []
+        for i in range(len(filtername)):
+            if self.flux_jy[self.f_name == filtername[i]] > 0:
+                flux_jy.append(self.flux_jy[self.f_name == filtername[i]])
+            elif np.isnan(self.flux_jy[self.f_name == filtername[i]]):
+                flux_jy.append(flux_upper[i])
+            else:
+                flux_jy.append(flux_upper[i])
+        flux_jy = np.asarray(flux_jy)
+        flux_cgs = flux_jy*1E-23
+        Flambda = flux_cgs*(self.c/filt_rest_w_cgs*2)
+        lambdaF_lambda = filt_rest_w_cgs*Flambda
+        lambdaL_lambda = self.Flux_to_Lum(lambdaF_lambda,self.z)
+
+        x = np.log10(filt_rest_w_mircons[~np.isnan(lambdaL_lambda)])
+        y = np.log10(lambdaL_lambda[~np.isnan(lambdaL_lambda)])
+        upper_f_interp = interpolate.interp1d(x, y, kind='linear', fill_value='extrapolate')
+        
+        lambdaL_lambda_upper = 10**upper_f_interp(np.log10(filt_rest_w_mircons))
+        lambdaL_lambda_data = 10**self.f_interp(np.log10(filt_rest_w_mircons))
+        value_upper = 10**upper_f_interp(np.log10(Find_value))
+        value_data = 10**self.f_interp(np.log10(Find_value))
+
+        if ~np.isnan(fir_flux_jy[-3]):
+            lambdaL_lambda_out = lambdaL_lambda_data
+            L_value_out = value_data
+            self.upper_check = 0
+        elif ~np.isnan(fir_flux_jy[-2]):
+            lambdaL_lambda_out = lambdaL_lambda_data
+            L_value_out = value_data
+            self.upper_check = 0
+        elif ~np.isnan(fir_flux_jy[-1]):
+            lambdaL_lambda_out = lambdaL_lambda_data
+            L_value_out = value_data
+            self.upper_check = 0
+
+        elif ~np.isnan(fir_flux_jy[0]) and ~np.isnan(fir_flux_jy[1]):
+            if value_data > value_upper:
+                lambdaL_lambda_out = lambdaL_lambda_upper
+                L_value_out = value_upper
+                self.upper_check = 1
+            else:
+                lambdaL_lambda_out = lambdaL_lambda_data
+                L_value_out = value_data
+                self.upper_check = 0
+        else:
+            lambdaL_lambda_out = lambdaL_lambda_upper
+            L_value_out = value_upper
+            self.upper_check = 1
+        
+        self.FIR_lambdaL_lambda, self.FIR_wave = np.delete(lambdaL_lambda_out,0), np.delete(filt_rest_w_mircons,0)
+
+        if np.isnan(Find_value):
+            return self.FIR_lambdaL_lambda, self.FIR_wave
+        else:
+            return self.FIR_lambdaL_lambda, self.FIR_wave, L_value_out  
+
+
+    def Flux_to_Lum(self,F,z):
+        '''Function to convert flux to luminosity'''
+        cosmo = FlatLambdaCDM(H0=70, Om0=0.29, Tcmb0=2.725)
+
+        dl = cosmo.luminosity_distance(z).value
+        dl_cgs = dl*(3.86E24) # Distance from Mpc to cm
+
+        # convert flux to luminosity 
+        L = F*4*np.pi*dl_cgs**2
+        return L
+
+

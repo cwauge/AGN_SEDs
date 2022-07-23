@@ -61,7 +61,7 @@ class AGN():
 		self.flux_jy[self.flux_jy <= 0] = np.nan
 		self.flux_jy_err[self.flux_jy_err <= 0] = np.nan
 		self.flux_jy[np.isnan(self.flux_jy_err)] = np.nan
-		self.flux_jy[self.flux_jy_err/self.flux_jy > 0.475] = np.nan # Remove data points that have a high fractional error in flux
+		self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove data points that have a high fractional error in flux
 
 		self.flux_cgs = self.flux_jy*1E-23 # flux in cgs: erg s^-1 cm^-2 Hz^-1
 		self.Fnu = self.flux_cgs

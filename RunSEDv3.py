@@ -25,7 +25,7 @@ z_max = 1.2
 Lx_min = 43
 Lx_max = 50
 
-goals_Lx_min = 43
+goals_Lx_min = 35
 
 ###################################################################################
 ###################################################################################
@@ -55,7 +55,7 @@ deimos_remarks = np.asarray(deimos['Remarks'])
 deimos_ID = np.asarray([int(i[1:]) for i in deimos_id if 'L' in i])
 deimos_z_spec = np.asarray([deimos_z[i] for i in range(len(deimos_z)) if 'L' in deimos_id[i]])
 
-cosmos_cutouts = os.listdir('./cosmos_cutouts/')
+# cosmos_cutouts = os.listdir('./cosmos_cutouts/')
 
 chandra_cosmos_phot_id = chandra_cosmos_data['id_k_uv']
 cosmos_laigle_id = cosmos_data['ID_COSMOS2015']
@@ -1853,6 +1853,7 @@ check_sed = []
 uv_lum, opt_lum, mir_lum, fir_lum = [], [], [], []
 Lbol_sub = []
 sed_shape = []
+irac_ch1, irac_ch2, irac_ch3, irac_ch4 = [], [], [], []
 
 ###############################################################################
 ###############################################################################
@@ -1937,7 +1938,12 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         cosmos_target_ra.append(chandra_cosmos_RA_match[i])
         cosmos_target_dec.append(chandra_cosmos_DEC_match[i])
 
-        sed_shape.append(source.SED_shape(UV_slope[i],MIR_slope1[i],MIR_slope2[i]))
+        sed_shape.append(source.SED_shape(UVslope[i],MIRslope1[i],MIRslope2[i]))
+
+        irac_ch1.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_1_FLUX'][0])
+        irac_ch2.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_2_FLUX'][0])
+        irac_ch3.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_3_FLUX'][0])
+        irac_ch4.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_4_FLUX'][0]) 
 
         # if check_sed[i] == 'GOOD':
         #     source.SED_output('Test_out_cosmos2.fits','w')
@@ -1975,7 +1981,7 @@ dec_out = []
 ############################# Run Stripe82X SEDs ##############################
 fill_nan = np.zeros(len(GOODSS_auge_filters)-len(S82X_filters))
 fill_nan[fill_nan == 0] = np.nan
-'''
+# '''
 for i in range(len(lamassa_id_use)):
         try:
             source = AGN(lamassa_id_use[i], s82x_z_sp[i], S82X_filters, s82x_flux_array[i], s82x_flux_err_array[i])
@@ -2047,7 +2053,7 @@ for i in range(len(lamassa_id_use)):
         except ValueError:
             continue
 
-'''
+# '''
 # outf = open('/Users/connor_auge/Desktop/s82x_check_coords.csv','w')
 # outf.writelines('ID,RA,DEC\n')
 # for i in range(len(ra_out)):
@@ -2066,7 +2072,7 @@ fill_nan[fill_nan == 0] = np.nan
 goodsN_id_candels = []
 goodsN_id_auge = []
 
-'''
+# '''
 for i in range(len(goodsN_phot_id_match)):
     # if goodsN_flux_array[i][GOODSN_filters == 'FLUX_24'] <= 0:
     #     continue
@@ -2221,7 +2227,7 @@ goodsS_id_auge = []
 fill_nan = np.zeros(len(GOODSS_auge_filters)-len(GOODSS_filters))
 fill_nan[fill_nan == 0] = np.nan
 
-'''
+# '''
 for i in range(len(goodsS_phot_id_match)):
     # if goodsS_flux_array[i][GOODSS_filters == 'FLUX_24'] <= 0:
     #     continue
@@ -2351,7 +2357,7 @@ for i in range(len(goodsS_auge_ID_match)):
             field.append(3)
         except ValueError:
             continue
-'''
+# '''
 
 tgs = time.perf_counter()   
 print(f'Done with GOODS-S sources ({tgs - tgn:0.4f} second)')
@@ -2373,6 +2379,7 @@ Lbol_ulirg, Lbol_ulirg_sub = [], []
 ulirg_field = []
 ulirg_up_check = []
 ulirg_Nh_out, ulirg_LIR_out = [], []
+goals_irac_ch1, goals_irac_ch2, goals_irac_ch3, goals_irac_ch4 = [], [], [], []
 
 '''
 # fill_nan = np.zeros(len(ned_goals_filter_name)-len(cgoals_filter_name))
@@ -2430,7 +2437,10 @@ for i in range(len(ulirg_cgoals_ID_match)):
 
         Lbol_ulirg.append(source.Find_Lbol())
         Lbol_ulirg_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
-
+        goals_irac_ch1.append(ulirg_cgoals_flux[i][cgoals_filter_name == 'SPLASH_1_FLUX'][0])
+        goals_irac_ch2.append(ulirg_cgoals_flux[i][cgoals_filter_name == 'SPLASH_2_FLUX'][0])
+        goals_irac_ch3.append(ulirg_cgoals_flux[i][cgoals_filter_name == 'SPLASH_3_FLUX'][0])
+        goals_irac_ch4.append(ulirg_cgoals_flux[i][cgoals_filter_name == 'SPLASH_4_FLUX'][0])
 
         ulirg_field.append(5)
 
@@ -2495,7 +2505,10 @@ for i in range(len(ned_goals_ID_match)):
         Lbol_ulirg.append(source.Find_Lbol())
         Lbol_ulirg_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
         ulirg_LIR_out.append(ned_goals_LIR_match[i])
-
+        goals_irac_ch1.append(ned_goals_flux[i][ned_goals_filter_name == 'SPLASH_1_FLUX'][0])
+        goals_irac_ch2.append(ned_goals_flux[i][ned_goals_filter_name == 'SPLASH_2_FLUX'][0])
+        goals_irac_ch3.append(ned_goals_flux[i][ned_goals_filter_name == 'SPLASH_3_FLUX'][0])
+        goals_irac_ch4.append(ned_goals_flux[i][ned_goals_filter_name == 'SPLASH_4_FLUX'][0])
 
         ulirg_field.append(6)
 
@@ -2516,12 +2529,7 @@ print('Done with ULIRGS')
 # plt.rcParams['ytick.major.size'] = 2
 # plt.rcParams['ytick.major.width'] = 2
 
-plt.rcParams['font.size'] = 36
-plt.rcParams['axes.linewidth'] = 3
-plt.rcParams['xtick.major.size'] = 3
-plt.rcParams['xtick.major.width'] = 3
-plt.rcParams['ytick.major.size'] = 3
-plt.rcParams['ytick.major.width'] = 3
+
 
 check_sed = np.asarray(check_sed)
 GOOD_SEDs = np.where(check_sed == 'GOOD')
@@ -2555,7 +2563,8 @@ Nh = np.asarray(Nh)[GOOD_SEDs]
 # FFIR_2, WFIR_2 = np.asarray(FFIR_2)[GOOD_SEDs], np.asarray(WFIR_2)[GOOD_SEDs]
 median_fir_x, median_fir_y = np.asarray(median_fir_x)[GOOD_SEDs], np.asarray(median_fir_y)[GOOD_SEDs]
 uv_lum, opt_lum, mir_lum, fir_lum = np.asarray(uv_lum)[GOOD_SEDs], np.asarray(opt_lum)[GOOD_SEDs], np.asarray(mir_lum)[GOOD_SEDs], np.asarray(fir_lum)[GOOD_SEDs]
-sed_shape = np.asarray(sed_shape)[GOOD_SEDs]
+# sed_shape = np.asarray(sed_shape)[GOOD_SEDs]
+# irac_ch1, irac_ch2, irac_ch3, irac_ch4 = np.asarray(irac_ch1)[GOOD_SEDs], np.asarray(irac_ch2)[GOOD_SEDs], np.asarray(irac_ch3)[GOOD_SEDs], np.asarray(irac_ch4)[GOOD_SEDs]
 
 
 ulirg_id, ulirg_z, ulirg_x, ulirg_y, ulirg_Lx_out, ulirg_Lx_corr_out, median_x_ulirg, median_y_ulirg = np.asarray(ulirg_id), np.asarray(ulirg_z), np.asarray(ulirg_x), np.asarray(ulirg_y), np.asarray(ulirg_Lx_out), np.asarray(ulirg_Lx_corr_out), np.asarray(median_x_ulirg), np.asarray(median_y_ulirg)
@@ -2569,6 +2578,35 @@ ulirg_field = np.asarray(ulirg_field)
 ulirg_up_check = np.asarray(ulirg_up_check)
 ulirg_Nh_out = np.asarray(ulirg_Nh_out)
 ulirg_LIR_out = np.asarray(ulirg_LIR_out)
+goals_irac_ch1, goals_irac_ch2, goals_irach_ch3, goals_irach_ch4 = np.asarray(goals_irac_ch1), np.asarray(goals_irac_ch2), np.asarray(goals_irac_ch3), np.asarray(goals_irac_ch4)
+
+
+plt.rcParams['font.size'] = 22
+plt.rcParams['axes.linewidth'] = 2
+plt.rcParams['xtick.major.size'] = 2
+plt.rcParams['xtick.major.width'] = 2
+plt.rcParams['ytick.major.size'] = 2
+plt.rcParams['ytick.major.width'] = 2
+
+
+# x1 = np.linspace(0.08,1.5)
+# x2 = np.linspace(0.35,1.5)
+# print(np.log10(ulirg_LIR_out))
+# print(ulirg_Lx_out)
+# plt.plot(np.log10(irac_ch3/irac_ch1), np.log10(irac_ch4/irac_ch2), 'x',label='COSMOS X-ray',zorder=0)
+# # plt.plot(np.log10(goals_irac_ch3/goals_irac_ch1), np.log10(goals_irac_ch4/goals_irac_ch2), '.',label='GOALS',zorder=0)
+# plt.scatter(np.log10(goals_irac_ch3/goals_irac_ch1), np.log10(goals_irac_ch4/goals_irac_ch2), c=ulirg_Lx_out, s=50, label='GOALS', zorder=1)
+# plt.xlim(-0.7,1.2)
+# plt.ylim(-0.7,1.3)
+# plt.vlines(0.08,ymin=0.15,ymax=0.38,color='k')
+# plt.hlines(0.15,xmin=0.08,xmax=0.35,color='k')
+# plt.plot(x1, 1.21*x1 + 0.27,color='k')
+# plt.plot(x2, 1.21*x2 - 0.27,color='k')
+# plt.legend(fontsize=12)
+# plt.colorbar(label=r'L$_{\mathrm{IR}}$')
+# plt.show()
+
+
 
 # print('HERE: ', len(ulirg_LIR_out), len(ulirg_Nh_out))
 # print(np.log10(ulirg_LIR_out))
@@ -2718,7 +2756,7 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 
 ################ Paper Plots ###################
 # fig 3
-# plot.multi_SED('AAS',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
+plot.multi_SED('all',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
 
 # fig 4 & 5
 # plot.multi_SED_zbins('AAS',all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
