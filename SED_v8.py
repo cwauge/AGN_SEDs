@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 import astropy.constants as const
+import argparse
 from astropy import units as u
 from astropy.cosmology import FlatLambdaCDM
 from astropy.io import fits
@@ -40,7 +41,7 @@ class AGN():
         rest_w = self.obs_w/(1+self.z) # bring the wavelength to the rest frame
         self.obs_w_cgs = self.obs_w*1E-8 # observed wavelength from Angstroms to cm
         self.rest_w_cgs = rest_w*1E-8 # rest wavelength from Angstroms to cm
-        self.rest_w_microns = rest_w*8E-4 # rest wavelength  from Angstroms to microns
+        self.rest_w_microns = rest_w*1E-4 # rest wavelength  from Angstroms to microns
         self.rest_freq = self.c/self.rest_w_cgs # convert rest wavelength to a frequency
 
         # unit converstion and quality check for flux values
@@ -100,6 +101,7 @@ class AGN():
         return bin
     
     def pull_plot_info(self):
+        # Function to return the arrays/values necessary for SED plotting
         F1 = self.Find_value(1.0)
         norm_lambdaL_lambda = self.lambdaL_lambda/F1
         x_out = np.linspace(min(self.rest_w_microns),max(self.rest_w_microns))
@@ -200,16 +202,15 @@ class AGN():
         flux_upper = Filters('filter_list.dat').pull_filter(filtername,'upper limit')*1E-6 # 3 sigma upper limits
         flux_upper /= 3 # 1 sigma upper limits
 
-        filt_rest_w_mircons = np.asarray([self.rest_w_micron[self.f_name == i] for i in filtername])
-        filt_rest_w_cgs = np.asarray([self.rest_w_cgs[self.f_name == i] for i in filtername])
+        filt_rest_w_mircons = np.asarray([self.rest_w_microns[self.filter_name == i][0] for i in filtername])
+        filt_rest_w_cgs = np.asarray([self.rest_w_cgs[self.filter_name == i][0] for i in filtername])
         fir_flux_jy = self.flux_jy[regime == 'FIR']*1E-6 # Flux values for the FIR filters
-
 
         flux_jy = []
         for i in range(len(filtername)):
-            if self.flux_jy[self.f_name == filtername[i]] > 0:
-                flux_jy.append(self.flux_jy[self.f_name == filtername[i]])
-            elif np.isnan(self.flux_jy[self.f_name == filtername[i]]):
+            if self.flux_jy[self.filter_name == filtername[i]] > 0:
+                flux_jy.append(self.flux_jy[self.filter_name == filtername[i]][0])
+            elif np.isnan(self.flux_jy[self.filter_name == filtername[i]][0]):
                 flux_jy.append(flux_upper[i])
             else:
                 flux_jy.append(flux_upper[i])
@@ -262,6 +263,29 @@ class AGN():
         else:
             return self.FIR_lambdaL_lambda, self.FIR_wave, L_value_out  
 
+    def check_SED(self,check_w,check_span=None):
+        # Check for an observational data popint within check_span microns of a desired wavelength value (check_w)
+        # If check span is not specified use 2 microns
+        max_w = check_w + 15 # 15 microns
+        if check_span is None:
+            min_w = check_w - 2 # 2 microns
+        else:
+            min_w = check_w - check_span
+
+        wave_range = (self.rest_w_microns <= max_w) & (self.rest_w_microns >= min_w)
+        check_flux = self.flux_jy[wave_range] # get flux values in specified wavelength range
+        
+        # Check for good data in wavelength range
+        if len(check_flux[np.isnan(check_flux)]) == len(check_flux):
+            check_return = 'BAD'
+        elif any(check_flux) > 0:
+            check_return = 'GOOD'
+        elif any(self.flux_jy_err[wave_range]) > 0:
+            check_return == 'GOOD'
+        else:
+            check_return == 'BAD'
+
+        return check_return
 
     def Flux_to_Lum(self,F,z):
         '''Function to convert flux to luminosity'''
@@ -275,3 +299,13 @@ class AGN():
         return L
 
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Long Class to generate restframe SED for AGN target. Can output additional info, suchas as lambdaL_lambda as specified wavelength, slope of SED in given range, general SED shape, Lbol, luminosity under specific region of SED, etc.')
+    parser.add_argument('ID', help='Source ID', type=str)
+    parser.add_argument('--redshift','-z',help='best redshift measurement', type=float)
+    parser.add_argument('--filter','-fn',help='array of names of the obs filter used')
+    parser.add_argument('--observed_flux','-obs_flux',help='array of observed flux values for each filter')
+    parser.add_argument('--observed_flux_error','-obs_flux_err',help='array of observed flux errors for each filter')
+
+    args = parser.parse_args()
+    main(args.ID,args.redshift,args.filter,args.observed_flux,args.observed_flux_error)

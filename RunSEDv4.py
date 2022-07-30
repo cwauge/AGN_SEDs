@@ -1,3 +1,9 @@
+'''
+Script to run AGN class from SED.py and plot results with SED_plots.py Plotter class. 
+Reads in Photometry and X-ray data from the COSMOS field, S82X field, GOODS-N/S fields, and for individual GOALS galaxies. 
+Updated - July 28, 2022
+'''
+
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,8 +12,8 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.io import ascii
-from SED_v7 import AGN
-from SED_plots import Plotter
+from SED_v8 import AGN
+from SED_plots_v2 import Plotter
 from plots_Letter import Plotter_Letter
 from plots_Letter2 import Plotter_Letter2
 from match import match
@@ -177,29 +183,30 @@ chandra_cosmos_Lx_hard /= abs_corr_use_h
 chandra_cosmos_Lx_soft /= abs_corr_use_s
 chandra_cosmos_Lx_full /= abs_corr_use_f
 
+# Gather the column density from the three chandra catalogs for the full and hard band Lx
 chandra_cosmos_Nh = []
 check = []
-for i in range(len(chandra_cosmos_Lx_full)):
-    ind = np.where(chandra_cosmos2_xid == chandra_cosmos_xid[i])[0]
-    ind_ct = np.where(chandra_cosmos_ct_xid == chandra_cosmos_xid[i])[0]
+for i in range(len(chandra_cosmos_Lx_full)):    
+    ind = np.where(chandra_cosmos2_xid == chandra_cosmos_xid[i])[0] # Check if there is a match to updated Chandra catalog 
+    ind_ct = np.where(chandra_cosmos_ct_xid == chandra_cosmos_xid[i])[0] # Check if there is a match to compton thick Chandra catalog 
 
     if len(ind_ct) > 0:
-        chandra_cosmos_Nh.append(chandra_cosmos_ct_nh[ind_ct][0])
-        chandra_cosmos_Lx_hard[i] = chandra_cosmos_ct_Lx_hard[ind_ct]
+        chandra_cosmos_Nh.append(chandra_cosmos_ct_nh[ind_ct][0]) # if there is a match append Nh from compton thick catalog 
+        chandra_cosmos_Lx_hard[i] = chandra_cosmos_ct_Lx_hard[ind_ct] # replace Lx from original Chandra catalog with that from the CT cat
         chandra_cosmos_Lx_full[i] = chandra_cosmos_ct_Lx_full[ind_ct]
-        check.append(3)
+        check.append(3) # count which catalog data is from
 
     elif len(ind) > 0:
-        chandra_cosmos_Lx_hard[i] = chandra_cosmos2_Lx_hard[ind]
+        chandra_cosmos_Lx_hard[i] = chandra_cosmos2_Lx_hard[ind] # replace Lx from orginal Chandra catalog with that from updated cat
         chandra_cosmos_Lx_full[i] = chandra_cosmos2_Lx_full[ind]
         if chandra_cosmos2_nh_lo_err[ind][0] == -99.:
-            chandra_cosmos_Nh.append(chandra_cosmos2_nh[ind][0]+chandra_cosmos2_nh_up_err[ind][0])
+            chandra_cosmos_Nh.append(chandra_cosmos2_nh[ind][0]+chandra_cosmos2_nh_up_err[ind][0]) # if there is Nh upper limit in updated cat append to Nh list
             check.append(2.5)
         else:
-            chandra_cosmos_Nh.append(chandra_cosmos2_nh[ind][0])
+            chandra_cosmos_Nh.append(chandra_cosmos2_nh[ind][0]) # if there is a match append Nh from updated catalog
             check.append(2)
-    else:
-        if chandra_cosmos_nh[i] == -99.:
+    else: # if no matches to updated or CT catalogs take Nh value from original catalog
+        if chandra_cosmos_nh[i] == -99.: # If no good value take upper or lower limits 
             if chandra_cosmos_nh_lo[i] != -99.:
                 chandra_cosmos_Nh.append(chandra_cosmos_nh_lo[i])
             else:
@@ -209,10 +216,11 @@ for i in range(len(chandra_cosmos_Lx_full)):
         check.append(1)
 chandra_cosmos_Nh = np.asarray(chandra_cosmos_Nh)*1E22
 check = np.asarray(check)
+
 print('COSMOS All Lx cat: ', len(chandra_cosmos_Lx_full))
 
-cosmos_condition = (chandra_cosmos_z > z_min) & (chandra_cosmos_z <= z_max) & (np.log10(
-    chandra_cosmos_Lx_full) >= Lx_min) & (np.log10(chandra_cosmos_Lx_full) <= Lx_max) & (chandra_cosmos_phot_id != -99.)
+# Limit chandra sample to sources in z and Lx range
+cosmos_condition = (chandra_cosmos_z > z_min) & (chandra_cosmos_z <= z_max) & (np.log10(chandra_cosmos_Lx_full) >= Lx_min) & (np.log10(chandra_cosmos_Lx_full) <= Lx_max) & (chandra_cosmos_phot_id != -99.)
 
 chandra_cosmos_phot_id = chandra_cosmos_phot_id[cosmos_condition]
 chandra_cosmos_xid = chandra_cosmos_xid[cosmos_condition]
@@ -229,9 +237,9 @@ chandra_cosmos_spec_type = chandra_cosmos_spec_type[cosmos_condition]
 chandra_cosmos_Nh = chandra_cosmos_Nh[cosmos_condition]
 print('COSMOS Lx z: ', len(chandra_cosmos_phot_id))
 
-
-cosmos_ix, cosmos_iy = match(chandra_cosmos_phot_id,cosmos_laigle_id)
-# ix2, iy2 = match(chandra_cosmos_xid,cosmos_xid)
+# Match chandra subsample to photometry catalog
+cosmos_ix, cosmos_iy = match(chandra_cosmos_phot_id,cosmos_laigle_id) # match cats based on laigle ID
+# cosmos_ix, cosmos_iy = match(chandra_cosmos_xid,cosmos_xid) # match cats based on chandra ID in COSMOS2020
 
 cosmos_laigle_id_match = cosmos_laigle_id[cosmos_iy]
 chandra_cosmos_phot_id_match = chandra_cosmos_phot_id[cosmos_ix]
@@ -248,3 +256,115 @@ chandra_cosmos_Lx_soft_match = chandra_cosmos_Lx_soft[cosmos_ix]
 chandra_cosmos_spec_type_match = chandra_cosmos_spec_type[cosmos_ix]
 chandra_cosmos_Nh_match = chandra_cosmos_Nh[cosmos_ix]
 print('COSMOS phot match: ', len(chandra_cosmos_phot_id_match))
+
+# Convert the X-ray flux values to from cgs to mJy
+chandra_cosmos_Fx_full_match_mjy = chandra_cosmos_Fx_full_match*4.136E8/(10-0.5)
+chandra_cosmos_Fx_hard_match_mjy = chandra_cosmos_Fx_hard_match*4.136E8/(10-2)
+chandra_cosmos_Fx_soft_match_mjy = chandra_cosmos_Fx_soft_match*4.136E8/(2-0.5)
+
+# Create a 1D array of NaN that is the length of the number of COSMOS sources - used to create "blank" values in flux array
+cosmos_nan_array = np.zeros(np.shape(cosmos_laigle_id_match))
+cosmos_nan_array[cosmos_nan_array == 0] = np.nan
+
+# Create flux and flux error arrays for the COSMOS data. Matched to chandra data. NaN array separating the X-ray from the FUV data.
+cosmos_flux_array = np.array([
+    chandra_cosmos_Fx_hard_match_mjy*1000, chandra_cosmos_Fx_soft_match_mjy*1000,
+    cosmos_nan_array,
+    cosmos_data['GALEX_FUV_FLUX'][cosmos_iy],
+    cosmos_data['GALEX_NUV_FLUX'][cosmos_iy],
+    cosmos_data['CFHT_u_FLUX_APER2'][cosmos_iy],
+    cosmos_data['HSC_g_FLUX_APER2'][cosmos_iy],
+    cosmos_data['HSC_r_FLUX_APER2'][cosmos_iy],
+    cosmos_data['HSC_i_FLUX_APER2'][cosmos_iy],
+    cosmos_data['HSC_z_FLUX_APER2'][cosmos_iy],
+    cosmos_data['HSC_y_FLUX_APER2'][cosmos_iy],
+    cosmos_data['UVISTA_J_FLUX_APER2'][cosmos_iy],
+    cosmos_data['UVISTA_H_FLUX_APER2'][cosmos_iy],
+    cosmos_data['UVISTA_Ks_FLUX_APER2'][cosmos_iy],
+    cosmos_data['SPLASH_CH1_FLUX'][cosmos_iy],
+    cosmos_data['SPLASH_CH2_FLUX'][cosmos_iy],
+    cosmos_data['SPLASH_CH3_FLUX'][cosmos_iy],
+    cosmos_data['SPLASH_CH4_FLUX'][cosmos_iy],
+    cosmos_data['FIR_24_FLUX'][cosmos_iy],
+    cosmos_data['FIR_100_FLUX'][cosmos_iy],
+    cosmos_data['FIR_160_FLUX'][cosmos_iy],
+    cosmos_data['FIR_250_FLUX'][cosmos_iy],
+    cosmos_data['FIR_350_FLUX'][cosmos_iy],
+    cosmos_data['FIR_500_FLUX'][cosmos_iy]
+])
+
+cosmos_flux_err_array = np.array([
+    chandra_cosmos_Fx_hard_match_mjy*1000 *
+    0.2, chandra_cosmos_Fx_soft_match_mjy*1000*0.2,
+    cosmos_nan_array,
+    cosmos_data['GALEX_FUV_FLUXERR'][cosmos_iy],
+    cosmos_data['GALEX_NUV_FLUXERR'][cosmos_iy],
+    cosmos_data['CFHT_u_FLUXERR_APER2'][cosmos_iy],
+    cosmos_data['HSC_g_FLUXERR_APER2'][cosmos_iy],
+    cosmos_data['HSC_r_FLUXERR_APER2'][cosmos_iy],
+    cosmos_data['HSC_i_FLUXERR_APER2'][cosmos_iy],
+    cosmos_data['HSC_z_FLUXERR_APER2'][cosmos_iy],
+    cosmos_data['HSC_y_FLUXERR_APER2'][cosmos_iy],
+    cosmos_data['UVISTA_J_FLUXERR_APER2'][cosmos_iy],
+    cosmos_data['UVISTA_H_FLUXERR_APER2'][cosmos_iy],
+    cosmos_data['UVISTA_Ks_FLUXERR_APER2'][cosmos_iy],
+    cosmos_data['SPLASH_CH1_FLUXERR'][cosmos_iy],
+    cosmos_data['SPLASH_CH2_FLUXERR'][cosmos_iy],
+    cosmos_data['SPLASH_CH3_FLUXERR'][cosmos_iy],
+    cosmos_data['SPLASH_CH4_FLUXERR'][cosmos_iy],
+    cosmos_data['FIR_24_FLUXERR'][cosmos_iy],
+    cosmos_data['FIR_100_FLUXERR'][cosmos_iy],
+    cosmos_data['FIR_160_FLUXERR'][cosmos_iy],
+    cosmos_data['FIR_250_FLUXERR'][cosmos_iy],
+    cosmos_data['FIR_350_FLUXERR'][cosmos_iy],
+    cosmos_data['FIR_500_FLUXERR'][cosmos_iy]
+])
+
+# Transpose arrays so each row is a new source and each column is a obs filter
+cosmos_flux_array = cosmos_flux_array.T
+cosmos_flux_err_array = cosmos_flux_err_array.T
+###################################################################################
+
+# Print time taken to read in all files
+tfl = time.perf_counter()
+print(f'Done with file reading ({tfl - ti:0.4f} second)')
+
+# Filters used in COSMOS field 
+COSMOS_filters = np.array(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'J_FLUX_APER2', 'H_FLUX_APER2',
+                          'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+
+###################################################################################
+###################################################################################
+########################## Run AGN Class over each source ##########################
+
+# Make empty lists to be filled with SED outputs 
+out_ID, out_z, out_x, out_y = [], [], [], []
+out_Lx, out_Lbol = [], []
+out_SED_shape = []
+check_sed = []
+F1 = []
+
+###############################################################################
+############################### Run COSMOS SEDs ###############################
+#'''
+# for i in range(len(chandra_cosmos_phot_id_match)):
+for i in range(50):
+    source = AGN(chandra_cosmos_phot_id_match[i], chandra_cosmos_z_match[i], COSMOS_filters, cosmos_flux_array[i], cosmos_flux_err_array[i])
+    source.MakeSED()
+    F1.append(source.Find_value(1.0))
+    ffir, wfir, f100 = source.median_FIR(['FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'],Find_value = 100.0)
+
+    Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
+    out_ID.append(Id)
+    out_x.append(w)
+    out_y.append(f)
+
+    plot = Plotter(Id, redshift, w, f, chandra_cosmos_Lx_full_match[i])
+
+    check_sed.append(source.check_SED(10, check_span=2.75))
+    if check_sed[i] == 'GOOD':
+        plot.PlotSED(point_x=100.,point_y=f100/F1[i])
+    
+
+#'''

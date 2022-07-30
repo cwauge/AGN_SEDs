@@ -1,6 +1,8 @@
+from ast import arg
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import argparse
 from matplotlib.collections import LineCollection
 
 
@@ -17,7 +19,7 @@ class Plotter():
         self.L = np.asarray(L)
 
         plt.rcParams['font.size'] = 13
-        plt.rcParams['axes.lionewidth'] = 2.5
+        plt.rcParams['axes.linewidth'] = 2.5
         plt.rcParams['xtick.major.size'] = 4
         plt.rcParams['xtick.major.width'] = 3
         plt.rcParams['ytick.major.size'] = 4
@@ -42,7 +44,7 @@ class Plotter():
         ax.set_xlabel(r'Rest Wavelength [$\mu$ m]')
         ax.set_ylabel(r'$\lambda$L$_\lambda$')
         ax.set_xscale('log')
-        ax.set_yscal('log')
+        ax.set_yscale('log')
         ax.set_xlim(5E-5,7E2)
         ax.set_ylim(1E-4,1E2)
         ax.text(0.05,0.7,f'L = {self.L}',transform=ax.transAxes)
@@ -55,3 +57,13 @@ class Plotter():
 
 
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Plotting class to generate a variety of different plots based on the output of the AGN class from SED_v8.py')
+    parser.add_argument('ID', help='Source ID', type=str)
+    parser.add_argument('--redshift','-z',help='best redshift measurement', type=float)
+    parser.add_argument('--wavelength','-x',help='restframe wavelenght in microns')
+    parser.add_argument('--Lum','-y',help='Normalized luminosity at each wavelength in erg/s (lambdaL_labmda)')
+    parser.add_argument('--L','-l',help='additional Luminosity value, such as Lx or Lbol', type=float)
+
+    args = parser.parse_args()
+    main(args.ID,args.redshift,args.wavelength,args.Lum,args.L)
