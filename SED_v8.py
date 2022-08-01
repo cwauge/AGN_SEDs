@@ -229,32 +229,69 @@ class AGN():
         value_upper = 10**upper_f_interp(np.log10(Find_value))
         value_data = 10**self.f_interp(np.log10(Find_value))
 
-        if ~np.isnan(fir_flux_jy[-3]):
-            lambdaL_lambda_out = lambdaL_lambda_data
-            L_value_out = value_data
-            self.upper_check = 0
-        elif ~np.isnan(fir_flux_jy[-2]):
-            lambdaL_lambda_out = lambdaL_lambda_data
-            L_value_out = value_data
-            self.upper_check = 0
-        elif ~np.isnan(fir_flux_jy[-1]):
-            lambdaL_lambda_out = lambdaL_lambda_data
-            L_value_out = value_data
-            self.upper_check = 0
-
-        elif ~np.isnan(fir_flux_jy[0]) and ~np.isnan(fir_flux_jy[1]):
-            if value_data > value_upper:
-                lambdaL_lambda_out = lambdaL_lambda_upper
-                L_value_out = value_upper
-                self.upper_check = 1
-            else:
+        if len(fir_flux_jy) >= 5:
+            if ~np.isnan(fir_flux_jy[-5]):
                 lambdaL_lambda_out = lambdaL_lambda_data
                 L_value_out = value_data
                 self.upper_check = 0
+            elif ~np.isnan(fir_flux_jy[-4]):
+                lambdaL_lambda_out = lambdaL_lambda_data
+                L_value_out = value_data
+                self.upper_check = 0
+            elif ~np.isnan(fir_flux_jy[-3]):
+                lambdaL_lambda_out = lambdaL_lambda_data
+                L_value_out = value_data
+                self.upper_check = 0
+            elif ~np.isnan(fir_flux_jy[-2]):
+                lambdaL_lambda_out = lambdaL_lambda_data
+                L_value_out = value_data
+                self.upper_check = 0
+            elif ~np.isnan(fir_flux_jy[-1]):
+                lambdaL_lambda_out = lambdaL_lambda_data
+                L_value_out = value_data
+                self.upper_check = 0
+
+            elif ~np.isnan(fir_flux_jy[0]) and ~np.isnan(fir_flux_jy[1]):
+                if value_data > value_upper:
+                    lambdaL_lambda_out = lambdaL_lambda_upper
+                    L_value_out = value_upper
+                    self.upper_check = 1
+                else:
+                    lambdaL_lambda_out = lambdaL_lambda_data
+                    L_value_out = value_data
+                    self.upper_check = 0
+            else:
+                lambdaL_lambda_out = lambdaL_lambda_upper
+                L_value_out = value_upper
+                self.upper_check = 1
+
         else:
-            lambdaL_lambda_out = lambdaL_lambda_upper
-            L_value_out = value_upper
-            self.upper_check = 1
+            if ~np.isnan(fir_flux_jy[-3]):
+                lambdaL_lambda_out = lambdaL_lambda_data
+                L_value_out = value_data
+                self.upper_check = 0
+            elif ~np.isnan(fir_flux_jy[-2]):
+                lambdaL_lambda_out = lambdaL_lambda_data
+                L_value_out = value_data
+                self.upper_check = 0
+            elif ~np.isnan(fir_flux_jy[-1]):
+                lambdaL_lambda_out = lambdaL_lambda_data
+                L_value_out = value_data
+                self.upper_check = 0
+
+            elif ~np.isnan(fir_flux_jy[0]) and ~np.isnan(fir_flux_jy[1]):
+                # if value_data > value_upper:
+                #     lambdaL_lambda_out = lambdaL_lambda_upper
+                #     L_value_out = value_upper
+                #     self.upper_check = 1
+                # else:
+                lambdaL_lambda_out = lambdaL_lambda_data
+                L_value_out = value_data
+                self.upper_check = 0
+            else:
+                lambdaL_lambda_out = lambdaL_lambda_upper
+                L_value_out = value_upper
+                self.upper_check = 1
         
         self.FIR_lambdaL_lambda, self.FIR_wave = np.delete(lambdaL_lambda_out,0), np.delete(filt_rest_w_mircons,0)
 

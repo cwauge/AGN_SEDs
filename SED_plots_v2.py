@@ -40,6 +40,7 @@ class Plotter():
         ax.plot(self.wavelength,self.Lum)
         ax.plot(self.wavelength,self.Lum,'x',c='k')
         ax.plot(point_x,point_y,'x',c='r')
+        ax.plot(self.wfir,self.ffir,c='gray',lw=4)
 
         ax.set_xlabel(r'Rest Wavelength [$\mu$ m]')
         ax.set_ylabel(r'$\lambda$L$_\lambda$')
@@ -53,7 +54,12 @@ class Plotter():
             plt.savefig(f'/Users/connor_auge/Desktop/{self.ID}_SED.pdf')
         plt.show()
 
-
+    def Plot_FIR_SED(self,wfir,ffir):
+    
+        print(wfir)
+        self.wfir = wfir
+        self.ffir = ffir
+        # self.fir_plt = plt.plot(wfir,ffir,c='gray',lw=5)
 
 
 

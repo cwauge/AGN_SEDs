@@ -364,6 +364,7 @@ for i in range(50):
 
     check_sed.append(source.check_SED(10, check_span=2.75))
     if check_sed[i] == 'GOOD':
+        plot.Plot_FIR_SED(wfir, ffir/F1[i])
         plot.PlotSED(point_x=100.,point_y=f100/F1[i])
     
 
