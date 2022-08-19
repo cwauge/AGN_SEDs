@@ -58,33 +58,48 @@ class AGN():
 
         self.lambdaF_lambda = self.obs_w_cgs*self.Flambda # convert units to erg s^-1 cm^-2
         self.lambdaL_lambda = self.Flux_to_Lum(self.lambdaF_lambda,self.z) # convert flux to luminosity [erg s^-1]
-        
-        x = np.log10(self.rest_w_microns[~np.isnan(self.lambdaL_lambda)])
-        y = np.log10(self.lambdaL_lambda[~np.isnan(self.lambdaL_lambda)])
-        self.f_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
+        self.nuF_nu = self.rest_freq*self.Fnu
+        self.nuL_nu = self.Flux_to_Lum(self.nuF_nu,self.z)
+
+        # Remove data points that do not have a valid y value and interpolate
+        # x = np.log10(self.rest_w_microns[~np.isnan(self.lambdaL_lambda)])
+        # y = np.log10(self.lambdaL_lambda[~np.isnan(self.lambdaL_lambda)])
+        x = np.log10(self.rest_w_microns[~np.isnan(self.nuL_nu)])
+        y = np.log10(self.nuL_nu[~np.isnan(self.nuL_nu)])
+        self.f_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate') 
+
+    def Int_SED(self,xmin=1E-1,xmax=1E1):
+        '''Function to determine the interpolated SED''' 
+        x_out = np.arange(xmin,xmax,0.01)
+        y_out = self.f_interp(np.log10(x_out))
+        return x_out, y_out
 
     def Find_value(self,wave):
+        '''Function to find the value of the SED at a given wavelength'''
         try:
-            value = 10**self.f_interp(np.log10(wave))
+            value = 10**self.f_interp(np.log10(wave)) # Use interpolation function defined in self.MakeSED() to find value
             return value
-        except AttributeError:
+        except AttributeError: # Return warning and NaN value if interpolation fails
             value = np.nan
             print(f'Object {self.ID} does not have enought valid flux values to find Luminosity at {wave} through SED interpolation.')
             return value
 
     def Find_slope(self,wi,wf):
-        '''Function to make the SED in the restframe'''
-        fi = self.Find_value(wi)
-        ff = self.Find_value(wf)
-        slope = np.log10(ff/fi)/np.log10(wf/wi)
+        '''Function to find the slope of the SED between to given wavelength values, wi, wf'''
+        fi = self.Find_value(wi) # Use Find_value funtion to find SED value at wi
+        ff = self.Find_value(wf) # Use Find_value funtion to find SED value at wf
+        slope = np.log10(ff/fi)/np.log10(wf/wi) # Calculate the slope in log space
 
         return slope
 
     def SED_shape(self):
-        uv_slope = self.Find_slope(0.15, 1.0)
-        mir_slope1 = self.Find_slope(1.0, 6.5)
-        mir_slope2 = self.Find_slope(6.5, 10)
+        '''Find the "shape" of the SED as defined by 1 of 5 predefined bins'''
+        uv_slope = self.Find_slope(
+            0.15, 1.0)  # Find the slope of the SED in the UV range
+        mir_slope1 = self.Find_slope(1.0, 6.5) # Find the slope of the SED in the NIR-MIR range
+        mir_slope2 = self.Find_slope(6.5, 10) # Find the slope of the SED in the MIR range
 
+        # Pre-defined conditions. Check slope values to determine SED shape bin and return bin
         if (uv_slope < -0.3) & (mir_slope1 >= 0.2):
             bin = 1
         elif (uv_slope >= 0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2):
@@ -100,13 +115,21 @@ class AGN():
         
         return bin
     
-    def pull_plot_info(self):
-        # Function to return the arrays/values necessary for SED plotting
-        F1 = self.Find_value(1.0)
-        norm_lambdaL_lambda = self.lambdaL_lambda/F1
-        x_out = np.linspace(min(self.rest_w_microns),max(self.rest_w_microns))
-        y_out = 10**self.f_interp(np.log10(x_out))/F1
-        
+    def pull_plot_info(self,norm_w,norm=True):
+        '''
+        Function to return the arrays/values necessary for SED plotting
+        Input is wavelength to use for SED normalization 
+        Default function will normalize by norm_w
+        can set norm=False to return non-normalized SED
+        '''
+        if norm:
+            norm_f = self.Find_value(norm_w) # Get normalization value
+            # norm_lambdaL_lambda = self.lambdaL_lambda/norm_f # Normalize SED y values
+            norm_lambdaL_lambda = self.nuL_nu/norm_f
+        else: 
+            # norm_lambdaL_lambda = self.lambdaL_lambda
+            norm_lambdaL_lambda = self.nuL_nu
+
         try:
             return self.ID, self.z, self.rest_w_microns, norm_lambdaL_lambda, self.flux_jy_err/self.flux_jy, self.upper_check
         except AttributeError:
@@ -115,7 +138,8 @@ class AGN():
     def Find_Lbol(self,xin=None,yin=None):
         if xin is None:
             x = self.rest_w_microns*1E-4
-            y = self.lambdaL_lambda
+            # y = self.lambdaL_lambda
+            y = self.nuL_nu
         else:
             x = xin*1E-4
             y = yin
@@ -135,7 +159,7 @@ class AGN():
 
         x_interp, y_interp = x_interp[::-1], y_interp[::-1]
 
-        freq = self.c/10((x_interp))
+        freq = self.c/10**x_interp
         y_interp = y_interp/freq
 
         self.Lbol = integrate.trapz(y_interp,freq)
@@ -144,7 +168,8 @@ class AGN():
 
     def find_Lum_range(self,xmin,xmax):
         x = np.log10(self.rest_w_cgs[~np.isnan(self.lambdaL_lambda)])
-        y = np.log10(self.lambdaL_lambda[~np.isnan(self.lambdaL_lambda)])
+        # y = np.log10(self.lambdaL_lambda[~np.isnan(self.lambdaL_lambda)])
+        y = np.log10(self.nuL_nu[~np.isnan(self.nuL_nu)])
 
         Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
 
@@ -198,12 +223,18 @@ class AGN():
         return Fw_use
         
     def median_FIR(self,filtername,Find_value=np.nan):
-        regime = Filters('filter_list.dat').pull_filter(self.filter_name,'wavelength range')
-        flux_upper = Filters('filter_list.dat').pull_filter(filtername,'upper limit')*1E-6 # 3 sigma upper limits
+        '''
+        Function to find the FIR SED either based on data or the upper limits
+        Input: list of observational filter names over which to construct SED
+        Optional input: wavelength to find FIR SED value at (input in microns)
+        '''
+        regime = Filters('filter_list.dat').pull_filter(self.filter_name,'wavelength range') # Pull the specified wavelength regime from the Filters read file
+        flux_upper = Filters('filter_list.dat').pull_filter(filtername,'upper limit')*1E-6 # 3 sigma upper limits from the Filters read file
         flux_upper /= 3 # 1 sigma upper limits
 
-        filt_rest_w_mircons = np.asarray([self.rest_w_microns[self.filter_name == i][0] for i in filtername])
+        filt_rest_w_mircons = np.asarray([self.rest_w_microns[self.filter_name == i][0] for i in filtername]) # make array of the rest wavelength in microns for spcified input filters
         filt_rest_w_cgs = np.asarray([self.rest_w_cgs[self.filter_name == i][0] for i in filtername])
+        filt_rest_freq = self.c/filt_rest_w_cgs
         fir_flux_jy = self.flux_jy[regime == 'FIR']*1E-6 # Flux values for the FIR filters
 
         flux_jy = []
@@ -216,12 +247,18 @@ class AGN():
                 flux_jy.append(flux_upper[i])
         flux_jy = np.asarray(flux_jy)
         flux_cgs = flux_jy*1E-23
-        Flambda = flux_cgs*(self.c/filt_rest_w_cgs*2)
+
+        Flambda = flux_cgs*(self.c/filt_rest_w_cgs**2)
         lambdaF_lambda = filt_rest_w_cgs*Flambda
         lambdaL_lambda = self.Flux_to_Lum(lambdaF_lambda,self.z)
 
-        x = np.log10(filt_rest_w_mircons[~np.isnan(lambdaL_lambda)])
-        y = np.log10(lambdaL_lambda[~np.isnan(lambdaL_lambda)])
+        nuF_nu = flux_cgs*filt_rest_freq
+        nuL_nu = self.Flux_to_Lum(nuF_nu,self.z)
+
+        # x = np.log10(filt_rest_w_mircons[~np.isnan(lambdaL_lambda)])
+        # y = np.log10(lambdaL_lambda[~np.isnan(lambdaL_lambda)])
+        x = np.log10(filt_rest_w_mircons[~np.isnan(nuL_nu)])
+        y = np.log10(nuL_nu[~np.isnan(nuL_nu)])
         upper_f_interp = interpolate.interp1d(x, y, kind='linear', fill_value='extrapolate')
         
         lambdaL_lambda_upper = 10**upper_f_interp(np.log10(filt_rest_w_mircons))
@@ -280,25 +317,25 @@ class AGN():
                 self.upper_check = 0
 
             elif ~np.isnan(fir_flux_jy[0]) and ~np.isnan(fir_flux_jy[1]):
-                # if value_data > value_upper:
-                #     lambdaL_lambda_out = lambdaL_lambda_upper
-                #     L_value_out = value_upper
-                #     self.upper_check = 1
-                # else:
-                lambdaL_lambda_out = lambdaL_lambda_data
-                L_value_out = value_data
-                self.upper_check = 0
+                if value_data > value_upper:
+                    lambdaL_lambda_out = lambdaL_lambda_upper
+                    L_value_out = value_upper
+                    self.upper_check = 1
+                else:
+                    lambdaL_lambda_out = lambdaL_lambda_data
+                    L_value_out = value_data
+                    self.upper_check = 0
             else:
                 lambdaL_lambda_out = lambdaL_lambda_upper
                 L_value_out = value_upper
                 self.upper_check = 1
         
         self.FIR_lambdaL_lambda, self.FIR_wave = np.delete(lambdaL_lambda_out,0), np.delete(filt_rest_w_mircons,0)
-
+        self.FIR_lambdaL_lambda, self.FIR_wave = lambdaL_lambda_out, filt_rest_w_mircons
         if np.isnan(Find_value):
             return self.FIR_lambdaL_lambda, self.FIR_wave
         else:
-            return self.FIR_lambdaL_lambda, self.FIR_wave, L_value_out  
+            return self.FIR_lambdaL_lambda, self.FIR_wave, L_value_out
 
     def check_SED(self,check_w,check_span=None):
         # Check for an observational data popint within check_span microns of a desired wavelength value (check_w)
@@ -324,15 +361,46 @@ class AGN():
 
         return check_return
 
+    def Source_output(self,fname,Lx,Nh,opt):
+        data_out = np.asarray([self.ID,self.z,Lx,Nh,self.Lbol,Lone])
+        cols_out = np.asarray(['ID','z','Lx','Nh','Lbol','Lone'])
+
+        t = Table(data=data_out, names=cols_out)
+
+        if 'w' in opt:
+            try:
+                fin = fits.open('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname)
+                fdata = fin[1].data
+                fcols = fin[1].columns.names
+                tin = Table(data=fdata,names=fcols)
+                tin.add_row(data_out)
+
+                tin.write('/Useres/connor_auge/Research/Disertation/catalogs/output/'+fname,format='fites',overwrite=True)
+                fin.close()
+
+            except FileNotFoundError:
+                t.write('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname,format='fits',overwrite=True)
+
+        elif 'a' in opt:
+            fin = fits.open('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname)
+            fdata = fin[1].data
+            fcols = fin[1].columns.names
+            tin = Table(data=fdata, names=fcols)
+            tin.add_row(data_out)
+
+            tin.write('/Users/connor_auge/Research/Disertation/catalogs/output/'+fname, format='fits', overwrite=True)
+            fin.close()
+
     def Flux_to_Lum(self,F,z):
         '''Function to convert flux to luminosity'''
         cosmo = FlatLambdaCDM(H0=70, Om0=0.29, Tcmb0=2.725)
 
-        dl = cosmo.luminosity_distance(z).value
-        dl_cgs = dl*(3.86E24) # Distance from Mpc to cm
+        dl = cosmo.luminosity_distance(z).value # Distance in Mpc
+        dl_cgs = dl*(3.0856E24) # Distance from Mpc to cm
 
         # convert flux to luminosity 
         L = F*4*np.pi*dl_cgs**2
+
         return L
 
 
