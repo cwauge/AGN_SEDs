@@ -361,7 +361,7 @@ class AGN():
 
         return check_return
 
-    def Source_output(self,fname,Lx,Nh,opt):
+    def Source_output(self,fname,Lx,Nh,opt,Lone):
         data_out = np.asarray([self.ID,self.z,Lx,Nh,self.Lbol,Lone])
         cols_out = np.asarray(['ID','z','Lx','Nh','Lbol','Lone'])
 
