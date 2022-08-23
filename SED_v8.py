@@ -43,6 +43,7 @@ class AGN():
         self.rest_w_cgs = rest_w*1E-8 # rest wavelength from Angstroms to cm
         self.rest_w_microns = rest_w*1E-4 # rest wavelength  from Angstroms to microns
         self.rest_freq = self.c/self.rest_w_cgs # convert rest wavelength to a frequency
+        self.obs_freq = self.c/self.obs_w_cgs # convert obs wavelength to a frequency
 
         # unit converstion and quality check for flux values
         self.flux_jy = self.obs_f*1E-6 # convert the flux values from microJy to Jy
@@ -58,9 +59,9 @@ class AGN():
 
         self.lambdaF_lambda = self.obs_w_cgs*self.Flambda # convert units to erg s^-1 cm^-2
         self.lambdaL_lambda = self.Flux_to_Lum(self.lambdaF_lambda,self.z) # convert flux to luminosity [erg s^-1]
-        self.nuF_nu = self.rest_freq*self.Fnu
+        self.nuF_nu = self.obs_freq*self.Fnu
         self.nuL_nu = self.Flux_to_Lum(self.nuF_nu,self.z)
-
+        
         # Remove data points that do not have a valid y value and interpolate
         # x = np.log10(self.rest_w_microns[~np.isnan(self.lambdaL_lambda)])
         # y = np.log10(self.lambdaL_lambda[~np.isnan(self.lambdaL_lambda)])
@@ -74,16 +75,65 @@ class AGN():
         y_out = self.f_interp(np.log10(x_out))
         return x_out, y_out
 
-    def Find_value(self,wave):
-        '''Function to find the value of the SED at a given wavelength'''
-        try:
-            value = 10**self.f_interp(np.log10(wave)) # Use interpolation function defined in self.MakeSED() to find value
-            return value
-        except AttributeError: # Return warning and NaN value if interpolation fails
-            value = np.nan
-            print(f'Object {self.ID} does not have enought valid flux values to find Luminosity at {wave} through SED interpolation.')
-            return value
+    def Find_value(self,wave,limit_factor=2):
+        '''
+        Function to find the value of the SED at a given wavelength (wave in microns)
+        limit_factor is a scale factor to look for nearby data in Check_nearest functin. 
+        If no nearby data is found, then no interpolated value is returned. 
+        Default factor is twice the wavelength
+        '''
+        limit = wave*limit_factor
+        if wave > 12:
+            value = self.L_FIR_value_out
+        else:
+            if self.Check_nearest(wave,limit):
+                try:
+                    value = 10**self.f_interp(np.log10(wave)) # Use interpolation function defined in self.MakeSED() to find value
+                except AttributeError: # Return warning and NaN value if interpolation fails
+                    value = np.nan
+                    # print(f'Object {self.ID} does not have enought valid flux values to find Luminosity at {wave} through SED interpolation.')
+            else:
+                value = np.nan
+                # print(f'Object {self.ID} does not have enought valid flux values to find Luminosity at {wave} through SED interpolation.')
+        return value
 
+    def Find_nearest(self,wave):
+        '''Function to find the nearest data points to specified wavelength'''
+        wave_short, wave_long = [], []
+        check_wave = self.rest_w_microns[~np.isnan(self.nuL_nu)]
+        for i, j in enumerate(check_wave):
+            if j < wave:
+                continue
+            elif j > wave and check_wave[i-1] < wave:
+                wave_short.append(check_wave[i-1])
+                wave_long.append(check_wave[i])
+            elif j == wave:
+                wave_short.append(j)
+                wave_long.append(j)
+            else:
+                continue
+        if len(wave_short) == 0:
+            wave_short.append(np.nan)
+            wave_long.append(np.nan)
+
+        return np.asarray(wave_short), np.asarray(wave_long)
+    
+    def Check_nearest(self,wave,limit):
+        '''
+        Function to check if the distance of to the nearest data points greater than and less than wave are within limit
+        Limit is set by a scale factor of wave in Find_value function (default factor is 2)
+        '''
+        ws, wl = self.Find_nearest(wave)
+        if np.isnan(ws):
+            out = False
+        else:
+            distance = wl - ws
+            if distance < limit:
+                out = True
+            else:
+                out = False
+        return out
+    
     def Find_slope(self,wi,wf):
         '''Function to find the slope of the SED between to given wavelength values, wi, wf'''
         fi = self.Find_value(wi) # Use Find_value funtion to find SED value at wi
@@ -183,59 +233,23 @@ class AGN():
 
         return L_region
 
-    def FIR_extrapolation(self,w):
-        regime = Filters('filter_list.dat').pull_filter(self.filter_name,'wavelength range')
-        flux_upper = Filters('filter_list.dat').pull_filter(self.filter_name,' upper limit')*1E-29 # 3 sigma upper limits in cgs
-        
-        fir_flux_jy = self.flux_jy[regime == 'FIR']*1E-6 # Flux values for the FIR filters
-        fir_rest_w_microns = self.rest_w_microns[regime == 'FIR']
-        flux_upper /= 3 # 1 sigma upper limit
-        Flambda_upper = flux_upper*(self.c/self.obs_w_cgs*2)
-        lambdaF_lambda_upper = self.obs_w_cgs*Flambda_upper
-        FIR_lambdaF_lambda_upper = lambdaF_lambda_upper[self.regime == 'FIR']
-
-        FIR_lambdaL_lambda_upper = self.Flux_to_Lum(FIR_lambdaF_lambda_upper,self.z)
-
-        FIR_lambdaL_lambda_upper_interp = interpolate.interp1d(np.log10(fir_rest_w_microns),np.log10(FIR_lambdaL_lambda_upper),kind='linear',fill_value='extrapolate')
-        Fw_upper = 10**FIR_lambdaL_lambda_upper_interp(np.log10(w))
-        Fw = 10**self.f_interp(np.log10(w))
-
-        if ~np.isnan(fir_flux_jy[-3]):
-            Fw_use = Fw
-            self.upper_check = 0
-        elif ~np.isnan(fir_flux_jy[-2]):
-            Fw_use = Fw
-            self.upper_check = 0
-        elif ~np.isnan(fir_flux_jy[-1]):
-            Fw_use = Fw
-            self.upper_check = 0
-
-        elif ~np.isnan(fir_flux_jy[0]) and ~np.isnan(fir_flux_jy[1]):
-            if Fw > Fw_upper:
-                Fw_use = Fw_upper
-                self.upper_check = 1
-            else:
-                Fw_use = Fw
-                self.upper_check = 0
-        else:
-            Fw_use = Fw_upper
-            self.upper_check = 1
-        return Fw_use
-        
-    def median_FIR(self,filtername,Find_value=np.nan):
+    def FIR_extrap(self,filtername):
         '''
         Function to find the FIR SED either based on data or the upper limits
         Input: list of observational filter names over which to construct SED
         Optional input: wavelength to find FIR SED value at (input in microns)
         '''
+        self.FIR_filt = filtername
         regime = Filters('filter_list.dat').pull_filter(self.filter_name,'wavelength range') # Pull the specified wavelength regime from the Filters read file
         flux_upper = Filters('filter_list.dat').pull_filter(filtername,'upper limit')*1E-6 # 3 sigma upper limits from the Filters read file
         flux_upper /= 3 # 1 sigma upper limits
 
-        filt_rest_w_mircons = np.asarray([self.rest_w_microns[self.filter_name == i][0] for i in filtername]) # make array of the rest wavelength in microns for spcified input filters
+        self.filt_rest_w_mircons = np.asarray([self.rest_w_microns[self.filter_name == i][0] for i in filtername]) # make array of the rest wavelength in microns for spcified input filters
         filt_rest_w_cgs = np.asarray([self.rest_w_cgs[self.filter_name == i][0] for i in filtername])
+        filt_obs_w_cgs = np.asarray([self.obs_w_cgs[self.filter_name == i][0] for i in filtername])
         filt_rest_freq = self.c/filt_rest_w_cgs
-        fir_flux_jy = self.flux_jy[regime == 'FIR']*1E-6 # Flux values for the FIR filters
+        filt_obs_freq = self.c/filt_obs_w_cgs
+        self.fir_flux_jy = self.flux_jy[regime == 'FIR']*1E-6 # Flux values for the FIR filters
 
         flux_jy = []
         for i in range(len(filtername)):
@@ -249,93 +263,58 @@ class AGN():
         flux_cgs = flux_jy*1E-23
 
         Flambda = flux_cgs*(self.c/filt_rest_w_cgs**2)
-        lambdaF_lambda = filt_rest_w_cgs*Flambda
+        lambdaF_lambda = filt_obs_w_cgs*Flambda
         lambdaL_lambda = self.Flux_to_Lum(lambdaF_lambda,self.z)
 
-        nuF_nu = flux_cgs*filt_rest_freq
+        nuF_nu = flux_cgs*filt_obs_freq
         nuL_nu = self.Flux_to_Lum(nuF_nu,self.z)
 
         # x = np.log10(filt_rest_w_mircons[~np.isnan(lambdaL_lambda)])
         # y = np.log10(lambdaL_lambda[~np.isnan(lambdaL_lambda)])
-        x = np.log10(filt_rest_w_mircons[~np.isnan(nuL_nu)])
+        x = np.log10(self.filt_rest_w_mircons[~np.isnan(nuL_nu)])
         y = np.log10(nuL_nu[~np.isnan(nuL_nu)])
-        upper_f_interp = interpolate.interp1d(x, y, kind='linear', fill_value='extrapolate')
+        self.upper_f_interp = interpolate.interp1d(x, y, kind='linear', fill_value='extrapolate')
         
-        lambdaL_lambda_upper = 10**upper_f_interp(np.log10(filt_rest_w_mircons))
-        lambdaL_lambda_data = 10**self.f_interp(np.log10(filt_rest_w_mircons))
-        value_upper = 10**upper_f_interp(np.log10(Find_value))
+    def Int_SED_FIR(self,Find_value=np.nan,discreet=False):
+        xmin = min(self.filt_rest_w_mircons)
+        xmax = max(self.filt_rest_w_mircons)
+        if discreet:
+            xfir_out = np.linspace(xmin, xmax, 12)
+        else:
+            xfir_out = self.filt_rest_w_mircons
+
+        yfir_upper = 10**self.upper_f_interp(np.log10(xfir_out))
+        yfir_data = 10**self.f_interp(np.log10(xfir_out))
+        value_upper = 10**self.upper_f_interp(np.log10(Find_value))
         value_data = 10**self.f_interp(np.log10(Find_value))
 
-        if len(fir_flux_jy) >= 5:
-            if ~np.isnan(fir_flux_jy[-5]):
-                lambdaL_lambda_out = lambdaL_lambda_data
-                L_value_out = value_data
-                self.upper_check = 0
-            elif ~np.isnan(fir_flux_jy[-4]):
-                lambdaL_lambda_out = lambdaL_lambda_data
-                L_value_out = value_data
-                self.upper_check = 0
-            elif ~np.isnan(fir_flux_jy[-3]):
-                lambdaL_lambda_out = lambdaL_lambda_data
-                L_value_out = value_data
-                self.upper_check = 0
-            elif ~np.isnan(fir_flux_jy[-2]):
-                lambdaL_lambda_out = lambdaL_lambda_data
-                L_value_out = value_data
-                self.upper_check = 0
-            elif ~np.isnan(fir_flux_jy[-1]):
-                lambdaL_lambda_out = lambdaL_lambda_data
-                L_value_out = value_data
-                self.upper_check = 0
+        if any(~np.isnan(self.fir_flux_jy)):
+            yfir_out = yfir_data 
+            self.L_FIR_value_out = value_data
+            self.upper_check = 0
 
-            elif ~np.isnan(fir_flux_jy[0]) and ~np.isnan(fir_flux_jy[1]):
-                if value_data > value_upper:
-                    lambdaL_lambda_out = lambdaL_lambda_upper
-                    L_value_out = value_upper
-                    self.upper_check = 1
-                else:
-                    lambdaL_lambda_out = lambdaL_lambda_data
-                    L_value_out = value_data
-                    self.upper_check = 0
-            else:
-                lambdaL_lambda_out = lambdaL_lambda_upper
-                L_value_out = value_upper
+        elif ~np.isnan(self.fir_flux_jy[0]) and ~np.isnan(self.fir_flux_jy[1]):
+            if value_data > value_upper:
+                yfir_out = yfir_upper
+                self.L_FIR_value_out = value_upper
                 self.upper_check = 1
-
+            else:
+                yfir_out = yfir_data
+                self.L_FIR_value_out = value_data
+                self.upper_check = 0
         else:
-            if ~np.isnan(fir_flux_jy[-3]):
-                lambdaL_lambda_out = lambdaL_lambda_data
-                L_value_out = value_data
-                self.upper_check = 0
-            elif ~np.isnan(fir_flux_jy[-2]):
-                lambdaL_lambda_out = lambdaL_lambda_data
-                L_value_out = value_data
-                self.upper_check = 0
-            elif ~np.isnan(fir_flux_jy[-1]):
-                lambdaL_lambda_out = lambdaL_lambda_data
-                L_value_out = value_data
-                self.upper_check = 0
+            yfir_out = yfir_upper
+            self.L_FIR_value_out = value_upper
+            self.upper_check = 1
 
-            elif ~np.isnan(fir_flux_jy[0]) and ~np.isnan(fir_flux_jy[1]):
-                if value_data > value_upper:
-                    lambdaL_lambda_out = lambdaL_lambda_upper
-                    L_value_out = value_upper
-                    self.upper_check = 1
-                else:
-                    lambdaL_lambda_out = lambdaL_lambda_data
-                    L_value_out = value_data
-                    self.upper_check = 0
-            else:
-                lambdaL_lambda_out = lambdaL_lambda_upper
-                L_value_out = value_upper
-                self.upper_check = 1
+        yfir_out = yfir_upper
+        self.L_FIR_value_out = value_upper
         
-        self.FIR_lambdaL_lambda, self.FIR_wave = np.delete(lambdaL_lambda_out,0), np.delete(filt_rest_w_mircons,0)
-        self.FIR_lambdaL_lambda, self.FIR_wave = lambdaL_lambda_out, filt_rest_w_mircons
+        self.FIR_lambdaL_lambda, self.FIR_wave = yfir_out, xfir_out
         if np.isnan(Find_value):
-            return self.FIR_lambdaL_lambda, self.FIR_wave
+            return self.FIR_wave, self.FIR_lambdaL_lambda
         else:
-            return self.FIR_lambdaL_lambda, self.FIR_wave, L_value_out
+            return self.FIR_wave, self.FIR_lambdaL_lambda, self.L_FIR_value_out
 
     def check_SED(self,check_w,check_span=None):
         # Check for an observational data popint within check_span microns of a desired wavelength value (check_w)
