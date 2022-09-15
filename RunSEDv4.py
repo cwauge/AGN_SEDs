@@ -1,7 +1,7 @@
 '''
 Script to run AGN class from SED.py and plot results with SED_plots.py Plotter class. 
 Reads in Photometry and X-ray data from the COSMOS field, S82X field, GOODS-N/S fields, and for individual GOALS galaxies. 
-Updated - July 28, 2022
+Updated - August 22, 2022
 '''
 
 import time
@@ -16,6 +16,7 @@ from SED_v8 import AGN
 from SED_plots_v2 import Plotter
 from plots_Letter import Plotter_Letter
 from plots_Letter2 import Plotter_Letter2
+from SED_shape_plots import SED_shape_Plotter
 from match import match
 from mag_flux import mag_to_flux
 from mag_flux import magerr_to_fluxerr
@@ -290,12 +291,14 @@ cosmos_flux_array = np.array([
     cosmos_data['FIR_160_FLUX'][cosmos_iy],
     cosmos_data['FIR_250_FLUX'][cosmos_iy],
     cosmos_data['FIR_350_FLUX'][cosmos_iy],
-    cosmos_data['FIR_500_FLUX'][cosmos_iy]
+    cosmos_data['FIR_500_FLUX'][cosmos_iy],
+    cosmos_data['FIR_850_FLUX'][cosmos_iy],
+    # cosmos_data['FIR_1100_FLUX'][cosmos_iy],
+    cosmos_data['FIR_20CM_FLUX'][cosmos_iy]
 ])
 
 cosmos_flux_err_array = np.array([
-    chandra_cosmos_Fx_hard_match_mjy*1000 *
-    0.2, chandra_cosmos_Fx_soft_match_mjy*1000*0.2,
+    chandra_cosmos_Fx_hard_match_mjy*1000*0.2, chandra_cosmos_Fx_soft_match_mjy*1000*0.2,
     cosmos_nan_array,
     cosmos_data['GALEX_FUV_FLUXERR'][cosmos_iy],
     cosmos_data['GALEX_NUV_FLUXERR'][cosmos_iy],
@@ -317,7 +320,10 @@ cosmos_flux_err_array = np.array([
     cosmos_data['FIR_160_FLUXERR'][cosmos_iy],
     cosmos_data['FIR_250_FLUXERR'][cosmos_iy],
     cosmos_data['FIR_350_FLUXERR'][cosmos_iy],
-    cosmos_data['FIR_500_FLUXERR'][cosmos_iy]
+    cosmos_data['FIR_500_FLUXERR'][cosmos_iy],
+    cosmos_data['FIR_850_FLUXERR'][cosmos_iy],
+    # cosmos_data['FIR_1100_FLUXERR'][cosmos_iy],
+    cosmos_data['FIR_20CM_FLUXERR'][cosmos_iy]
 ])
 
 # Transpose arrays so each row is a new source and each column is a obs filter
@@ -325,47 +331,910 @@ cosmos_flux_array = cosmos_flux_array.T
 cosmos_flux_err_array = cosmos_flux_err_array.T
 ###################################################################################
 
+###################################################################################
+###################################################################################
+############################ Read in Stripe82X files ##############################
+
+# Most recent LaMassa catalog - Includes Photometry and X-ray data
+lamassa = fits.open(path+'S82X_catalog_with_photozs_unique_Xraysrcs_likely_cps_w_mbh.fits')
+lamassa_data = lamassa[1].data
+lamassa.close()
+
+# Updated X-ray catalog from Peca et al.
+peca = fits.open(path+'Peca_S82X.fits')
+peca_data = peca[1].data
+peca.close()
+
+# WISE catalog with forced photometry on SLOAN sources
+unwise = ascii.read('/Users/connor_auge/Desktop/desktop_catalogs/unwise_matches.csv')
+unwise_ID = np.asarray(unwise['ID'])
+unwise_W1 = np.asarray(unwise['unW1'])
+unwise_W2 = np.asarray(unwise['unW2'])
+unwise_W3 = np.asarray(unwise['unW3'])
+unwise_W4 = np.asarray(unwise['unW4'])
+unwise_W1_err = np.asarray(unwise['unW1_err'])
+unwise_W2_err = np.asarray(unwise['unW2_err'])
+unwise_W3_err = np.asarray(unwise['unW3_err'])
+unwise_W4_err = np.asarray(unwise['unW4_err'])
+
+# Gather IDs and sort into usable ID array for LaMassa
+lamassa_id = lamassa_data['msid']
+lamassa_id_recno = lamassa_data['rec_no']
+lamassa_obsID = lamassa_data['OBSID']
+
+s82x_id = []
+for i,j in enumerate(lamassa_id):
+    if j == 0:
+        s82x_id.append(lamassa_id_recno[i])
+    else:
+        s82x_id.append(j)
+s82x_id = np.asarray(s82x_id)
+
+# Additional data from LaMassa
+s82x_ra = lamassa_data['XRAY_RA']
+s82x_dec = lamassa_data['XRAY_DEC']
+s82x_cat = lamassa_data['XRAY_SRC']
+s82x_z = lamassa_data['SPEC_Z']
+s82x_Lx_full = np.asarray([10**i for i in lamassa_data['FULL_LUM']])
+s82x_Lx_hard = np.array([10**i for i in lamassa_data['HARD_LUM']])
+s82x_Lx_soft = np.array([10**i for i in lamassa_data['SOFT_LUM']])
+s82x_Fx_full = lamassa_data['FULL_FLUX']
+s82x_Fx_hard = lamassa_data['HARD_FLUX']
+s82x_Fx_soft = lamassa_data['SOFT_FLUX']
+s82x_spec_class = lamassa_data['SPEC_CLASS']
+
+# Read in WISE data 
+s82x_W1 = lamassa_data['W1']
+s82x_W2 = lamassa_data['W2']
+s82x_W3 = lamassa_data['W3']
+s82x_W4 = lamassa_data['W4']
+s82x_W1_err = lamassa_data['W1_err']
+s82x_W2_err = lamassa_data['W2_err']
+s82x_W3_err = lamassa_data['W3_err']
+s82x_W4_err = lamassa_data['W4_err']
+
+# Replace W3 and W4 data with good data from the unWISE catalog
+for i, j in enumerate(s82x_id):
+    ind = np.where(unwise_ID == j)[0]
+    if len(ind) == 1:
+        if np.isnan(unwise_W3[ind]):
+            continue
+        elif unwise_W3[ind] <= 0.0:
+            continue
+        elif magerr_to_fluxerr(unwise_W3[ind], unwise_W3_err[ind],'W3',AB=True)/mag_to_flux(unwise_W3[ind],'W3',AB=True) > 0.4:
+            continue
+        else:
+            s82x_W3[i] = unwise_W3[ind][0]
+            s82x_W3_err[i] = unwise_W3_err[ind][0]
+
+        if np.isnan(unwise_W4[ind]):
+            continue
+        elif unwise_W4[ind] <= 0.0:
+            continue
+        elif magerr_to_fluxerr(unwise_W4[ind], unwise_W4_err[ind], 'W4', AB=True)/mag_to_flux(unwise_W4[ind], 'W4', AB=True) > 0.4:
+            continue
+        else:
+            s82x_W4[i] = unwise_W4[ind][0]
+            s82x_W4_err[i] = unwise_W4_err[ind][0]
+
+
+# Read in Peca data
+peca_ID = peca_data['srcid']
+peca_Lx_full = peca_data['lumin_f']
+peca_Lx_hard = peca_data['lumin_h']
+peca_Lx_soft = peca_data['lumin_s']
+peca_Lx_full_obs = peca_data['lumin_of']
+peca_Fx_full = peca_data['flux_f']
+peca_Fx_hard = peca_data['flux_h']
+peca_Fx_soft = peca_data['flux_s']
+peca_Nh = peca_data['nh']
+
+# Fill in Nh data from Peca and replace LaMassa X-ray data with Peca 
+s82x_Nh = []
+for i, j in enumerate(s82x_id):
+    ind = np.where(peca_ID == j)[0]
+    if len(ind) == 1:
+        s82x_Lx_full[i] = peca_Lx_full[ind][0]
+        s82x_Lx_hard[i] = peca_Lx_hard[ind][0]
+        s82x_Lx_soft[i] = peca_Lx_soft[ind][0]
+        s82x_Fx_full[i] = peca_Fx_full[ind][0]
+        s82x_Fx_hard[i] = peca_Fx_hard[ind][0]
+        s82x_Fx_soft[i] = peca_Fx_soft[ind][0]
+        s82x_Nh.append(peca_Nh[ind][0])
+    else:
+        s82x_Nh.append(0.0)
+s82x_Nh = np.asarray(s82x_Nh)
+
+print('S82X All: ', len(s82x_id))
+
+# Limit Stripe82X sample to sources in z and Lx range
+s82x_condition = (s82x_z > z_min) & (s82x_z <= z_max) & (np.log10(s82x_Lx_full) >= Lx_min) & (np.log10(s82x_Lx_full) <= Lx_max) & (np.logical_and(s82x_ra >= 13, s82x_ra <=37))
+
+s82x_id = s82x_id[s82x_condition]
+s82x_cat = s82x_cat[s82x_condition]
+s82x_z = s82x_z[s82x_condition]
+s82x_ra = s82x_ra[s82x_condition]
+s82x_dec = s82x_dec[s82x_condition]
+s82x_Lx_full = s82x_Lx_full[s82x_condition]
+s82x_Lx_hard = s82x_Lx_hard[s82x_condition]
+s82x_Lx_soft = s82x_Lx_soft[s82x_condition]
+s82x_Fx_full = s82x_Fx_full[s82x_condition]
+s82x_Fx_hard = s82x_Fx_hard[s82x_condition]
+s82x_Fx_soft = s82x_Fx_soft[s82x_condition]
+s82x_Nh = s82x_Nh[s82x_condition]
+s82x_spec_class = s82x_spec_class[s82x_condition]
+
+print('S82X Lx z coords: ', len(s82x_id))
+print('S82X match: ', len(s82x_id))
+
+# Convert the X-ray flux values to from cgs to mJy
+s82x_Fx_full_mjy = s82x_Fx_full*4.136E8/(10-0.5)
+s82x_Fx_hard_mjy = s82x_Fx_hard*4.136E8/(10-2)
+s82x_Fx_soft_mjy = s82x_Fx_soft*4.136E8/(2-0.5)
+s82x_Fxerr_full_mjy = s82x_Fx_full_mjy*0.2 # Place holder errors for X-ray flux values
+s82x_Fxerr_hard_mjy = s82x_Fx_hard_mjy*0.2 # Place holder errors for X-ray flux values
+s82x_Fxerr_soft_mjy = s82x_Fx_soft_mjy*0.2 # Place holder errors for X-ray flux values
+
+# Create a 1D array of NaN that is the length of the number of COSMOS sources - used to create "blank" values in flux array
+s82x_nan_array = np.zeros(np.shape(s82x_id))
+s82x_nan_array[s82x_nan_array == 0] = np.nan
+
+# Create flux and flux error arrays for the S82X data. NaN array separating the X-ray from the FUV data and MIR data from FIR data.
+s82x_flux_array = np.array([
+    s82x_Fx_hard_mjy*1000, s82x_Fx_soft_mjy*1000,
+    s82x_nan_array,
+    mag_to_flux(lamassa_data['mag_FUV'][s82x_condition],'FUV')*1E6,
+    mag_to_flux(lamassa_data['mag_NUV'][s82x_condition],'NUV')*1E6,
+    mag_to_flux(lamassa_data['u'][s82x_condition], 'sloan_u')*1E6,
+    mag_to_flux(lamassa_data['g'][s82x_condition], 'sloan_g')*1E6,
+    mag_to_flux(lamassa_data['r'][s82x_condition], 'sloan_r')*1E6,
+    mag_to_flux(lamassa_data['i'][s82x_condition], 'sloan_i')*1E6,
+    mag_to_flux(lamassa_data['z'][s82x_condition], 'sloan_z')*1E6,
+    mag_to_flux(lamassa_data['JVHS'][s82x_condition], 'JVHS')*1E6,
+    mag_to_flux(lamassa_data['HVHS'][s82x_condition], 'HVHS')*1E6,
+    mag_to_flux(lamassa_data['KVHS'][s82x_condition], 'KVHS')*1E6,
+    mag_to_flux(s82x_W1[s82x_condition], 'W1')*1E6,
+    mag_to_flux(s82x_W2[s82x_condition], 'W2')*1E6,
+    mag_to_flux(s82x_W3[s82x_condition], 'W3')*1E6,
+    mag_to_flux(s82x_W4[s82x_condition], 'W4')*1E6,
+    s82x_nan_array,
+    lamassa_data['F250'][s82x_condition]*1000,
+    lamassa_data['F350'][s82x_condition]*1000,
+    lamassa_data['F500'][s82x_condition]*1000
+
+])
+
+s82x_flux_err_array = np.array([
+    s82x_Fxerr_hard_mjy*1000, s82x_Fxerr_soft_mjy*1000,
+    s82x_nan_array,
+    magerr_to_fluxerr(lamassa_data['mag_FUV'][s82x_condition],
+                      lamassa_data['magerr_FUV'][s82x_condition], 'FUV')*1E6,
+    magerr_to_fluxerr(lamassa_data['mag_NUV'][s82x_condition],
+                      lamassa_data['magerr_NUV'][s82x_condition], 'NUV')*1E6,
+    magerr_to_fluxerr(lamassa_data['u'][s82x_condition],
+                      lamassa_data['u_err'][s82x_condition], 'sloan_u')*1E6,
+    magerr_to_fluxerr(lamassa_data['g'][s82x_condition],
+                      lamassa_data['g_err'][s82x_condition], 'sloan_g')*1E6,
+    magerr_to_fluxerr(lamassa_data['r'][s82x_condition],
+                      lamassa_data['r_err'][s82x_condition], 'sloan_r')*1E6,
+    magerr_to_fluxerr(lamassa_data['i'][s82x_condition],
+                      lamassa_data['i_err'][s82x_condition], 'sloan_i')*1E6,
+    magerr_to_fluxerr(lamassa_data['z'][s82x_condition],
+                      lamassa_data['z_err'][s82x_condition], 'sloan_z')*1E6,
+    magerr_to_fluxerr(lamassa_data['JVHS'][s82x_condition],
+                      lamassa_data['JVHS_err'][s82x_condition], 'JVHS')*1E6,
+    magerr_to_fluxerr(lamassa_data['HVHS'][s82x_condition],
+                      lamassa_data['HVHS_err'][s82x_condition], 'HVHS')*1E6,
+    magerr_to_fluxerr(lamassa_data['KVHS'][s82x_condition],
+                      lamassa_data['KVHS_err'][s82x_condition], 'KVHS')*1E6,
+    magerr_to_fluxerr(s82x_W1[s82x_condition], s82x_W1_err[s82x_condition], 'W1')*1E6,
+    magerr_to_fluxerr(s82x_W2[s82x_condition], s82x_W2_err[s82x_condition], 'W2')*1E6,
+    magerr_to_fluxerr(s82x_W3[s82x_condition], s82x_W3_err[s82x_condition], 'W3')*1E6,
+    magerr_to_fluxerr(s82x_W4[s82x_condition], s82x_W4_err[s82x_condition], 'W4')*1E6,
+    s82x_nan_array,
+    lamassa_data['F250_err'][s82x_condition]*1000,
+    lamassa_data['F350_err'][s82x_condition]*1000,
+    lamassa_data['F500_err'][s82x_condition]*1000
+])
+
+# Transpose arrays so each row is a new source and each column is a obs filter
+s82x_flux_array = s82x_flux_array.T
+s82x_flux_err_array = s82x_flux_err_array.T
+###################################################################################
+
+
+###################################################################################
+###################################################################################
+############################## Read in GOODS-N files ##############################
+goodsN_auge = fits.open(path+'GOODsN_full_cat.fits')
+goodsN_auge_data = goodsN_auge[1].data
+goodsN_auge.close()
+
+goodsN_auge_ID = goodsN_auge_data['id_xray']
+goodsN_auge_Lx = goodsN_auge_data['Lx']
+goodsN_auge_Lx_hard = goodsN_auge_data['Lx']*0.611
+goodsN_auge_z = goodsN_auge_data['z_spec']
+
+goodsN_auge_condition = (np.log10(goodsN_auge_Lx) >= Lx_min) & (np.log10(goodsN_auge_Lx) <= Lx_max) &(goodsN_auge_z > z_min) & (goodsN_auge_z <= z_max) & (goodsN_auge_z != 0.0)
+
+goodsN_auge_ID_match = goodsN_auge_ID[goodsN_auge_condition]
+goodsN_auge_Lx_match = goodsN_auge_Lx[goodsN_auge_condition]
+goodsN_auge_Lx_hard_match = goodsN_auge_Lx_hard[goodsN_auge_condition]
+goodsN_auge_z_match = goodsN_auge_z[goodsN_auge_condition]
+
+print('GOODS-N 2 match: ',len(goodsN_auge_ID_match))
+
+goodsN_auge_Fx_hard_match_mjy = goodsN_auge_data['Fx_hard'][goodsN_auge_condition]*4.136E8/(10-2)
+goodsN_auge_Fx_soft_match_mjy = goodsN_auge_data['Fx_soft'][goodsN_auge_condition]*4.136E8/(2-0.5)
+
+goodsN_nan_array = np.zeros(np.shape(goodsN_auge_ID_match)) # Create nan array with length == to the number of sources to be input to the photometry array
+goodsN_nan_array[goodsN_nan_array == 0] = np.nan
+goodsN_flux_array_auge = np.asarray([goodsN_auge_Fx_hard_match_mjy*1000, goodsN_auge_Fx_soft_match_mjy*1000,
+	goodsN_nan_array,
+    goodsN_auge_data['FUV'][goodsN_auge_condition],
+	goodsN_auge_data['NUV'][goodsN_auge_condition],
+    goodsN_auge_data['U'][goodsN_auge_condition],
+    goodsN_auge_data['F435W'][goodsN_auge_condition],
+	goodsN_auge_data['B'][goodsN_auge_condition], 
+	goodsN_auge_data['V'][goodsN_auge_condition],
+    goodsN_auge_data['F606W'][goodsN_auge_condition],
+	goodsN_auge_data['R'][goodsN_auge_condition], 
+	goodsN_auge_data['I'][goodsN_auge_condition],
+    goodsN_auge_data['F775W'][goodsN_auge_condition],
+    goodsN_auge_data['F814W'][goodsN_auge_condition],
+	goodsN_auge_data['z'][goodsN_auge_condition],
+    goodsN_auge_data['F105W'][goodsN_auge_condition],
+    goodsN_auge_data['F125W'][goodsN_auge_condition],
+	goodsN_auge_data['J'][goodsN_auge_condition],
+    goodsN_auge_data['F140W'][goodsN_auge_condition],
+    goodsN_auge_data['F160W'][goodsN_auge_condition],
+	goodsN_auge_data['H'][goodsN_auge_condition],
+	goodsN_auge_data['K'][goodsN_auge_condition],
+	goodsN_auge_data['irac_ch1'][goodsN_auge_condition],
+	goodsN_auge_data['irac_ch2'][goodsN_auge_condition],
+	goodsN_auge_data['irac_ch3'][goodsN_auge_condition],
+	goodsN_auge_data['irac_ch4'][goodsN_auge_condition],
+	goodsN_auge_data['f24'][goodsN_auge_condition],
+    goodsN_auge_data['f70'][goodsN_auge_condition],
+	goodsN_auge_data['f100'][goodsN_auge_condition],
+	goodsN_auge_data['f160'][goodsN_auge_condition],
+	goodsN_auge_data['f250'][goodsN_auge_condition],
+	goodsN_auge_data['f350'][goodsN_auge_condition],
+	goodsN_auge_data['f500'][goodsN_auge_condition]
+]) 
+
+goodsN_flux_err_array_auge = np.asarray([goodsN_auge_Fx_hard_match_mjy*1000*0.2, goodsN_auge_Fx_soft_match_mjy*1000*0.2,
+	goodsN_nan_array,
+    goodsN_auge_data['FUVerr'][goodsN_auge_condition],
+	goodsN_auge_data['NUVerr'][goodsN_auge_condition],
+    goodsN_auge_data['Uerr'][goodsN_auge_condition],
+    goodsN_auge_data['F435Werr'][goodsN_auge_condition], 
+	goodsN_auge_data['Berr'][goodsN_auge_condition], 
+	goodsN_auge_data['Verr'][goodsN_auge_condition],
+    goodsN_auge_data['F606Werr'][goodsN_auge_condition],
+	goodsN_auge_data['Rerr'][goodsN_auge_condition], 
+	goodsN_auge_data['Ierr'][goodsN_auge_condition],
+    goodsN_auge_data['F775Werr'][goodsN_auge_condition],
+    goodsN_auge_data['F814Werr'][goodsN_auge_condition],
+	goodsN_auge_data['zerr'][goodsN_auge_condition],
+    goodsN_auge_data['F105Werr'][goodsN_auge_condition],
+    goodsN_auge_data['F125Werr'][goodsN_auge_condition],
+	goodsN_auge_data['Jerr'][goodsN_auge_condition],
+    goodsN_auge_data['F140Werr'][goodsN_auge_condition],
+    goodsN_auge_data['F160Werr'][goodsN_auge_condition],
+	goodsN_auge_data['Herr'][goodsN_auge_condition],
+	goodsN_auge_data['Kerr'][goodsN_auge_condition],
+	goodsN_auge_data['irac_ch1err'][goodsN_auge_condition],
+	goodsN_auge_data['irac_ch2err'][goodsN_auge_condition],
+	goodsN_auge_data['irac_ch3err'][goodsN_auge_condition],
+	goodsN_auge_data['irac_ch4err'][goodsN_auge_condition],
+	goodsN_auge_data['f24err'][goodsN_auge_condition],
+    goodsN_auge_data['f70err'][goodsN_auge_condition],
+	goodsN_auge_data['f100err'][goodsN_auge_condition],
+	goodsN_auge_data['f160err'][goodsN_auge_condition],
+	goodsN_auge_data['f250err'][goodsN_auge_condition],
+	goodsN_auge_data['f350err'][goodsN_auge_condition],
+	goodsN_auge_data['f500err'][goodsN_auge_condition]
+]) 
+
+
+goodsN_flux_array_auge = goodsN_flux_array_auge.T
+goodsN_flux_err_array_auge = goodsN_flux_err_array_auge.T
+###################################################################################
+
+###################################################################################
+###################################################################################
+############################## Read in GOODS-S files ##############################
+goodsS_auge = fits.open(path+'GOODsS_full_cat.fits')
+goodsS_auge_data = goodsS_auge[1].data
+goodsS_auge.close()
+
+goodsS_auge_ID = goodsS_auge_data['id_xray']
+goodsS_auge_Lx = goodsS_auge_data['Lxc']
+goodsS_auge_Lx_hard = goodsS_auge_data['Lxc']*0.611
+goodsS_auge_z = goodsS_auge_data['z_spec']
+
+goodsS_auge_condition = (np.log10(goodsS_auge_Lx) >= Lx_min) & (np.log10(goodsS_auge_Lx) <= Lx_max) &(goodsS_auge_z > z_min) & (goodsS_auge_z <= z_max) & (goodsS_auge_z != 0.0)
+
+goodsS_auge_ID_match = goodsS_auge_ID[goodsS_auge_condition]
+goodsS_auge_Lx_match = goodsS_auge_Lx[goodsS_auge_condition]
+goodsS_auge_Lx_hard_match = goodsS_auge_Lx_hard[goodsS_auge_condition]
+goodsS_auge_z_match = goodsS_auge_z[goodsS_auge_condition]
+
+print('GOODS-S 2 match: ',len(goodsS_auge_ID_match))
+
+
+goodsS_auge_Fx_hard_match_mjy = goodsS_auge_data['Fx_hard'][goodsS_auge_condition]*4.136E8/(10-2)
+goodsS_auge_Fx_soft_match_mjy = goodsS_auge_data['Fx_soft'][goodsS_auge_condition]*4.136E8/(2-0.5)
+
+goodsS_nan_array = np.zeros(np.shape(goodsS_auge_ID_match)) # Create nan array with length == to the number of sources to be input to the photometry array
+goodsS_nan_array[goodsS_nan_array == 0] = np.nan
+
+
+goodsS_flux_array_auge = np.asarray([goodsS_auge_Fx_hard_match_mjy*1000, goodsS_auge_Fx_soft_match_mjy*1000,
+    goodsS_nan_array,
+    goodsS_auge_data['FUV'][goodsS_auge_condition],
+    goodsS_auge_data['NUV'][goodsS_auge_condition],
+    goodsS_auge_data['U'][goodsS_auge_condition],
+    # goodsS_auge_data['IA427'][goodsS_auge_condition],
+    goodsS_auge_data['F435W'][goodsS_auge_condition],
+    # goodsS_auge_data['IA445'][goodsS_auge_condition],
+    goodsS_auge_data['B'][goodsS_auge_condition],
+    # goodsS_auge_data['IA464'][goodsS_auge_condition],
+    # goodsS_auge_data['IA484'][goodsS_auge_condition],
+    # goodsS_auge_data['IA505'][goodsS_auge_condition],
+    # goodsS_auge_data['IA527'][goodsS_auge_condition],
+    goodsS_auge_data['V'][goodsS_auge_condition],
+    # goodsS_auge_data['IA550'][goodsS_auge_condition],
+    # goodsS_auge_data['IA574'][goodsS_auge_condition],
+    goodsS_auge_data['F606W'][goodsS_auge_condition],
+    # goodsS_auge_data['IA598'][goodsS_auge_condition],
+    # goodsS_auge_data['IA624'][goodsS_auge_condition],
+    goodsS_auge_data['R'][goodsS_auge_condition],
+    # goodsS_auge_data['IA651'][goodsS_auge_condition],
+    # goodsS_auge_data['IA679'][goodsS_auge_condition],
+    # goodsS_auge_data['IA709'][goodsS_auge_condition],
+    # goodsS_auge_data['IA738'][goodsS_auge_condition],
+    goodsS_auge_data['I'][goodsS_auge_condition],
+    goodsS_auge_data['F775W'][goodsS_auge_condition],
+    # goodsS_auge_data['IA767'][goodsS_auge_condition],
+    # goodsS_auge_data['IA797'][goodsS_auge_condition],
+    goodsS_auge_data['F814W'][goodsS_auge_condition],
+    # goodsS_auge_data['IA827'][goodsS_auge_condition],
+    # goodsS_auge_data['IA856'][goodsS_auge_condition],
+    goodsS_auge_data['z'][goodsS_auge_condition],
+    goodsS_auge_data['F850LP'][goodsS_auge_condition],
+    goodsS_auge_data['F098M'][goodsS_auge_condition],
+    goodsS_auge_data['F105W'][goodsS_auge_condition],
+    goodsS_auge_data['F125W'][goodsS_auge_condition],
+    goodsS_auge_data['J'][goodsS_auge_condition],
+    goodsS_auge_data['F140W'][goodsS_auge_condition],
+    goodsS_auge_data['F160W'][goodsS_auge_condition],
+    goodsS_auge_data['H'][goodsS_auge_condition],
+    goodsS_auge_data['K'][goodsS_auge_condition],
+    goodsS_auge_data['irac_ch1'][goodsS_auge_condition],
+    goodsS_auge_data['irac_ch2'][goodsS_auge_condition],
+    goodsS_auge_data['irac_ch3'][goodsS_auge_condition],
+    goodsS_auge_data['irac_ch4'][goodsS_auge_condition],
+    goodsS_auge_data['F24'][goodsS_auge_condition],
+    goodsS_auge_data['F70'][goodsS_auge_condition],
+    goodsS_auge_data['F100'][goodsS_auge_condition],
+    goodsS_auge_data['F160'][goodsS_auge_condition],
+    goodsS_auge_data['F250'][goodsS_auge_condition],
+    goodsS_auge_data['F350'][goodsS_auge_condition],
+    goodsS_auge_data['F500'][goodsS_auge_condition],
+    ])
+
+goodsS_flux_err_array_auge = np.asarray([goodsS_auge_Fx_hard_match_mjy*1000*0.2, goodsS_auge_Fx_soft_match_mjy*1000*0.2,
+    goodsS_nan_array,
+    goodsS_auge_data['FUVerr'][goodsS_auge_condition],
+    goodsS_auge_data['NUVerr'][goodsS_auge_condition],
+    goodsS_auge_data['Uerr'][goodsS_auge_condition],
+    # goodsS_auge_data['IA427err'][goodsS_auge_condition],
+    goodsS_auge_data['F435Werr'][goodsS_auge_condition],
+    # goodsS_auge_data['IA445err'][goodsS_auge_condition],
+    goodsS_auge_data['Berr'][goodsS_auge_condition],
+    # goodsS_auge_data['IA464err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA484err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA505err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA527err'][goodsS_auge_condition],
+    goodsS_auge_data['Verr'][goodsS_auge_condition],
+    # goodsS_auge_data['IA550err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA574err'][goodsS_auge_condition],
+    goodsS_auge_data['F606Werr'][goodsS_auge_condition],
+    # goodsS_auge_data['IA598err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA624err'][goodsS_auge_condition],
+    goodsS_auge_data['Rerr'][goodsS_auge_condition],
+    # goodsS_auge_data['IA651err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA679err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA709err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA738err'][goodsS_auge_condition],
+    goodsS_auge_data['Ierr'][goodsS_auge_condition],
+    goodsS_auge_data['F775Werr'][goodsS_auge_condition],
+    # goodsS_auge_data['IA767err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA797err'][goodsS_auge_condition],
+    goodsS_auge_data['F814Werr'][goodsS_auge_condition],
+    # goodsS_auge_data['IA827err'][goodsS_auge_condition],
+    # goodsS_auge_data['IA856err'][goodsS_auge_condition],
+    goodsS_auge_data['zerr'][goodsS_auge_condition],
+    goodsS_auge_data['F850LPerr'][goodsS_auge_condition],
+    goodsS_auge_data['F098Merr'][goodsS_auge_condition],
+    goodsS_auge_data['F105Werr'][goodsS_auge_condition],
+    goodsS_auge_data['F125Werr'][goodsS_auge_condition],
+    goodsS_auge_data['Jerr'][goodsS_auge_condition],
+    goodsS_auge_data['F140Werr'][goodsS_auge_condition],
+    goodsS_auge_data['F160Werr'][goodsS_auge_condition],
+    goodsS_auge_data['Herr'][goodsS_auge_condition],
+    goodsS_auge_data['Kerr'][goodsS_auge_condition],
+    goodsS_auge_data['irac_ch1err'][goodsS_auge_condition],
+    goodsS_auge_data['irac_ch2err'][goodsS_auge_condition],
+    goodsS_auge_data['irac_ch3err'][goodsS_auge_condition],
+    goodsS_auge_data['irac_ch4err'][goodsS_auge_condition],
+    goodsS_auge_data['F24err'][goodsS_auge_condition],
+    goodsS_auge_data['F70err'][goodsS_auge_condition],
+    goodsS_auge_data['F100err'][goodsS_auge_condition],
+    goodsS_auge_data['F160err'][goodsS_auge_condition],
+    goodsS_auge_data['F250err'][goodsS_auge_condition],
+    goodsS_auge_data['F350err'][goodsS_auge_condition],
+    goodsS_auge_data['F500err'][goodsS_auge_condition]
+    ])
+
+
+goodsS_flux_array_auge = goodsS_flux_array_auge.T
+goodsS_flux_err_array_auge = goodsS_flux_err_array_auge.T
+
+
+#### Read in Galaxy Templates ####
+temp = ascii.read('/Users/connor_auge/Desktop/templets/A10_templates.txt')
+temp_wave = np.asarray(temp['Wave'])
+temp_flux = np.asarray(temp['E'])*1E-16  # erg/s/cm^-2/Hz
+temp_wave_cgs = temp_wave*1E-8
+temp_freq = 3E10/temp_wave_cgs
+temp_nuFnu = temp_flux*temp_freq
+
+dl = 10
+dl_cgs = dl*3.086E18
+temp_lum = temp_nuFnu*4*np.pi*dl_cgs**2
+
+scale_array = [1.87E44, 2.33E44, 3.93E44]
+###################################
+
+
 # Print time taken to read in all files
 tfl = time.perf_counter()
 print(f'Done with file reading ({tfl - ti:0.4f} second)')
 
 # Filters used in COSMOS field 
+# COSMOS_filters = np.array(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'J_FLUX_APER2', 'H_FLUX_APER2',
+                        #   'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
 COSMOS_filters = np.array(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'J_FLUX_APER2', 'H_FLUX_APER2',
-                          'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+                          'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500',
+                           'SCUBA2', 'VLA2'])
+# Filters used in the S82X field
+S82X_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'MAG_FUV', 'MAG_NUV', 'U', 'G', 'R', 'I', 'Z',
+                          'JVHS', 'HVHS', 'KVHS', 'W1', 'W2', 'W3', 'W4', 'nan', 'FLUX_250_s82x', 'FLUX_350_s82x', 'FLUX_500_s82x'])
 
+# Filters used in the GOODS-N/S field
+GOODSS_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'F435W', 'B_FLUX_APER2', 'V_FLUX_APER2', 'F606W', 'R', 'I',
+                                  'F775W', 'F814W', 'Z', 'F850LP', 'F098M', 'F105W', 'F125W', 'JVHS', 'F140W', 'F160W', 'HVHS', 'KVHS', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+GOODSN_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'F435W', 'B_FLUX_APER2', 'V_FLUX_APER2', 'F606W', 'R', 'I', 'F775W', 'F814W', 'Z', 'F105W', 'F125W', 'JVHS', 'F140W', 'F160W', 'HVHS', 'KVHS',
+                                  'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+
+# Filters for writting the output file
+filter_total = np.array(['Fxh','Fxs','FUV','NUV','u','g','r','i','z','y','J','H','Ks','W1','IRAC1','IRAC2','W2','IRAC3','IRAC4','W3','W4','F24','F250','F350','F500'])
+filter_COSMOS_match = np.array(['Fxh','Fxs','nan','FUV','NUV','u','g','r','i','z','y','J','H','Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F250','F350','F500'])
+filter_S82X_match = np.array(['Fxh','Fxs','nan','FUV','NUV','u','g','r','i','z','J','H','Ks','W1','W2','W3','W4','nan','F250','F350','F500'])
 
 ###################################################################################
 ###################################################################################
-########################## Run AGN Class over each source ##########################
+###################################################################################
+########################## Run AGN Class over each source #########################
 
 # Make empty lists to be filled with SED outputs 
-out_ID, out_z, out_x, out_y = [], [], [], []
+out_ID, out_z, out_x, out_y, out_frac_error = [], [], [], [], []
 out_Lx, out_Lbol = [], []
 out_SED_shape = []
 check_sed = []
-F1 = []
-
+norm = []
+wfir_out, ffir_out = [], []
+int_x, int_y = [],[]
+FIR_upper_lims = []
+F025, F1, F6, F10, F100 = [], [], [], [], []
+xval_out = []
+field = []
+uv_slope, mir_slope1, mir_slope2 = [], [], []
+Lbol_out, Lbol_sub_out = [], []
+Nh = []
+###############################################################################
 ###############################################################################
 ############################### Run COSMOS SEDs ###############################
-#'''
-# for i in range(len(chandra_cosmos_phot_id_match)):
-for i in range(50):
-    source = AGN(chandra_cosmos_phot_id_match[i], chandra_cosmos_z_match[i], COSMOS_filters, cosmos_flux_array[i], cosmos_flux_err_array[i])
-    source.MakeSED()
-    F1.append(source.Find_value(1.0))
-    ffir, wfir, f100 = source.median_FIR(['FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'],Find_value = 100.0)
+# '''
+fill_nan = np.zeros(len(GOODSS_auge_filters)-len(COSMOS_filters))
+fill_nan[fill_nan == 0] = np.nan
+for i in range(len(chandra_cosmos_phot_id_match)):
+# for i in range(50):
+    # if chandra_cosmos_phot_id_match[i] == 222544:
+        source = AGN(chandra_cosmos_phot_id_match[i], chandra_cosmos_z_match[i], COSMOS_filters, cosmos_flux_array[i], cosmos_flux_err_array[i])
+        source.MakeSED()
+        source.FIR_extrap(['FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 
-    Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
+        ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
+        int_x.append(ix)
+        int_y.append(iy)
+
+        wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0,discreet=True)
+        wfir_out.append(wfir)
+        ffir_out.append(ffir)
+
+        lbol = source.Find_Lbol()
+        lbol_sub = source.Find_Lbol_temp_sub(scale_array, temp_wave, temp_lum)
+        shape = source.SED_shape()
+
+        f1 = source.Find_value(1.0)
+        xval = source.Find_value(3E-4)
+        f6 = source.Find_value(6.0)
+        f025 = source.Find_value(0.25)
+        f10 = source.Find_value(10)
+
+        Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
+        w = np.append(w, fill_nan)
+        f = np.append(f, fill_nan)
+        frac_err = np.append(frac_err, fill_nan)
+        out_ID.append(Id)
+        out_x.append(w)
+        out_y.append(f)
+        out_frac_error.append(frac_err)
+        out_Lx.append(chandra_cosmos_Lx_full_match[i])
+        out_z.append(chandra_cosmos_z_match[i])
+        FIR_upper_lims.append(up_check)
+
+        norm.append(f1)
+        F025.append(f025)
+        F1.append(f1)
+        F6.append(f6)
+        F10.append(f10)
+        F100.append(f100)
+        xval_out.append(xval)
+        Lbol_out.append(lbol)
+        Lbol_sub_out.append(lbol_sub)
+        Nh.append(chandra_cosmos_Nh_match[i])
+
+        uv_slope.append(source.Find_slope(0.15, 1.0))
+        mir_slope1.append(source.Find_slope(1.0, 6.5))
+        mir_slope2.append(source.Find_slope(6.5, 10))
+        out_SED_shape.append(source.SED_shape())
+
+        plot = Plotter(Id, redshift, w, f, chandra_cosmos_Lx_full_match[i],f1,up_check)
+
+        check_sed.append(source.check_SED(10, check_span=2.75))
+        field.append('c')
+        # if check_sed[i] == 'GOOD':
+        #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
+        #     source.write_output_file('AGN_Properties',data,cols,'w')
+
+        #     cols, data = source.output_phot('COSMOS',filter_total,filter_COSMOS_match)
+        #     source.write_output_file('AGN_photometry',data,cols,'w')
+        # if Id == 167601:
+            # plot.Plot_FIR_SED(wfir, ffir/f1)
+            # plot.PlotSED(point_x=3E-4,point_y=xval/f1)
+            # source.Find_Lbol()
+    
+
+# '''
+tc = time.perf_counter()
+print(f'Done with COSMOS sources ({tc - tfl:0.4f} second)')
+
+###############################################################################
+###############################################################################
+############################## Run Stripe82X SEDs #############################
+#'''
+# Make array of NaNs to fill in the output wave and Lum arrays so output is consistent shape
+fill_nan = np.zeros(len(GOODSS_auge_filters)-len(S82X_filters)) 
+fill_nan[fill_nan == 0] = np.nan
+for i in range(len(s82x_id)):
+# for i in range(50):
+    try:
+        source = AGN(s82x_id[i],s82x_z[i],S82X_filters,s82x_flux_array[i],s82x_flux_err_array[i])
+        source.MakeSED()
+        source.FIR_extrap(['W4','FLUX_250_s82x', 'FLUX_350_s82x', 'FLUX_500_s82x'])
+
+        ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
+        int_x.append(ix)
+        int_y.append(iy)
+
+        wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0,discreet=True)
+        wfir_out.append(wfir)
+        ffir_out.append(ffir)
+
+        lbol = source.Find_Lbol()
+        lbol_sub = source.Find_Lbol_temp_sub(scale_array, temp_wave, temp_lum)
+        shape = source.SED_shape()
+
+        f1 = source.Find_value(1.0)
+        xval = source.Find_value(3E-4)
+        f6 = source.Find_value(6.0)
+        f025 = source.Find_value(0.25)
+        f10 = source.Find_value(10)
+
+        Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
+        w = np.append(w,fill_nan)
+        f = np.append(f,fill_nan)
+        frac_err = np.append(frac_err,fill_nan)
+        out_ID.append(Id)
+        out_x.append(w)
+        out_y.append(f)
+        out_frac_error.append(frac_err)
+        out_Lx.append(s82x_Lx_full[i])
+        out_z.append(s82x_z[i])
+        FIR_upper_lims.append(up_check)
+
+        norm.append(f1)
+        F025.append(f025)
+        F1.append(f1)
+        F6.append(f6)
+        F10.append(f10)
+        F100.append(f100)
+        xval_out.append(xval)
+        Lbol_out.append(lbol)
+        Lbol_sub_out.append(lbol_sub)
+        Nh.append(s82x_Nh[i])
+
+        uv_slope.append(source.Find_slope(0.1, 1.0))
+        mir_slope1.append(source.Find_slope(1.0, 6.5))
+        mir_slope2.append(source.Find_slope(6.5, 10))
+        out_SED_shape.append(source.SED_shape())
+
+
+        plot = Plotter(Id, redshift, w, f, s82x_Lx_full[i],f1,up_check)
+
+        check_sed.append(source.check_SED(10, check_span=2.75))
+        field.append('s')
+
+    except ValueError:
+        continue
+#'''
+ts = time.perf_counter()
+print(f'Done with Stripe82X sources ({ts - tc:0.4f} second)')
+
+###############################################################################
+###############################################################################
+############################## Run GOODS-N SEDs ###############################
+# '''
+fill_nan = np.zeros(len(GOODSS_auge_filters)-len(GOODSN_auge_filters))
+fill_nan[fill_nan == 0] = np.nan
+for i in range(len(goodsN_auge_ID_match)):
+    # for i in range(50):
+    source = AGN(goodsN_auge_ID_match[i], goodsN_auge_z_match[i], GOODSN_auge_filters, goodsN_flux_array_auge[i], goodsN_flux_err_array_auge[i])
+    source.MakeSED()
+    source.FIR_extrap(['FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+    ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
+    int_x.append(ix)
+    int_y.append(iy)
+
+    wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0, discreet=True)
+    wfir_out.append(wfir)
+    ffir_out.append(ffir)
+
+    lbol = source.Find_Lbol()
+    lbol_sub = source.Find_Lbol_temp_sub(scale_array, temp_wave, temp_lum)
+    shape = source.SED_shape()
+
+    f1 = source.Find_value(1.0)
+    xval = source.Find_value(3E-4)
+    f6 = source.Find_value(6.0)
+    f025 = source.Find_value(0.25)
+    f10 = source.Find_value(10)
+
+    Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
+    w = np.append(w, fill_nan)
+    f = np.append(f, fill_nan)
+    frac_err = np.append(frac_err, fill_nan)
     out_ID.append(Id)
     out_x.append(w)
     out_y.append(f)
+    out_frac_error.append(frac_err)
+    out_Lx.append(goodsN_auge_Lx_match[i])
+    out_z.append(goodsN_auge_z_match[i])
+    FIR_upper_lims.append(up_check)
 
-    plot = Plotter(Id, redshift, w, f, chandra_cosmos_Lx_full_match[i])
+    norm.append(f1)
+    F025.append(f025)
+    F1.append(f1)
+    F6.append(f6)
+    F10.append(f10)
+    F100.append(f100)
+    xval_out.append(xval)
+    Lbol_out.append(lbol)
+    Lbol_sub_out.append(lbol_sub)
+    Nh.append(0.0)
+
+    uv_slope.append(source.Find_slope(0.1, 1.0))
+    mir_slope1.append(source.Find_slope(1.0, 6.5))
+    mir_slope2.append(source.Find_slope(6.5, 10))
+    out_SED_shape.append(source.SED_shape())
+
+    plot = Plotter(Id, redshift, w, f, goodsN_auge_Lx_match[i], f1, up_check)
 
     check_sed.append(source.check_SED(10, check_span=2.75))
-    if check_sed[i] == 'GOOD':
-        plot.Plot_FIR_SED(wfir, ffir/F1[i])
-        plot.PlotSED(point_x=100.,point_y=f100/F1[i])
-    
+    field.append('g')
+    # if check_sed[i] == 'GOOD':
+    #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
+    #     source.write_output_file('AGN_Properties',data,cols,'w')
 
-#'''
+    #     cols, data = source.output_phot('COSMOS',filter_total,filter_COSMOS_match)
+    #     source.write_output_file('AGN_photometry',data,cols,'w')
+    # if Id == 167601:
+    # plot.Plot_FIR_SED(wfir, ffir/f1)
+    # plot.PlotSED(point_x=3E-4,point_y=xval/f1)
+    # source.Find_Lbol()
+
+
+# '''
+tgn = time.perf_counter()
+print(f'Done with GOODS-N sources ({tgn - ts:0.4f} second)')
+
+###############################################################################
+###############################################################################
+############################## Run GOODS-N SEDs ###############################
+# '''
+for i in range(len(goodsS_auge_ID_match)):
+    # for i in range(50):
+    try:
+        source = AGN(goodsS_auge_ID_match[i], goodsS_auge_z_match[i], GOODSS_auge_filters, goodsS_flux_array_auge[i], goodsS_flux_err_array_auge[i])
+        source.MakeSED()
+        source.FIR_extrap(['FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+        ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
+        int_x.append(ix)
+        int_y.append(iy)
+
+        wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0, discreet=True)
+        wfir_out.append(wfir)
+        ffir_out.append(ffir)
+
+        lbol = source.Find_Lbol()
+        lbol_sub = source.Find_Lbol_temp_sub(scale_array, temp_wave, temp_lum)
+        shape = source.SED_shape()
+
+        f1 = source.Find_value(1.0)
+        xval = source.Find_value(3E-4)
+        f6 = source.Find_value(6.0)
+        f025 = source.Find_value(0.25)
+        f10 = source.Find_value(10)
+
+        Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
+        out_ID.append(Id)
+        out_x.append(w)
+        out_y.append(f)
+        out_frac_error.append(frac_err)
+        out_Lx.append(goodsS_auge_Lx_match[i])
+        out_z.append(goodsS_auge_z_match[i])
+        FIR_upper_lims.append(up_check)
+
+        norm.append(f1)
+        F025.append(f025)
+        F1.append(f1)
+        F6.append(f6)
+        F10.append(f10)
+        F100.append(f100)
+        xval_out.append(xval)
+        Lbol_out.append(lbol)
+        Lbol_sub_out.append(lbol_sub)
+        Nh.append(0.0)
+
+        uv_slope.append(source.Find_slope(0.1, 1.0))
+        mir_slope1.append(source.Find_slope(1.0, 6.5))
+        mir_slope2.append(source.Find_slope(6.5, 10))
+        out_SED_shape.append(source.SED_shape())
+
+        plot = Plotter(Id, redshift, w, f, goodsS_auge_Lx_match[i], f1, up_check)
+
+        check_sed.append(source.check_SED(10, check_span=2.75))
+        field.append('g')
+        # if check_sed[i] == 'GOOD':
+        #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
+        #     source.write_output_file('AGN_Properties',data,cols,'w')
+
+        #     cols, data = source.output_phot('COSMOS',filter_total,filter_COSMOS_match)
+        #     source.write_output_file('AGN_photometry',data,cols,'w')
+        # if Id == 167601:
+        # plot.Plot_FIR_SED(wfir, ffir/f1)
+        # plot.PlotSED(point_x=3E-4,point_y=xval/f1)
+        # source.Find_Lbol()
+    except ValueError:
+        continue
+
+
+# '''
+tgs = time.perf_counter()
+print(f'Done with GOODS-S sources ({tgs - tgn:0.4f} second)')
+
+# Make all output lists into arrays with only good sources
+check_sed = np.asarray(check_sed)
+GOOD_SED = check_sed == 'GOOD'
+
+# Make all output lists into arrays and remove the bad SEDs
+out_ID, out_z, out_x, out_y, out_frac_error = np.asarray(out_ID)[GOOD_SED], np.asarray(out_z)[GOOD_SED], np.asarray(out_x)[GOOD_SED], np.asarray(out_y)[GOOD_SED], np.asarray(out_frac_error)[[GOOD_SED]]
+out_Lx = np.log10(np.asarray(out_Lx)[GOOD_SED])
+wfir_out, ffir_out = np.asarray(wfir_out)[GOOD_SED], np.asarray(ffir_out)[GOOD_SED]
+int_x, int_y = np.asarray(int_x)[GOOD_SED], np.asarray(int_y)[GOOD_SED]
+norm = np.asarray(norm)[GOOD_SED]
+FIR_upper_lims = np.asarray(FIR_upper_lims)[GOOD_SED]
+F025, F1, F6, F10, F100 = np.asarray(F025)[GOOD_SED], np.asarray(F1)[GOOD_SED], np.asarray(F6)[GOOD_SED], np.asarray(F10)[GOOD_SED], np.asarray(F100)[GOOD_SED]
+xval_out = np.asarray(xval_out)[GOOD_SED]
+field = np.asarray(field)[GOOD_SED]
+out_SED_shape = np.asarray(out_SED_shape)[GOOD_SED]
+uv_slope, mir_slope1, mir_slope2 = np.asarray(uv_slope)[GOOD_SED], np.asarray(mir_slope1)[GOOD_SED], np.asarray(mir_slope2)[GOOD_SED]
+Lbol_out, Lbol_sub_out = np.asarray(Lbol_out)[GOOD_SED], np.asarray(Lbol_sub_out)[GOOD_SED]
+Nh = np.asarray(Nh)[GOOD_SED]
+
+
+# Sort all output data by the intrinsic X-ray luminosity
+sort = out_Lx.argsort()
+out_ID, out_z, out_x, out_y, out_frac_error = out_ID[sort], out_z[sort], out_x[sort], out_y[sort], out_frac_error[sort]
+out_Lx = out_Lx[sort]
+wfir_out, ffir_out = wfir_out[sort], ffir_out[sort]
+int_x, int_y = int_x[sort], int_y[sort]
+norm = norm[sort]
+FIR_upper_lims = FIR_upper_lims[sort]
+F025, F1, F6, F10, F100 = F025[sort], F1[sort], F6[sort], F10[sort], F100[sort]
+xval_out = xval_out[sort]
+field = field[sort]
+out_SED_shape = out_SED_shape[sort]
+uv_slope, mir_slope1, mir_slope1 = uv_slope[sort], mir_slope1[sort], mir_slope2[sort]
+Lbol_out, Lbol_sub_out = Lbol_out[sort], Lbol_sub_out
+Nh = Nh[sort]
+
+print('Total GOOD SEDs')
+print('Stripe82X: ',len(out_ID[field == 's']))
+print('COSMOS: ', len(out_ID[field == 'c']))
+
+# Begin Plotting
+plot = Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_upper_lims)
+plot2 = Plotter_Letter2(out_ID, out_z, out_x, out_y, out_frac_error)
+plot_shape = SED_shape_Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_upper_lims, out_SED_shape)
+
+plt.figure(figsize=(8,8))
+plt.hist(np.log10(norm),bins=np.arange(39,46,0.25))
+plt.axvline(np.nanmedian(np.log10(norm)),c='k')
+plt.xlabel(r'L (1$\mu$m)')
+plt.ylim(0,300)
+plt.show()
+
+plt.figure(figsize=(8,8))
+plt.hist(np.log10(Lbol_sub_out),bins=np.arange(42,49,0.25))
+plt.axvline(np.nanmedian(np.log10(Lbol_sub_out)),c='k')
+plt.xlabel(r'L$_{\mathrm{bol}}$')
+plt.ylim(0,300)
+plt.show()
+
+plt.figure(figsize=(10,9))
+plt.hist(out_SED_shape, bins=np.arange(0, 7, 1))
+plt.xlabel('SED Shape')
+plt.ylim(0,400)
+plt.show()
+
+# opt_x = np.ones(len(xval_out))
+# opt_x[opt_x == 1.] = 3E-4
+plot.multi_SED('All',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
+# plot.multi_SED_bins('All_z_bins',bin='redshift',field=field,median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
+# plot.multi_SED_bins('All_z_field',bin='field',field=field,median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
+plot.median_SED_plot('All_median_SEDs', median_x=int_x, median_y=int_y, wfir=wfir_out, ffir=ffir_out, shape=out_SED_shape, FIR_upper='upper lims')
+plot_shape.shape_1bin_h('horizantal_5_panel',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
+
+# print(out_Lx)
+# print(F025)
+# print(norm)
+# print(np.log10(F025))
+# print(np.log10(F025/norm))
+# plot2.Box_1panel('new/Lx_box_1panel', 'Lx', out_Lx, uv_slope, mir_slope1, mir_slope2)
+# plot2.Box_1panel('new/Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol_sub_out)-out_Lx, uv_slope, mir_slope1, mir_slope2)
+# plot2.Box_1panel('new/Lbol_box_1panel_sub', 'Lbol', np.log10(Lbol_sub_out), uv_slope, mir_slope1, mir_slope2)
+# plot2.scatter_1panel('new/UV_Lx_Lx_norm_new','Lx','UV/Lx','None','Both',Nh,out_Lx,np.log10(Lbol_sub_out),F1,np.log10(F025/norm),np.log10(F6/norm),np.log10(F100/norm),np.log10(F10/norm),uv_slope,mir_slope1,mir_slope2,FIR_upper_lims)
+# plot2.scatter_1panel('new/UV_FIR_1panel','FIR','UV','Both','Bins',Nh,out_Lx,np.log10(Lbol_sub_out),F1,np.log10(F025/F1),np.log10(F6/F1),np.log10(F100/F1),np.log10(F10/F1),uv_slope,mir_slope1,mir_slope2,FIR_upper_lims)
+# plot2.scatter_1panel('new/FIR_Lx_1panel', 'Lx', 'FIR', 'Y-axis', 'Bins', Nh, out_Lx, np.log10(Lbol_sub_out), F1, np.log10(F025/F1), np.log10(F6/F1), np.log10(F100/F1), np.log10(F10/F1), uv_slope, mir_slope1, mir_slope2, FIR_upper_lims)
+# plot2.scatter_1panel('new/Lx_Lbol_1panel_sub_xmed_lbol', 'Lbol', 'Lbol/Lx', 'None', 'Both', Nh, out_Lx, np.log10(Lbol_sub_out), F1, np.log10(F025), np.log10(F6), np.log10(F100), np.log10(F10), uv_slope, mir_slope1, mir_slope2, FIR_upper_lims, durras=True)

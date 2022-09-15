@@ -50,7 +50,7 @@ class AGN():
         self.flux_jy_err = self.obs_f_err*1E-6 # convert the flux errors from microJyto Jy
         self.flux_jy[self.flux_jy <= 0] = np.nan # replace negative or zero flux values with nan
         self.flux_jy_err[self.flux_jy_err <= 0] = np.nan # replace negative or zero error values with nan
-        self.flux_jy[np.isnan(self.flux_jy_err)] # replace flux values with no errors with nan
+        self.flux_jy[np.isnan(self.flux_jy_err)] = np.nan # replace flux values with no errors with nan
         self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove flux values with frac error > 50%
 
         # convert flux from frequency space to wavelength
@@ -144,15 +144,14 @@ class AGN():
 
     def SED_shape(self):
         '''Find the "shape" of the SED as defined by 1 of 5 predefined bins'''
-        uv_slope = self.Find_slope(
-            0.15, 1.0)  # Find the slope of the SED in the UV range
+        uv_slope = self.Find_slope(0.15, 1.0)  # Find the slope of the SED in the UV range
         mir_slope1 = self.Find_slope(1.0, 6.5) # Find the slope of the SED in the NIR-MIR range
         mir_slope2 = self.Find_slope(6.5, 10) # Find the slope of the SED in the MIR range
 
         # Pre-defined conditions. Check slope values to determine SED shape bin and return bin
         if (uv_slope < -0.3) & (mir_slope1 >= 0.2):
             bin = 1
-        elif (uv_slope >= 0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2):
+        elif (uv_slope >= -0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2):
             bin = 2 
         elif (uv_slope > 0.2) & (mir_slope1 >= -0.2):
             bin = 3
@@ -162,6 +161,7 @@ class AGN():
             bin = 5
         else:
             bin = 6
+        self.shape = bin
         
         return bin
     
@@ -188,7 +188,6 @@ class AGN():
     def Find_Lbol(self,xin=None,yin=None):
         if xin is None:
             x = self.rest_w_microns*1E-4
-            # y = self.lambdaL_lambda
             y = self.nuL_nu
         else:
             x = xin*1E-4
@@ -200,12 +199,12 @@ class AGN():
         x,y = x[sort], y[sort]
 
         x = np.log10(x[~np.isnan(y)])
-        y = np.log10(y[~np.isnan(y)])
+        y = np.log10(y[~np.isnan(y)])        
 
         Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
 
         x_interp = np.linspace(min(x),max(x))
-        y = 10**Lbol_interp(x_interp)
+        y_interp = 10**Lbol_interp(x_interp)
 
         x_interp, y_interp = x_interp[::-1], y_interp[::-1]
 
@@ -215,6 +214,23 @@ class AGN():
         self.Lbol = integrate.trapz(y_interp,freq)
 
         return self.Lbol
+
+    def Find_Lbol_temp_sub(self,scale_L,temp_x,temp_y):
+        Lone_temp = temp_y[temp_x == 1.0050][0]
+        if self.z <= 0.6:
+            scale = scale_L[0]/Lone_temp
+        elif (self.z > 0.6) & (self.z < 0.9):
+            scale = scale_L[1]/Lone_temp
+        else:
+            scale = scale_L[2]/Lone_temp
+        scale_y = temp_y*scale
+
+        temp_interp = interpolate.interp1d(np.log10(temp_x), np.log10(scale_y),kind='linear',fill_value='extrapolate')
+        y_interp = 10**temp_interp(np.log10(self.rest_w_microns))
+
+        y_sub = self.nuL_nu - y_interp
+
+        return self.Find_Lbol(xin=self.rest_w_microns[y_sub > 0], yin=y_sub[y_sub > 0])
 
     def find_Lum_range(self,xmin,xmax):
         x = np.log10(self.rest_w_cgs[~np.isnan(self.lambdaL_lambda)])
@@ -382,6 +398,111 @@ class AGN():
 
         return L
 
+    def output_properties(self,field,xid,ra,dec,Lx,Nh):
+        '''
+        Function to output the properties of each source
+        Output:
+            AHA field
+            X-ray ID
+            Phot ID
+            RA
+            DEC
+            Lx
+            Nh
+            Lbol
+            SED Shape
+        '''
+        cols = ['Field','x_ID','phot_id','RAJ2000','DEJ2000','L0510_c','Nh','Lbol','SED_shape']
+        data = [field,xid,self.ID,ra,dec,Lx,Nh,self.Lbol,self.shape]
+
+        return cols, data
+
+    def output_phot(self,field,filtername_tot,filtername_field):
+        '''
+        Function to output the photometry measurements of each source
+        Output:
+            Phot ID
+            Flux measurements and errors for all possible photometry bands 
+        '''
+        cols = np.asarray(['Field','phot_id'])
+        data = np.asarray([field,self.ID])
+        tot_flux_err_name = np.asarray([i+'_err' for i in filtername_tot])
+        field_flux_err_name = np.asarray([i+'_err' for i in filtername_field])
+        col_names = np.empty(filtername_tot.size+tot_flux_err_name.size, dtype=tot_flux_err_name.dtype)
+        field_names = np.empty(filtername_field.size+field_flux_err_name.size, dtype=field_flux_err_name.dtype)
+        flux_err_data = np.empty(self.flux_jy.size+self.flux_jy_err.size,dtype=self.flux_jy.dtype)
+
+        col_names[0::2] = filtername_tot
+        col_names[1::2] = tot_flux_err_name
+        # cols_out = np.append(cols,col_names)
+
+        field_names[0::2] = filtername_field
+        field_names[1::2] = field_flux_err_name
+        # field_names = np.append(cols,field_names)
+
+        flux_err_data[0::2] = self.flux_jy
+        flux_err_data[1::2] = self.flux_jy_err
+        # data = np.append(data,flux_err_data)
+
+        data_in = np.zeros(col_names.size)
+        data_in[data_in == 0] = -99.99
+
+        flux_err_data[np.isnan(flux_err_data)] = -99.99
+
+        data_out = self.match_filters(field_names, col_names, flux_err_data, data_in)
+        cols_out = np.append(cols,col_names)
+        data_out = np.append(data,data_out)
+
+        return cols_out, data_out
+
+    def match_filters(self,filter1,filter2,data1,data2):
+        '''
+        Function to fill an array with suplemental data based on matched ID
+        filter1,2 - arrays of the IDs used to match 
+        data1 - data to fill into data2 array
+        data2 - array to be filled with supplemental data
+        '''
+
+        for i,j in enumerate(filter1):
+            ind = np.where(j == filter2)[0] # where in filter2 does an entry in filter1 match with filter2
+            if len(ind) == 1: # check if a match is found. Single match: len(ind) == 1, no match len(ind) == 0
+                data2[ind] = data1[i] # replace data2 entry with data1 entry at location of match
+            else:
+                continue
+
+        return data2
+
+    def write_output_file(self,fname,data_in,cols,opt='w'):
+        '''
+        Function to wirte a fits file of the data contained in the output functions
+        '''
+        cols = np.asarray(cols,dtype=str)
+        data_in = np.asarray(data_in,dtype=str)
+        t = Table(data=data_in,names=cols)
+
+        if 'w' in opt:
+            try:
+                fin = fits.open(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}')
+                fdata = fin[1].data
+                fcols = fin[1].columns.names
+                fin.close()
+                tin = Table(data=fdata,names=fcols)
+                tin.add_row(data_in)
+
+                tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
+
+            except FileNotFoundError:
+                t.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
+
+        elif 'a' in opt:
+            fin = fits.open(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}')
+            fdata = fin[1].data
+            fcols = fin[1].columns.names
+            fin.close()
+            tin = Table(data=fdata,names=fcols)
+            tin.add_row(data_in)
+
+            tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Long Class to generate restframe SED for AGN target. Can output additional info, suchas as lambdaL_lambda as specified wavelength, slope of SED in given range, general SED shape, Lbol, luminosity under specific region of SED, etc.')

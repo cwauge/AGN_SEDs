@@ -6,6 +6,7 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.io import ascii
+from filters import Filters
 from SED_v7 import AGN
 from SED_plots import Plotter
 from plots_Letter import Plotter_Letter
@@ -1746,32 +1747,33 @@ for i in range(len(ulirg_ID)):
 
 # plt.figure(figsize=(10,10))
 # plt.plot(goodsS_auge_z_match,np.log10(goodsS_auge_Lx_match),'.',color='gray',rasterized=True)
-# plt.plot(goodsN_auge_z_match,np.log10(goodsN_auge_Lx_match),'.',color='gray',rasterized=True)
-# plt.plot(xue_z_match,np.log10(xue_Lx_match),'.',color='gray',rasterized=True)
-# plt.plot(luo_z_match,np.log10(luo_Lx_match),'.',color='gray',rasterized=True,label='GOODS-N/S')
+# plt.plot(goodsN_auge_z_match,np.log10(goodsN_auge_Lx_match),'.',color='gray',rasterized=True,label='GOODS-N/S')
+# # plt.plot(xue_z_match,np.log10(xue_Lx_match),'.',color='gray',rasterized=True)
+# # plt.plot(luo_z_match,np.log10(luo_Lx_match),'.',color='gray',rasterized=True,label='GOODS-N/S')
 # plt.plot(chandra_cosmos_z_match,np.log10(chandra_cosmos_Lx_full_match),'+',ms=10,color='b',rasterized=True,alpha=0.8,label='COSMOS')
 # # plt.plot(s82x_z_sp_match,np.log10(s82x_≥Lx_sp_full_match),'x',ms=10,color='r',rasterized=True,alpha=0.8,label='Stripe82X')
 # plt.plot(s82x_z_sp,np.log10(s82x_Lx_sp_full),'x',ms=10,color='r',rasterized=True,alpha=0.8,label='Stripe82X')
-# plt.plot(ulirg_z,ulirg_Lx,'*',color='g',ms=12,rasterized=True,label='GOALS')
+# # plt.plot(ulirg_z,ulirg_Lx,'*',color='g',ms=12,rasterized=True,label='GOALS')
 # plt.xlabel('Spectroscopic Redshift')
 # plt.ylabel(r'log$_{10}$ L$_{0.5 - 10\mathrm{keV}}$ [erg s$^{-1}$]')
-# plt.text(2.15, 40.55, f'n = {len(goodsS_auge_z_match)+len(goodsN_auge_z_match)+len(xue_z_match)+len(luo_z_match)+len(chandra_cosmos_z_match)+len(s82x_z_sp)+len(ulirg_z)}')
+# # plt.text(2.15, 40.55, f'n = {len(goodsS_auge_z_match)+len(goodsN_auge_z_match)+len(xue_z_match)+len(luo_z_match)+len(chandra_cosmos_z_match)+len(s82x_z_sp)+len(ulirg_z)}')
+# plt.text(2.15, 40.55, f'n = {len(goodsS_auge_z_match)+len(goodsN_auge_z_match)+len(chandra_cosmos_z_match)+len(s82x_z_sp)+len(ulirg_z)}')
 # # plt.text(3.25, 40.55, f'n = {len(xue_z_match)+len(luo_z_match)+len(chandra_cosmos_z_match)+len(s82x_z_sp)}')
 # plt.legend()
 # plt.xlim(-0.075,5.5)
 # plt.grid()
 # plt.tight_layout()
-# plt.savefig('/Users/connor_auge/Desktop/New_plots3/Lx_z_spec.pdf')
+# plt.savefig('/Users/connor_auge/Desktop/Final_plots/Lx_z_spec.pdf')
 # plt.show()
 
-cdf_z = np.append(xue_z_match,luo_z_match)
-cdf_lx = np.append(xue_Lx_match,luo_Lx_match)
+# cdf_z = np.append(xue_z_match,luo_z_match)
+# cdf_lx = np.append(xue_Lx_match,luo_Lx_match)
 
-cdf_z = np.append(cdf_z, goodsS_auge_z_match)
-cdf_lx = np.append(cdf_lx, goodsS_auge_Lx_match)
+# cdf_z = np.append(cdf_z, goodsS_auge_z_match)
+# cdf_lx = np.append(cdf_lx, goodsS_auge_Lx_match)
 
-cdf_z = np.append(cdf_z, goodsN_auge_z_match)
-cdf_lx = np.append(cdf_lx, goodsN_auge_Lx_match)
+cdf_z = np.append(goodsS_auge_z_match, goodsN_auge_z_match)
+cdf_lx = np.append(goodsS_auge_Lx_match, goodsN_auge_Lx_match)
 
 print('Stripe82X: ',len(s82x_Lx_sp_full))
 print('COSMOS: ',len(chandra_cosmos_z_match))
@@ -1798,7 +1800,7 @@ print('GOODS: ',len(cdf_z))
 # ax2.set_yticklabels([])
 # ax2.grid()
 # plt.tight_layout()
-# plt.savefig('/Users/connor_auge/Desktop/New_runSED/Lx_z_hist_spec_NEW.pdf')
+# plt.savefig('/Users/connor_auge/Desktop/Final_Plots/Lx_z_hist_spec.pdf')
 # plt.show()
 
 
@@ -1839,6 +1841,7 @@ print(f'Done with file reading ({tfl - ti:0.4f} second)')
 all_id, all_z, all_x, all_y, all_frac_err = [], [], [], [], []
 F1, F025, F6, F10, F100 = [], [], [], [], []
 Lx, Lbol = [], []
+Lx_hard = []
 field = []
 UVslope, MIRslope1, MIRslope2 = [], [], []
 spec_type = []
@@ -1855,6 +1858,19 @@ Lbol_sub = []
 sed_shape = []
 irac_ch1, irac_ch2, irac_ch3, irac_ch4 = [], [], [], []
 
+
+###############################################################################
+xcigale_name = 'shape2_cosmos.mag'
+inf = open('../xcigale/data_input/'+xcigale_name,'w')
+header = np.asarray(['# id','redshift'])
+x_cigale_filters = Filters('filter_list.dat').pull_filter(COSMOS_filters,'xcigale name')
+for i in range(len(x_cigale_filters)):
+	header = np.append(header,x_cigale_filters[i])
+	header = np.append(header,x_cigale_filters[i]+'_err')
+np.savetxt(inf,header,fmt='%s',delimiter='    ',newline=' ')
+inf.close()
+###############################################################################
+
 ###############################################################################
 ###############################################################################
 ############################### Run COSMOS SEDs ###############################
@@ -1865,13 +1881,16 @@ cosmos_target_id = []
 cosmos_target_ra = []
 cosmos_target_dec = []
 # '''
+a = 0
 for i in range(len(chandra_cosmos_phot_id_match)):
-    # if chandra_cosmos_phot_id_match[i] == 215929:
+    # if chandra_cosmos_phot_id_match[i] == 248022:
         source = AGN(chandra_cosmos_phot_id_match[i],chandra_cosmos_z_match[i],COSMOS_filters,cosmos_flux_array[i],cosmos_flux_err_array[i])
         source.MakeSED()
-        check_sed.append(source.CheckSED(10, check_span=2.75))
+        check = source.CheckSED(10, check_span=2.75)
+        check_sed.append(check)
+        f1 = source.Find_nuFnu(1.0)
 
-        F1.append(source.Find_nuFnu(1.0))
+        F1.append(f1)
         F025.append(source.Find_nuFnu(0.25)/source.Find_nuFnu(1.0))
         F6.append(source.Find_nuFnu(6.0)/source.Find_nuFnu(1.0))
         F10.append(source.Find_nuFnu(10.0)/source.Find_nuFnu(1.0))
@@ -1879,7 +1898,8 @@ for i in range(len(chandra_cosmos_phot_id_match)):
 
         # ffir, wfir,f100 = source.median_FIR_filter(['FLUX_24','FLUX_250','FLUX_350','FLUX_500'],Find_value=100.0)
         ffir, wfir,f100 = source.median_FIR_filter(['FLUX_24','FLUX_100', 'FLUX_160','FLUX_250','FLUX_350','FLUX_500'],Find_value=100.0)
-
+        # print('w: ', wfir)
+        # print('f: ', ffir)
         FFIR.append(ffir)
         WFIR.append(wfir)
         F100.append(f100/source.Find_nuFnu(1.0))
@@ -1888,9 +1908,13 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         # WFIR_2.append(wfir2)
         # F100_2.append(f1002/source.Find_nuFnu(1.0))
 
-        UVslope.append(source.Find_slope(0.15,1.0))
-        MIRslope1.append(source.Find_slope(1.0,6.5))
-        MIRslope2.append(source.Find_slope(6.5,10))
+        uvs = source.Find_slope(0.15, 1.0)
+        mirs1 = source.Find_slope(1.0,6.5)
+        mirs2 = source.Find_slope(6.5,10)
+
+        UVslope.append(uvs)
+        MIRslope1.append(mirs1)
+        MIRslope2.append(mirs2)
 
         uv_lum.append(source.find_Lum_range(0.1,0.35))
         opt_lum.append(source.find_Lum_range(0.35,3))
@@ -1908,14 +1932,14 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         all_frac_err.append(frac_err)
         upper_check.append(up_check)
 
-        if chandra_cosmos_phot_id_match[i] == 100728:
-        #     print(chandra_cosmos_xid_match[i])
-            plot = Plotter(Id,redshift,w,f,frac_err,np.log10(chandra_cosmos_Lx_full_match[i]))
-            plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
-        elif chandra_cosmos_phot_id_match[i] == 110707:
-            # print(chandra_cosmos_xid_match[i])
-            plot = Plotter(Id,redshift,w,f,frac_err,np.log10(chandra_cosmos_Lx_full_match[i]))
-            plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
+        # if chandra_cosmos_phot_id_match[i] == 222544:
+        # #     print(chandra_cosmos_xid_match[i])
+        # plot = Plotter(Id, redshift, w, f, frac_err, np.log10(f1))
+        # plot.PlotSingleSED(flux_point=f100/f1, wfir=wfir, ffir=ffir)
+        # elif chandra_cosmos_phot_id_match[i] == 235265:
+        #     # print(chandra_cosmos_xid_match[i])
+        # plot = Plotter(Id,redshift,w,f,frac_err,np.log10(chandra_cosmos_Lx_full_match[i]))
+        # plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
 
         med_x, med_y = source.median_SED(['U'], ['FLUX_24'])
         median_x.append(med_x)
@@ -1926,6 +1950,7 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         median_fir_y.append(med_fir_y)
 
         Lx.append(chandra_cosmos_Lx_full_match[i])
+        Lx_hard.append(chandra_cosmos_Lx_hard_match[i])
         # Lx.append(chandra_cosmos_Lx_hard_match[i])
         Nh.append(chandra_cosmos_Nh_match[i])
         Lbol.append(source.Find_Lbol())
@@ -1938,12 +1963,24 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         cosmos_target_ra.append(chandra_cosmos_RA_match[i])
         cosmos_target_dec.append(chandra_cosmos_DEC_match[i])
 
-        sed_shape.append(source.SED_shape(UVslope[i],MIRslope1[i],MIRslope2[i]))
+        shape = source.SED_shape(UVslope[i],MIRslope1[i],MIRslope2[i])
+        sed_shape.append(shape)
 
-        irac_ch1.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_1_FLUX'][0])
-        irac_ch2.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_2_FLUX'][0])
-        irac_ch3.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_3_FLUX'][0])
-        irac_ch4.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_4_FLUX'][0]) 
+        # print(shape,a)
+        if check == 'GOOD':
+            if shape == 2:
+                a += 1
+                if a <= 30:
+                    source.write_xcigale_input(xcigale_name,COSMOS_filters)
+                else:
+                    continue
+            else:
+                continue
+
+        # irac_ch1.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_1_FLUX'][0])
+        # irac_ch2.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_2_FLUX'][0])
+        # irac_ch3.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_3_FLUX'][0])
+        # irac_ch4.append(cosmos_flux_array[i][COSMOS_filters == 'SPLASH_4_FLUX'][0]) 
 
         # if check_sed[i] == 'GOOD':
         #     source.SED_output('Test_out_cosmos2.fits','w')
@@ -1986,7 +2023,8 @@ for i in range(len(lamassa_id_use)):
         try:
             source = AGN(lamassa_id_use[i], s82x_z_sp[i], S82X_filters, s82x_flux_array[i], s82x_flux_err_array[i])
             source.MakeSED()
-            check_sed.append(source.CheckSED(10,check_span=2.75))
+            check = source.CheckSED(10, check_span=2.75)
+            check_sed.append(check)
            
 
             F1.append(source.Find_nuFnu(1.0))
@@ -2002,9 +2040,13 @@ for i in range(len(lamassa_id_use)):
             WFIR.append(wfir)
             F100.append(f100/source.Find_nuFnu(1.0))
 
-            UVslope.append(source.Find_slope(0.15, 1.0))
-            MIRslope1.append(source.Find_slope(1.0, 6.5))
-            MIRslope2.append(source.Find_slope(6.5, 10))
+            uvs = source.Find_slope(0.15, 1.0)
+            mirs1 = source.Find_slope(1.0, 6.5)
+            mirs2 = source.Find_slope(6.5, 10)
+
+            UVslope.append(uvs)
+            MIRslope1.append(mirs1)
+            MIRslope2.append(mirs2)
 
             uv_lum.append(source.find_Lum_range(0.1,0.35))
             opt_lum.append(source.find_Lum_range(0.35,3))
@@ -2028,8 +2070,8 @@ for i in range(len(lamassa_id_use)):
             upper_check.append(up_check)
 
             # if check_sed[i] == 'GOOD':
-            #     plot = Plotter(Id,redshift,w,f,frac_err,np.log10(s82x_Lx_sp_full[i]))
-            #     plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
+                # plot = Plotter(Id,redshift,w,f,frac_err,np.log10(s82x_Lx_sp_full[i]))
+                # plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
 
             med_x, med_y = source.median_SED(['U'], ['W4'])
             median_x.append(med_x)
@@ -2040,6 +2082,7 @@ for i in range(len(lamassa_id_use)):
             median_fir_y.append(med_fir_y)
 
             Lx.append(s82x_Lx_sp_full[i])
+            Lx_hard.append(s82x_Lx_sp_hard[i])
             # Lx.append(s82x_Lx_sp_hard[i])
             Nh.append(s82x_Nh[i])
             Lbol.append(source.Find_Lbol())
@@ -2049,6 +2092,24 @@ for i in range(len(lamassa_id_use)):
             field.append(1)
             ra_out.append(lamassa_ra[i])
             dec_out.append(lamassa_dec[i])
+            shape = source.SED_shape(uvs,mirs1,mirs2)
+            sed_shape.append(shape)
+
+
+            # if check == 'GOOD':
+            #     if shape == 2:
+            #         a += 1
+            #         if a <= 20:
+            #             source.write_xcigale_input(xcigale_name, S82X_filters)
+            #         else:
+            #             continue
+            #     else:
+            #         continue
+
+            # irac_ch1.append(np.nan)
+            # irac_ch2.append(np.nan)
+            # irac_ch3.append(np.nan)
+            # irac_ch4.append(np.nan) 
 
         except ValueError:
             continue
@@ -2095,9 +2156,13 @@ for i in range(len(goodsN_phot_id_match)):
         WFIR.append(wfir)
         F100.append(f100/source.Find_nuFnu(1.0))
 
-        UVslope.append(source.Find_slope(0.15,1.0))
-        MIRslope1.append(source.Find_slope(1.0,6.5))
-        MIRslope2.append(source.Find_slope(6.5,10))
+        uvs = source.Find_slope(0.15, 1.0)
+        mirs1 = source.Find_slope(1.0, 6.5)
+        mirs2 = source.Find_slope(6.5, 10)
+
+        UVslope.append(uvs)
+        MIRslope1.append(mirs1)
+        MIRslope2.append(mirs2)
 
         uv_lum.append(source.find_Lum_range(0.1,0.35))
         opt_lum.append(source.find_Lum_range(0.35,3))
@@ -2124,11 +2189,19 @@ for i in range(len(goodsN_phot_id_match)):
         median_fir_y.append(med_fir_y)
 
         Lx.append(xue_Lx_match[i])
+        Lx_hard.append(xue_Lx_hard_match[i])
         # Lx.append(xue_Lx_hard_match[i])
         Nh.append(goodsN_Nh_match[i])
         Lbol.append(source.Find_Lbol())
         Lbol_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
         fir_frac.append(source.FIR_frac())
+        shape = source.SED_shape(uvs, mirs1, mirs2)
+        sed_shape.append(shape)
+
+        # irac_ch1.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_1_FLUX'][0])
+        # irac_ch2.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_2_FLUX'][0])
+        # irac_ch3.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_3_FLUX'][0])
+        # irac_ch4.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_4_FLUX'][0]) 
         
         if source.CheckSED(10, check_span=2.5) == 'GOOD':
             goodsN_id_candels.append(goodsN_phot_id_match[i])
@@ -2162,9 +2235,13 @@ for i in range(len(goodsN_auge_ID_match)):
             WFIR.append(wfir)
             F100.append(f100/source.Find_nuFnu(1.0))
 
-            UVslope.append(source.Find_slope(0.15,1.0))
-            MIRslope1.append(source.Find_slope(1.0,6.5))
-            MIRslope2.append(source.Find_slope(6.5,10))
+            uvs = source.Find_slope(0.15, 1.0)
+            mirs1 = source.Find_slope(1.0, 6.5)
+            mirs2 = source.Find_slope(6.5, 10)
+
+            UVslope.append(uvs)
+            MIRslope1.append(mirs1)
+            MIRslope2.append(mirs2)
 
             uv_lum.append(source.find_Lum_range(0.1,0.35))
             opt_lum.append(source.find_Lum_range(0.35,3))
@@ -2195,11 +2272,19 @@ for i in range(len(goodsN_auge_ID_match)):
             median_fir_y.append(med_fir_y)
 
             Lx.append(goodsN_auge_Lx_match[i])
+            Lx_hard.append(goodsN_auge_Lx_hard_match[i])
             # Lx.append(goodsN_auge_Lx_hard_match[i])    
             Nh.append(0.0)
             Lbol.append(source.Find_Lbol())
             Lbol_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
             fir_frac.append(source.FIR_frac())
+            shape = source.SED_shape(uvs, mirs1, mirs2)
+            sed_shape.append(shape)
+
+            # irac_ch1.append(goodsN_flux_array_auge[i][GOODSN_auge_filters == 'SPLASH_1_FLUX'][0])
+            # irac_ch2.append(goodsN_flux_array_auge[i][GOODSN_auge_filters == 'SPLASH_2_FLUX'][0])
+            # irac_ch3.append(goodsN_flux_array_auge[i][GOODSN_auge_filters == 'SPLASH_3_FLUX'][0])
+            # irac_ch4.append(goodsN_flux_array_auge[i][GOODSN_auge_filters == 'SPLASH_4_FLUX'][0]) 
 
             if source.CheckSED(10, check_span=2.5) == 'GOOD':
                 goodsN_id_auge.append(goodsN_auge_ID_match[i])
@@ -2249,9 +2334,13 @@ for i in range(len(goodsS_phot_id_match)):
         WFIR.append(wfir)
         F100.append(f100/source.Find_nuFnu(1.0))
 
-        UVslope.append(source.Find_slope(0.15,1.0))
-        MIRslope1.append(source.Find_slope(1.0,6.5))
-        MIRslope2.append(source.Find_slope(6.5,10))
+        uvs = source.Find_slope(0.15, 1.0)
+        mirs1 = source.Find_slope(1.0, 6.5)
+        mirs2 = source.Find_slope(6.5, 10)
+
+        UVslope.append(uvs)
+        MIRslope1.append(mirs1)
+        MIRslope2.append(mirs2)
 
         uv_lum.append(source.find_Lum_range(0.1,0.35))
         opt_lum.append(source.find_Lum_range(0.35,3))
@@ -2277,11 +2366,19 @@ for i in range(len(goodsS_phot_id_match)):
         median_fir_y.append(med_fir_y)
 
         Lx.append(luo_Lx_match[i])
+        Lx_hard.append(luo_Lx_match[i])
         # Lx.append(luo_Lx_hard_match[i])
         Nh.append(goodsS_NH_match[i])
         Lbol.append(source.Find_Lbol())
         Lbol_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
         fir_frac.append(source.FIR_frac())
+        shape = source.SED_shape(uvs, mirs1, mirs2)
+        sed_shape.append(shape)
+
+        # irac_ch1.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_1_FLUX'][0])
+        # irac_ch2.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_2_FLUX'][0])
+        # irac_ch3.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_3_FLUX'][0])
+        # irac_ch4.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_4_FLUX'][0]) 
 
         if source.CheckSED(10, check_span=2.5) == 'GOOD':
             goodsS_id_candels.append(goodsS_phot_id_match[i])
@@ -2311,9 +2408,13 @@ for i in range(len(goodsS_auge_ID_match)):
             WFIR.append(wfir)
             F100.append(f100/source.Find_nuFnu(1.0))
 
-            UVslope.append(source.Find_slope(0.15,1.0))
-            MIRslope1.append(source.Find_slope(1.0,6.5))
-            MIRslope2.append(source.Find_slope(6.5,10))
+            uvs = source.Find_slope(0.15, 1.0)
+            mirs1 = source.Find_slope(1.0, 6.5)
+            mirs2 = source.Find_slope(6.5, 10)
+
+            UVslope.append(uvs)
+            MIRslope1.append(mirs1)
+            MIRslope2.append(mirs2)
 
             uv_lum.append(source.find_Lum_range(0.1,0.35))
             opt_lum.append(source.find_Lum_range(0.35,3))
@@ -2330,6 +2431,8 @@ for i in range(len(goodsS_auge_ID_match)):
             all_y.append(f)
             all_frac_err.append(frac_err)
             upper_check.append(up_check)
+            shape = source.SED_shape(uvs, mirs1, mirs2)
+            sed_shape.append(shape)
 
             # if source.CheckSED(10, check_span=2.5) == 'GOOD':
             #     plot = Plotter(Id,redshift,w,f,frac_err,np.log10(goodsS_auge_Lx_match[i]))
@@ -2345,11 +2448,17 @@ for i in range(len(goodsS_auge_ID_match)):
             median_fir_y.append(med_fir_y)
 
             Lx.append(goodsS_auge_Lx_match[i])
+            Lx_hard.append(goodsS_auge_Lx_hard_match[i])
             # Lx.append(goodsS_auge_Lx_hard_match[i])
             Nh.append(0.0)
             Lbol.append(source.Find_Lbol())
             Lbol_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
             fir_frac.append(source.FIR_frac())
+
+            # irac_ch1.append(goodsS_flux_array_auge[i][GOODSS_auge_filters == 'SPLASH_1_FLUX'][0])
+            # irac_ch2.append(goodsS_flux_array_auge[i][GOODSS_auge_filters == 'SPLASH_2_FLUX'][0])
+            # irac_ch3.append(goodsS_flux_array_auge[i][GOODSS_auge_filters == 'SPLASH_3_FLUX'][0])
+            # irac_ch4.append(goodsS_flux_array_auge[i][GOODSS_auge_filters == 'SPLASH_4_FLUX'][0])
 
             if source.CheckSED(10, check_span=2.5) == 'GOOD':
                 goodsS_id_auge.append(goodsS_auge_ID_match[i])
@@ -2563,9 +2672,9 @@ Nh = np.asarray(Nh)[GOOD_SEDs]
 # FFIR_2, WFIR_2 = np.asarray(FFIR_2)[GOOD_SEDs], np.asarray(WFIR_2)[GOOD_SEDs]
 median_fir_x, median_fir_y = np.asarray(median_fir_x)[GOOD_SEDs], np.asarray(median_fir_y)[GOOD_SEDs]
 uv_lum, opt_lum, mir_lum, fir_lum = np.asarray(uv_lum)[GOOD_SEDs], np.asarray(opt_lum)[GOOD_SEDs], np.asarray(mir_lum)[GOOD_SEDs], np.asarray(fir_lum)[GOOD_SEDs]
-# sed_shape = np.asarray(sed_shape)[GOOD_SEDs]
+sed_shape = np.asarray(sed_shape)[GOOD_SEDs]
 # irac_ch1, irac_ch2, irac_ch3, irac_ch4 = np.asarray(irac_ch1)[GOOD_SEDs], np.asarray(irac_ch2)[GOOD_SEDs], np.asarray(irac_ch3)[GOOD_SEDs], np.asarray(irac_ch4)[GOOD_SEDs]
-
+Lx_hard = np.log10(np.asarray(Lx_hard)[GOOD_SEDs])
 
 ulirg_id, ulirg_z, ulirg_x, ulirg_y, ulirg_Lx_out, ulirg_Lx_corr_out, median_x_ulirg, median_y_ulirg = np.asarray(ulirg_id), np.asarray(ulirg_z), np.asarray(ulirg_x), np.asarray(ulirg_y), np.asarray(ulirg_Lx_out), np.asarray(ulirg_Lx_corr_out), np.asarray(median_x_ulirg), np.asarray(median_y_ulirg)
 F1_ulirg, F025_ulirg, F6_ulirg, F10_ulirg, F100_ulirg = np.asarray(F1_ulirg), np.asarray(F025_ulirg), np.asarray(F6_ulirg), np.asarray(F10_ulirg), np.asarray(F100_ulirg)
@@ -2588,14 +2697,43 @@ plt.rcParams['xtick.major.width'] = 2
 plt.rcParams['ytick.major.size'] = 2
 plt.rcParams['ytick.major.width'] = 2
 
+plt.rcParams['font.size'] = 25
+plt.rcParams['axes.linewidth'] = 3.5
+plt.rcParams['xtick.major.size'] = 5
+plt.rcParams['xtick.major.width'] = 4
+plt.rcParams['ytick.major.size'] = 5
+plt.rcParams['ytick.major.width'] = 4
+plt.rcParams['xtick.minor.size'] = 3.
+plt.rcParams['xtick.minor.width'] = 2.
+plt.rcParams['ytick.minor.size'] = 3.
+plt.rcParams['ytick.minor.width'] = 2.
 
+# plt.figure(figsize=(8,8))
+# plt.hist(np.log10(F1),bins=np.arange(39,46,0.25))
+# plt.axvline(np.nanmedian(np.log10(F1)),c='k')
+# plt.xlabel(r'L (1$\mu$m)')
+# plt.ylim(0,300)
+# plt.show()
+
+# plt.figure(figsize=(8,8))
+# plt.hist(np.log10(Lbol_sub),bins=np.arange(42,49,0.25))
+# plt.axvline(np.nanmedian(np.log10(Lbol_sub)),c='k')
+# plt.xlabel(r'L$_{\mathrm{bol}}$')
+# plt.ylim(0,300)
+# plt.show()
+
+# plt.figure(figsize=(10,9))
+# plt.hist(sed_shape,bins=np.arange(0,7,1))
+# plt.xlabel('SED Shape')
+# plt.ylim(0,400)
+# plt.show()
 # x1 = np.linspace(0.08,1.5)
 # x2 = np.linspace(0.35,1.5)
-# print(np.log10(ulirg_LIR_out))
-# print(ulirg_Lx_out)
+# # print(np.log10(ulirg_LIR_out))
+# # print(ulirg_Lx_out)
 # plt.plot(np.log10(irac_ch3/irac_ch1), np.log10(irac_ch4/irac_ch2), 'x',label='COSMOS X-ray',zorder=0)
-# # plt.plot(np.log10(goals_irac_ch3/goals_irac_ch1), np.log10(goals_irac_ch4/goals_irac_ch2), '.',label='GOALS',zorder=0)
-# plt.scatter(np.log10(goals_irac_ch3/goals_irac_ch1), np.log10(goals_irac_ch4/goals_irac_ch2), c=ulirg_Lx_out, s=50, label='GOALS', zorder=1)
+# # # plt.plot(np.log10(goals_irac_ch3/goals_irac_ch1), np.log10(goals_irac_ch4/goals_irac_ch2), '.',label='GOALS',zorder=0)
+# # plt.scatter(np.log10(goals_irac_ch3/goals_irac_ch1), np.log10(goals_irac_ch4/goals_irac_ch2), c=ulirg_Lx_out, s=50, label='GOALS', zorder=1)
 # plt.xlim(-0.7,1.2)
 # plt.ylim(-0.7,1.3)
 # plt.vlines(0.08,ymin=0.15,ymax=0.38,color='k')
@@ -2603,7 +2741,7 @@ plt.rcParams['ytick.major.width'] = 2
 # plt.plot(x1, 1.21*x1 + 0.27,color='k')
 # plt.plot(x2, 1.21*x2 - 0.27,color='k')
 # plt.legend(fontsize=12)
-# plt.colorbar(label=r'L$_{\mathrm{IR}}$')
+# # plt.colorbar(label=r'L$_{\mathrm{IR}}$')
 # plt.show()
 
 
@@ -2756,14 +2894,19 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 
 ################ Paper Plots ###################
 # fig 3
-plot.multi_SED('all',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
+
+# plt.hist(np.log10(F1),bins=np.arange(35,50,0.5))
+# plt.ylim(0,300)
+# plt.show()
+
+plot.multi_SED('all_check',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
 
 # fig 4 & 5
-# plot.multi_SED_zbins('AAS',all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
+# plot.multi_SED_zbins('S82X',all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
 # plot.multi_SED_field('AAS', all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort], wfir=WFIR[sort], ffir=FFIR[sort])
 
 # fig 6
-# plot.plot_5panel_zbins('AAS',all_x,all_y,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_x,median_y,F1=F1,F2=field,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
+# plot.plot_5panel_zbins('AAS_check',all_x,all_y,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_x,median_y,F1=F1,F2=field,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
 
 # fig 7 
 # plot.plot_median_zbins(np.asarray(FFIR),all_x,all_y,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_x,median_y,F1=F1,F2=field,median_FIR_w=np.asarray(WFIR),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2)
@@ -2807,9 +2950,9 @@ plot.multi_SED('all',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[so
 # plot2.Box_3panel('Lbol_box_3panel_AAS', 'Lbol', np.log10(Lbol_sub), all_z, UVslope, MIRslope1, MIRslope2)
 
 # # fig 10, 11 & 12
-# plot2.Emission_Scatter_Comp('UV_MIR_plot_43_med_bins','MIR','UV','None','Bins' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Emission_Scatter_Comp('UV_MIR_plot_43_med_bins','MIR6','UV','None','Bins' ,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Emission_Scatter_Comp('UV_FIR','FIR','UV','Both','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.Emission_Scatter_Comp('MIR10_FIR_NEWplot_43_normY_med_bins','FIR','MIR','Both','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Emission_Scatter_Comp('MIR10_FIR_NEWplot_43_normY_med_bins','FIR','MIR6','Both','Bins',Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
 # plot2.Nh_frac_plots('Nh_MIR','MIR','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Nh_frac_plots('Nh_UV','UV','Bins',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
@@ -2824,21 +2967,50 @@ plot.multi_SED('all',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[so
 # plot2.ratio_plots('Lbol_Lx_ratio_medLx','Lx','Lbol','X-axis',Nh,Lx,np.log10(Lbol),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 
 
-# plot2.Upanels_ratio_plots('Lum_Lbol','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,Lx,np.log10(Lbol),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.Upanels_ratio_plots('Nh_ratios','Nh','UV/MIR-UV/Lx-MIR/Lx','Bins',Nh,Lx,np.log10(Lbol),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.Box_1panel('Nh_box_1panel', 'Nh', np.log10(Nh[Nh > 0]), UVslope[Nh>0], MIRslope1[Nh>0], MIRslope2[Nh>0])
+# plot2.Upanels_ratio_plots('new2/Lum_Lbol','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,Lx,np.log10(Lbol_sub),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.Upanels_ratio_plots('new2/Nh_ratios','Nh','UV/MIR-UV/Lx-MIR/Lx','Bins',Nh,Lx,np.log10(Lbol_sub),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.Box_1panel('Lbol_box_1panel', 'Lbol', np.log10(Lbol), UVslope, MIRslope1, MIRslope2)
 # plot2.ratios_1panel('Lx_Lbol_1panel','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 
-# plot2.Upanels_ratio_plots('Lum_Lbol_sub','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,Lx,np.log10(Lbol_sub),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.Box_1panel('Lbol_box_1panel_sub', 'Lbol', np.log10(Lbol_sub), UVslope, MIRslope1, MIRslope2)
-# plot2.ratios_1panel('Lx_Lbol_1panel_sub','Lx','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.ratios_1panel('MIR_Nh_1panel','Nh','MIR6','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.ratios_1panel('UV_Nh_1panel','Nh','UV','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.Box_1panel('Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol)-Lx, UVslope, MIRslope1, MIRslope2)
-# plot2.Box_1panel('Lx_box_1panel', 'Lx', Lx, UVslope, MIRslope1, MIRslope2)
-# plot2.scatter_1panel('UV_Lx_1panel','Lx','UV','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.scatter_1panel('MIR6_Lx_1panel','Lx','MIR6','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('UV_MIR_1panel_norm','MIR6','UV','Both','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('UV_Lx_1panel_norm_x','Lx','UV','None','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('MIR_Lx_norm_x','Lx','MIR6','None','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+
+
+
+# plot2.scatter_1panel('MIR6_Lx_1panel_norm','Lx','MIR6','Both','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+
+# plot2.scatter_1panel('UV_MIR_1panel_med_norm','MIR6','UV','Both','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('UV_Lx_1panel_med_norm','Lx','UV','Both','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('MIR6_Lx_1panel_med_norm','Lx','MIR6','Both','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+
+# plot2.Box_1panel('new2/Lx_box_1panel', 'Lx', Lx, UVslope, MIRslope1, MIRslope2)
+# plot2.Box_1panel('new2/Nh_box_1panel', 'Nh', np.log10(Nh[Nh > 0]), UVslope[Nh>0], MIRslope1[Nh>0], MIRslope2[Nh>0])
+# plot2.Box_1panel('new2/Lbol_box_1panel_sub', 'Lbol', np.log10(Lbol_sub), UVslope, MIRslope1, MIRslope2)
+# plot2.Box_1panel('new2/Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol_sub)-Lx, UVslope, MIRslope1, MIRslope2)
+# plot2.Upanels_ratio_plots('new2/Lum_Lbol_sub','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,Lx,np.log10(Lbol_sub),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,all_z,UVslope,MIRslope1,MIRslope2,upper_check)
+
+# plot2.ratios_1panel('new2/Lx_Lbol_1panel_sub_xmed_lbol','Lbol','Lbol/Lx','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+
+
+# plot2.scatter_1panel('new2/Lx_Lbol2','Lbol','Lx/Lbol','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,durras=False)
+# plot2.scatter_1panel('new2/Lx_Lbol_1panel_sub_xmed_lbol2_allpts','Lbol','Lbol/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,durras=False)
+# plot2.scatter_1panel('new2/Lx_Lbol_1panel_sub_xmed_lbol_hard_allpts','Lbol','Lbol/Lx','None','Both',Nh,Lx_hard,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,durras=True)
+# plot2.scatter_1panel('new2/UV_Lx_Lx_norm_new','Lx','UV/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/MIR_Lx_Lx_norm_new','Lx','MIR6/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/UV_MIR_MIR_norm','MIR6','UV/MIR6','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/UV_FIR_1panel_norm_new','FIR','UV/FIR','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/FIR_Lx_1panel_norm_new','Lx','FIR/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/UV_FIR_1panel_norm_new2','FIR','UV','Both','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/FIR_Lx_1panel_norm_new2','Lx','FIR','Y-axis','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+
+
+
+# plot2.scatter_1panel('UV_Lx_FIR_Lx_1panel','FIR/Lx','UV/Lx','None','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('FIR_Lx_Lx_1panel','Lx','FIR/Lx','None','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+
 
 # print(ulirg_Lx_out)
 ### ULIRG Plots ###

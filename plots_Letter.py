@@ -559,6 +559,9 @@ class Plotter_Letter():
 		# x_data, x_upper, y_data, y_upper = np.asarray(x_data),np.asarray(x_upper),np.asarray(y_data),np.asarray(y_upper)
 		x_data = x
 		y_data = y
+		# x_data = 10**median_x
+		# y_data = 10**median_y
+
 
 		# upper_w = np.vstack(upper_w)
 		# upper_lim = np.vstack(upper_lim)
@@ -643,11 +646,11 @@ class Plotter_Letter():
 		# axcb = fig.colorbar(test,cmap=cmap, norm=norm)
 		# axcb.mappable.set_clim(clim1,clim2)
 		axcb.set_label( r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]')
-		# median_line = ax.plot(np.nanmedian(10**median_x,axis=0),np.nanmedian(10**median_y,axis=0),color='k',lw=5.5)
+		median_line = ax.plot(10**np.nanmedian(median_x,axis=0),10**np.nanmean(median_y,axis=0),color='k',lw=5.5)
 		# median_line2 = ax.plot(np.nanmedian(10**median_x2,axis=0),np.nanmedian(10**median_y2,axis=0),color='k',ls='--',lw=5.5)
 		# percentile_25 = ax.plot(np.nanmedian(10**median_x,axis=0),np.nanpercentile(10**median_y,25,axis=0),color='k',ls='--',lw=3.5)
 		# percentile_75 = ax.plot(np.nanmedian(10**median_x,axis=0),np.nanpercentile(10**median_y,75,axis=0),color='k',ls='--',lw=3.5)
-		# xray = ax.plot(np.nanmedian(x_data[L >= clim1-0.1][:,:2],axis=0),np.nanmedian(y_data[L >= clim1-0.1][:,:2],axis=0),color='k',lw=5.5)
+		xray = ax.plot(np.nanmedian(x_data[L >= clim1-0.1][:,:2],axis=0),np.nanmedian(y_data[L >= clim1-0.1][:,:2],axis=0),color='k',lw=5.5)
 		# xray_percentile_25 = ax.plot(np.nanmedian(x_data[L >= clim1-0.1][:,:2],axis=0),np.nanpercentile(y_data[L >= clim1-0.1][:,:2],25,axis=0),color='k',ls='--',lw=3.5)
 		# xray_percentile_75 = ax.plot(np.nanmedian(x_data[L >= clim1-0.1][:,:2],axis=0),np.nanpercentile(y_data[L >= clim1-0.1][:,:2],75,axis=0),color='k',ls='--',lw=3.5)
 
@@ -687,7 +690,7 @@ class Plotter_Letter():
 		# ax.plot(flux_point_wave,flux_point,'x',color='red')
 		plt.tight_layout()
 
-		plt.savefig('/Users/connor_auge/Desktop/New_plots3/Multi_SEDs'+savestring+'.pdf')
+		plt.savefig('/Users/connor_auge/Desktop/Final_plots/Multi_SEDs'+savestring+'.pdf')
 		plt.show()
 
 	def multi_SED_zbins(self, savestring, x, y, Lx, z, median_wavelength, median_flux, norm, mark, spec_z=None,wfir=None,ffir=None,up_check=None,med_x_fir=None,med_y_fir=None):

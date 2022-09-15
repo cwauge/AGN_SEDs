@@ -73,10 +73,11 @@ class AGN():
 
 		self.lambdaL_lambda = self.Flux_to_Lum(self.lambdaF_lambda,self.z)
 		self.nuL_nu = self.Flux_to_Lum(self.nuF_nu,self.z)
+
 		# print('6: ', self.nuL_nu)
 		# print(self.z)
 		self.f_interp = interpolate.interp1d(np.log10(self.rest_w_microns[~np.isnan(self.nuL_nu)]),np.log10(self.nuL_nu[~np.isnan(self.nuL_nu)]),kind='linear',fill_value='extrapolate')
-
+		return None
 	def CheckSED(self,check_w,check_span=None):
 		# Check for an observational data point within check_span microns of a desired wavelength value (check_w)
 		# If check_span is not specified use 2 microns 
@@ -174,17 +175,20 @@ class AGN():
 			else:
 				flux_jy.append(upper_lims_flux[i])
 
+
 		flux_jy = np.asarray(flux_jy)
 		flux_cgs = flux_jy*1E-23
 		nuFnu = flux_cgs*rest_freq
-		nuLnu = self.Flux_to_Lum(nuFnu,self.z)
 
+		nuLnu = self.Flux_to_Lum(nuFnu,self.z)
 		nuLnu_interp  = interpolate.interp1d(np.log10(rest_w_microns[~np.isnan(nuLnu)]),np.log10(nuLnu[~np.isnan(nuLnu)]),kind='linear',fill_value='extrapolate')
 		nuLnu_data_and_upper = 10**nuLnu_interp(np.log10(rest_w_microns))
 		nuLnu_data = 10**self.f_interp(np.log10(rest_w_microns))
-		
+
 		ext_F100 = 10**self.f_interp(np.log10(Find_value))
 		upper_F100 = 10**nuLnu_interp(np.log10(Find_value))
+		# print('upp: ', nuLnu_data_and_upper)
+		# print('data: ', nuLnu_data)
 
 		if self.flux_jy[self.obs_w == wavelength[-3]] > 0:
 			nuLnu_out = nuLnu_data
@@ -399,6 +403,7 @@ class AGN():
 
 	def pull_plot_info(self):
 		F1 = self.Find_nuFnu(1.0)
+		# F1 = 1.0
 		norm_nuF_nu = self.nuF_nu/F1
 
 		norm_nuL_nu = self.nuL_nu/F1
@@ -419,17 +424,22 @@ class AGN():
 
 	def median_SED(self,filt_1,filt_2):
 		try:
-			w1 = Filters('filter_list.dat').pull_filter(filt_1, 'central wavelength')/(1+self.z)*1E-4
-			w2 = Filters('filter_list.dat').pull_filter(filt_2, 'central wavelength')/(1+self.z)*1E-4			
+			# w1 = Filters('filter_list.dat').pull_filter(filt_1, 'central wavelength')/(1+self.z)*1E-4
+			# w2 = Filters('filter_list.dat').pull_filter(filt_2, 'central wavelength')/(1+self.z)*1E-4
+			w1 = min(self.rest_w_microns)			
+			w2 = max(self.rest_w_microns)
+			w1 = 1E-1
+			w2 = 1E1
 
-			self.med_x = np.linspace(np.log10(w1), np.log10(w2), 1000)
-			self.med_x = np.linspace(np.log10(w1), np.log10(w2), 1000)
+			# self.med_x = np.linspace(np.log10(w1), np.log10(w2), 10000)
+			self.med_x = np.linspace(np.log10(w1), np.log10(w2), 10000)
 			med_interp = interpolate.interp1d(np.log10(self.rest_w_microns),np.log10(self.nuL_nu/self.Find_nuFnu(1.0)),kind='linear',fill_value='extrapolate')
 			self.med_y = med_interp(self.med_x)
+			# self.med_y = self.f_interp(self.med_x)/np.log10(self.Find_nuFnu(1.0))
 
 		except ValueError:
-			self.med_x = np.linspace(np.log10(w1), np.log10(w2), 1000)
-			self.med_y = np.zeros(1000)
+			self.med_x = np.linspace(np.log10(w1), np.log10(w2), 10000)
+			self.med_y = np.zeros(10000)
 			self.med_y[self.med_y == 0] = np.nan
 
 		return self.med_x, self.med_y
@@ -581,6 +591,9 @@ class AGN():
 
 		# convert flux to luminoisty
 		L = F*4*np.pi*dl_cgs**2
+		# print('FtL:', F)
+		# print('FtL:', z)
+		# print('FtL:', L)
 		return L
 
 	def Find_slope(self,wi,wf):
@@ -608,6 +621,8 @@ class AGN():
 			bin = 5
 		else:
 			bin = 6
+
+		return bin
 
 	def morph(self,type_of_fit,COSMOS_ID):
 		self.name = type_of_fit
@@ -760,7 +775,7 @@ class AGN():
 		return np.asarray(upper_w_out),np.asarray(upper_lim_out)
 
 
-	def write_xcigale_input(self,name):
+	def write_xcigale_input(self,name,filtername):
 		# x_cigale_filters = Filters('filter_list.dat').pull_filter(self.good_filter_name,'xcigale name')
 		# x_cigale_filters_all = Filters('filter_list.dat').pull_filter(self.filter_name,'xcigale name')
 		# regime = Filters('filter_list.dat').pull_filter(self.filter_name,'wavelength range')
@@ -796,8 +811,10 @@ class AGN():
 		# 		data = np.append(data,-9999.)
 		# 		data = np.append(data,-9999.)
 
-		for i in range(len(self.obs_f)):
-			if self.obs_f[i] > 0:
+		for i in range(len(filtername)):
+			if filtername[i] == 'nan':
+				continue
+			elif self.obs_f[i] > 0:
 				data = np.append(data,self.obs_f[i]/1E3)
 				data = np.append(data,self.obs_f_err[i]/1E3)
 			elif self.obs_f[i] <= 1E-20:
@@ -816,7 +833,7 @@ class AGN():
 		# print(data[bad_data])
 		# data[bad_data] = -9999.
 
-		with open(f'../xcigale/cigale-new_xcig/pcigale/data/{name}','ab') as f:
+		with open(f'../xcigale/data_input/{name}','ab') as f:
 			f.write(b'\n')
 			np.savetxt(f,data,fmt='%s',delimiter='    ',newline=' ')
 
@@ -840,8 +857,8 @@ def Lum_to_Flux(L,z):
 def Flux_to_Lum(F,z):
 	cosmo = FlatLambdaCDM(H0=70, Om0=0.29, Tcmb0=2.725)
 
-	dl = cosmo.luminosity_distance(z).value # luminosity distance in Mpc
-	dl_cgs = dl*(3.086E24)
+	dl = cosmo.luminosity_distance(z) # luminosity distance in Mpc
+	dl_cgs = dl.value*(3.086E24)
 
 	# convert flux to luminoisty
 	L = F*(4*np.pi*dl_cgs**2)
