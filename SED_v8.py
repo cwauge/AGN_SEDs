@@ -61,6 +61,7 @@ class AGN():
         self.lambdaL_lambda = self.Flux_to_Lum(self.lambdaF_lambda,self.z) # convert flux to luminosity [erg s^-1]
         self.nuF_nu = self.obs_freq*self.Fnu
         self.nuL_nu = self.Flux_to_Lum(self.nuF_nu,self.z)
+        # print(self.nuL_nu)
         
         # Remove data points that do not have a valid y value and interpolate
         # x = np.log10(self.rest_w_microns[~np.isnan(self.lambdaL_lambda)])
@@ -86,14 +87,14 @@ class AGN():
         if wave > 12:
             value = self.L_FIR_value_out
         else:
-            if self.Check_nearest(wave,limit):
+            # if self.Check_nearest(wave,limit):
                 try:
                     value = 10**self.f_interp(np.log10(wave)) # Use interpolation function defined in self.MakeSED() to find value
                 except AttributeError: # Return warning and NaN value if interpolation fails
                     value = np.nan
                     # print(f'Object {self.ID} does not have enought valid flux values to find Luminosity at {wave} through SED interpolation.')
-            else:
-                value = np.nan
+            # else:
+                # value = np.nan
                 # print(f'Object {self.ID} does not have enought valid flux values to find Luminosity at {wave} through SED interpolation.')
         return value
 
@@ -136,9 +137,9 @@ class AGN():
     
     def Find_slope(self,wi,wf):
         '''Function to find the slope of the SED between to given wavelength values, wi, wf'''
-        fi = self.Find_value(wi) # Use Find_value funtion to find SED value at wi
-        ff = self.Find_value(wf) # Use Find_value funtion to find SED value at wf
-        slope = np.log10(ff/fi)/np.log10(wf/wi) # Calculate the slope in log space
+        fi = self.Find_value(wi)/self.Find_value(1.0) # Use Find_value funtion to find SED value at wi
+        ff = self.Find_value(wf)/self.Find_value(1.0) # Use Find_value funtion to find SED value at wf
+        slope = (np.log10(ff) - np.log10(fi))/(np.log10(wf) - np.log10(wi)) # Calculate the slope in log space
 
         return slope
 
@@ -149,7 +150,7 @@ class AGN():
         mir_slope2 = self.Find_slope(6.5, 10) # Find the slope of the SED in the MIR range
 
         # Pre-defined conditions. Check slope values to determine SED shape bin and return bin
-        if (uv_slope < -0.3) & (mir_slope1 >= 0.2):
+        if (uv_slope < -0.3) & (mir_slope1 >= -0.2):
             bin = 1
         elif (uv_slope >= -0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2):
             bin = 2 
@@ -206,12 +207,20 @@ class AGN():
         x_interp = np.linspace(min(x),max(x))
         y_interp = 10**Lbol_interp(x_interp)
 
+        # plt.figure(figsize=(8,8))
+        # plt.title(self.ID)
+        # plt.plot(10**x_interp*1E4,y_interp)
+        # plt.xscale('log')
+        # plt.yscale('log')
+        # plt.show()
+
         x_interp, y_interp = x_interp[::-1], y_interp[::-1]
 
         freq = self.c/10**x_interp
         y_interp = y_interp/freq
 
         self.Lbol = integrate.trapz(y_interp,freq)
+        # print(self.Lbol)
 
         return self.Lbol
 

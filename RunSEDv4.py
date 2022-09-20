@@ -930,7 +930,7 @@ print(f'Done with COSMOS sources ({tc - tfl:0.4f} second)')
 ###############################################################################
 ###############################################################################
 ############################## Run Stripe82X SEDs #############################
-#'''
+# '''
 # Make array of NaNs to fill in the output wave and Lum arrays so output is consistent shape
 fill_nan = np.zeros(len(GOODSS_auge_filters)-len(S82X_filters)) 
 fill_nan[fill_nan == 0] = np.nan
@@ -982,7 +982,7 @@ for i in range(len(s82x_id)):
         Lbol_sub_out.append(lbol_sub)
         Nh.append(s82x_Nh[i])
 
-        uv_slope.append(source.Find_slope(0.1, 1.0))
+        uv_slope.append(source.Find_slope(0.15, 1.0))
         mir_slope1.append(source.Find_slope(1.0, 6.5))
         mir_slope2.append(source.Find_slope(6.5, 10))
         out_SED_shape.append(source.SED_shape())
@@ -990,12 +990,17 @@ for i in range(len(s82x_id)):
 
         plot = Plotter(Id, redshift, w, f, s82x_Lx_full[i],f1,up_check)
 
+        # if Id == 2363:
+        #     print(source.Find_slope(0.15,1.0))
+        #     plot.PlotSED(point_x=3E-4,point_y=xval/f1)
+
+
         check_sed.append(source.check_SED(10, check_span=2.75))
         field.append('s')
 
     except ValueError:
         continue
-#'''
+# '''
 ts = time.perf_counter()
 print(f'Done with Stripe82X sources ({ts - tc:0.4f} second)')
 
@@ -1052,7 +1057,7 @@ for i in range(len(goodsN_auge_ID_match)):
     Lbol_sub_out.append(lbol_sub)
     Nh.append(0.0)
 
-    uv_slope.append(source.Find_slope(0.1, 1.0))
+    uv_slope.append(source.Find_slope(0.15, 1.0))
     mir_slope1.append(source.Find_slope(1.0, 6.5))
     mir_slope2.append(source.Find_slope(6.5, 10))
     out_SED_shape.append(source.SED_shape())
@@ -1079,7 +1084,7 @@ print(f'Done with GOODS-N sources ({tgn - ts:0.4f} second)')
 
 ###############################################################################
 ###############################################################################
-############################## Run GOODS-N SEDs ###############################
+############################## Run GOODS-S SEDs ###############################
 # '''
 for i in range(len(goodsS_auge_ID_match)):
     # for i in range(50):
@@ -1126,7 +1131,7 @@ for i in range(len(goodsS_auge_ID_match)):
         Lbol_sub_out.append(lbol_sub)
         Nh.append(0.0)
 
-        uv_slope.append(source.Find_slope(0.1, 1.0))
+        uv_slope.append(source.Find_slope(0.15, 1.0))
         mir_slope1.append(source.Find_slope(1.0, 6.5))
         mir_slope2.append(source.Find_slope(6.5, 10))
         out_SED_shape.append(source.SED_shape())
@@ -1143,7 +1148,9 @@ for i in range(len(goodsS_auge_ID_match)):
         #     source.write_output_file('AGN_photometry',data,cols,'w')
         # if Id == 167601:
         # plot.Plot_FIR_SED(wfir, ffir/f1)
-        # plot.PlotSED(point_x=3E-4,point_y=xval/f1)
+        # if Id == 911:
+            # print(source.Find_slope(0.1, 1.0))
+            # plot.PlotSED(point_x=3E-4,point_y=xval/f1)
         # source.Find_Lbol()
     except ValueError:
         continue
@@ -1172,6 +1179,8 @@ uv_slope, mir_slope1, mir_slope2 = np.asarray(uv_slope)[GOOD_SED], np.asarray(mi
 Lbol_out, Lbol_sub_out = np.asarray(Lbol_out)[GOOD_SED], np.asarray(Lbol_sub_out)[GOOD_SED]
 Nh = np.asarray(Nh)[GOOD_SED]
 
+for i in range(len(out_ID)):
+    print(out_ID[i],out_Lx[i],Lbol_sub_out[i])
 
 # Sort all output data by the intrinsic X-ray luminosity
 sort = out_Lx.argsort()
@@ -1186,7 +1195,7 @@ xval_out = xval_out[sort]
 field = field[sort]
 out_SED_shape = out_SED_shape[sort]
 uv_slope, mir_slope1, mir_slope1 = uv_slope[sort], mir_slope1[sort], mir_slope2[sort]
-Lbol_out, Lbol_sub_out = Lbol_out[sort], Lbol_sub_out
+Lbol_out, Lbol_sub_out = Lbol_out[sort], Lbol_sub_out[sort]
 Nh = Nh[sort]
 
 print('Total GOOD SEDs')
@@ -1198,19 +1207,19 @@ plot = Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_upper_lims)
 plot2 = Plotter_Letter2(out_ID, out_z, out_x, out_y, out_frac_error)
 plot_shape = SED_shape_Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_upper_lims, out_SED_shape)
 
-plt.figure(figsize=(8,8))
-plt.hist(np.log10(norm),bins=np.arange(39,46,0.25))
-plt.axvline(np.nanmedian(np.log10(norm)),c='k')
-plt.xlabel(r'L (1$\mu$m)')
-plt.ylim(0,300)
-plt.show()
+# plt.figure(figsize=(8,8))
+# plt.hist(np.log10(norm),bins=np.arange(39,46,0.25))
+# plt.axvline(np.nanmedian(np.log10(norm)),c='k')
+# plt.xlabel(r'L (1$\mu$m)')
+# plt.ylim(0,300)
+# plt.show()
 
-plt.figure(figsize=(8,8))
-plt.hist(np.log10(Lbol_sub_out),bins=np.arange(42,49,0.25))
-plt.axvline(np.nanmedian(np.log10(Lbol_sub_out)),c='k')
-plt.xlabel(r'L$_{\mathrm{bol}}$')
-plt.ylim(0,300)
-plt.show()
+# plt.figure(figsize=(8,8))
+# plt.hist(np.log10(Lbol_sub_out),bins=np.arange(42,49,0.25))
+# plt.axvline(np.nanmedian(np.log10(Lbol_sub_out)),c='k')
+# plt.xlabel(r'L$_{\mathrm{bol}}$')
+# plt.ylim(0,300)
+# plt.show()
 
 plt.figure(figsize=(10,9))
 plt.hist(out_SED_shape, bins=np.arange(0, 7, 1))
@@ -1220,21 +1229,41 @@ plt.show()
 
 # opt_x = np.ones(len(xval_out))
 # opt_x[opt_x == 1.] = 3E-4
-plot.multi_SED('All',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
+# plot.multi_SED('All',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
 # plot.multi_SED_bins('All_z_bins',bin='redshift',field=field,median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
 # plot.multi_SED_bins('All_z_field',bin='field',field=field,median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
-plot.median_SED_plot('All_median_SEDs', median_x=int_x, median_y=int_y, wfir=wfir_out, ffir=ffir_out, shape=out_SED_shape, FIR_upper='upper lims')
-plot_shape.shape_1bin_h('horizantal_5_panel',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
+# plot.median_SED_plot('All_median_SEDs2', median_x=int_x, median_y=int_y, wfir=wfir_out, ffir=ffir_out, shape=out_SED_shape, FIR_upper='upper lims')
+# plot.median_SED_1panel('All_median_SEDs_1panel', median_x=int_x, median_y=int_y, wfir=wfir_out, ffir=ffir_out, shape=out_SED_shape, FIR_upper='upper lims')
+# plot_shape.shape_1bin_h('horizantal_5_panel3',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,uv_slope=uv_slope,mir_slope1=mir_slope1,mir_slope2=mir_slope2,Median_line=True,FIR_upper='upper lims')
+# plot.plot_medians('new_med_plot',F1,F025,F6,F100)
 
+# plot_shape.shape_1bin_v('goodss_vertical_5_panel',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,uv_slope=uv_slope,mir_slope1=mir_slope1,mir_slope2=mir_slope2,Median_line=True,FIR_upper='upper lims')
+
+plot.L_ratio('test_L_ratio','Lx','UV-MIR-FIR',F1,F025,F6,F100,shape=out_SED_shape,L=Lbol_sub_out)
+
+# plot.L_hist('goodss_Lone_hist',np.log10(F1),r'log L (1 $\mu$m) [erg/s]',[41.5,46],[41.5,46,0.25])
+# plot.L_hist('all_Lx_hist',out_Lx,r'log L$_{\mathrm{X}}$ [erg/s]',[42.5,47],[42.5,47,0.25])
+# plot.L_hist('goodss_Nh_hist',np.log10(Nh),r'log N$_{\mathrm{H}}$ [cm$^{-2}$]',[19.5,25],[19.5,24.5,0.25])
+# plot.L_hist('all_Lbol',np.log10(Lbol_sub_out),r'log L$_{\mathrm{bol}}$',[43,48],[43,48,0.25])
 # print(out_Lx)
 # print(F025)
 # print(norm)
 # print(np.log10(F025))
 # print(np.log10(F025/norm))
-# plot2.Box_1panel('new/Lx_box_1panel', 'Lx', out_Lx, uv_slope, mir_slope1, mir_slope2)
-# plot2.Box_1panel('new/Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol_sub_out)-out_Lx, uv_slope, mir_slope1, mir_slope2)
-# plot2.Box_1panel('new/Lbol_box_1panel_sub', 'Lbol', np.log10(Lbol_sub_out), uv_slope, mir_slope1, mir_slope2)
+
+# print(np.nanmedian(np.log10(Lbol_sub_out[out_SED_shape == 1])))
+# print(np.nanmedian(np.log10(Lbol_sub_out[out_SED_shape == 2])))
+# print(np.nanmedian(np.log10(Lbol_sub_out[out_SED_shape == 3])))
+# print(np.nanmedian(np.log10(Lbol_sub_out[out_SED_shape == 4])))
+# print(np.nanmedian(np.log10(Lbol_sub_out[out_SED_shape == 5])))
+
+# plot2.Box_1panel('new/Lx_box_1panel', 'Lx', out_Lx, uv_slope, mir_slope1, mir_slope2,shape=out_SED_shape)
+print(np.log10(Lbol_sub_out))
+print(out_Lx)
+print(np.log10(Lbol_sub_out)-out_Lx)
+# plot2.Box_1panel('new/Lbol_Lx_box_1panel_sub2', 'Lbol/Lx', np.log10(Lbol_sub_out)-out_Lx, uv_slope, mir_slope1, mir_slope2, shape=out_SED_shape)
+# plot2.Box_1panel('new/Lbol_box_1panel_sub3', 'Lbol', np.log10(Lbol_sub_out), uv_slope, mir_slope1, mir_slope2, shape=out_SED_shape)
 # plot2.scatter_1panel('new/UV_Lx_Lx_norm_new','Lx','UV/Lx','None','Both',Nh,out_Lx,np.log10(Lbol_sub_out),F1,np.log10(F025/norm),np.log10(F6/norm),np.log10(F100/norm),np.log10(F10/norm),uv_slope,mir_slope1,mir_slope2,FIR_upper_lims)
 # plot2.scatter_1panel('new/UV_FIR_1panel','FIR','UV','Both','Bins',Nh,out_Lx,np.log10(Lbol_sub_out),F1,np.log10(F025/F1),np.log10(F6/F1),np.log10(F100/F1),np.log10(F10/F1),uv_slope,mir_slope1,mir_slope2,FIR_upper_lims)
 # plot2.scatter_1panel('new/FIR_Lx_1panel', 'Lx', 'FIR', 'Y-axis', 'Bins', Nh, out_Lx, np.log10(Lbol_sub_out), F1, np.log10(F025/F1), np.log10(F6/F1), np.log10(F100/F1), np.log10(F10/F1), uv_slope, mir_slope1, mir_slope2, FIR_upper_lims)
-# plot2.scatter_1panel('new/Lx_Lbol_1panel_sub_xmed_lbol', 'Lbol', 'Lbol/Lx', 'None', 'Both', Nh, out_Lx, np.log10(Lbol_sub_out), F1, np.log10(F025), np.log10(F6), np.log10(F100), np.log10(F10), uv_slope, mir_slope1, mir_slope2, FIR_upper_lims, durras=True)
+# plot2.scatter_1panel('new/Lx_Lbol_1panel_sub_xmed_lbol', 'Lbol', 'Lbol/Lx', 'None', 'Both', Nh, out_Lx, np.log10(Lbol_sub_out), F1, np.log10(F025), np.log10(F6), np.log10(F100), np.log10(F10), uv_slope, mir_slope1, mir_slope2, FIR_upper_lims, shape = out_SED_shape, durras=True)

@@ -2063,7 +2063,7 @@ class Plotter_Letter2():
 		plt.savefig('/Users/connor_auge/Desktop/New_plots4/'+savestring+'.pdf')
 		plt.show()
 
-	def Box_1panel(self, savestring, var, x, uv_slope, mir_slope1, mir_slope2, ulirg_x=None):
+	def Box_1panel(self, savestring, var, x, uv_slope, mir_slope1, mir_slope2, ulirg_x=None, shape=None):
 		plt.rcParams['font.size'] = 30
 		plt.rcParams['axes.linewidth'] = 3.5
 		plt.rcParams['xtick.major.size'] = 5.5
@@ -2071,11 +2071,17 @@ class Plotter_Letter2():
 		plt.rcParams['ytick.major.size'] = 5.5
 		plt.rcParams['ytick.major.width'] = 4.5
 
-		B1 = np.where(np.logical_and(uv_slope < -0.3, mir_slope1 >= -0.1))[0]
-		B2 = np.where(np.logical_and(np.logical_and(uv_slope >= -0.3, uv_slope <=0.2),mir_slope1 >= -0.2))[0]	
-		B3 = np.where(np.logical_and(uv_slope > 0.2, mir_slope1 >= -0.2))[0]
-		B4 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 > 0.0)))[0]
-		B5 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 <= 0.0)))[0]
+		# B1 = np.where(np.logical_and(uv_slope < -0.3, mir_slope1 >= -0.1))[0]
+		# B2 = np.where(np.logical_and(np.logical_and(uv_slope >= -0.3, uv_slope <=0.2),mir_slope1 >= -0.2))[0]	
+		# B3 = np.where(np.logical_and(uv_slope > 0.2, mir_slope1 >= -0.2))[0]
+		# B4 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 > 0.0)))[0]
+		# B5 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 <= 0.0)))[0]
+
+		B1 = shape == 1
+		B2 = shape == 2
+		B3 = shape == 3
+		B4 = shape == 4
+		B5 = shape == 5
 
 		if var == 'Nh':
 			ylabel = r'log N$_{\mathrm{H}}$'
@@ -2499,7 +2505,7 @@ class Plotter_Letter2():
 		plt.savefig('/Users/connor_auge/Desktop/New_plots4/'+savestring+'.pdf')
 		plt.show()
 				
-	def scatter_1panel(self, savestring, X, Y, Norm, Median, Nh, Lx, L, F1, f1, f2, f3, f4, uv_slope, mir_slope1, mir_slope2, up_check, durras=False):
+	def scatter_1panel(self, savestring, X, Y, Norm, Median, Nh, Lx, L, F1, f1, f2, f3, f4, uv_slope, mir_slope1, mir_slope2, up_check, shape=None, durras=False):
 		plt.rcParams['font.size'] = 22
 		plt.rcParams['axes.linewidth'] = 2
 		plt.rcParams['xtick.major.size'] = 4
@@ -2507,11 +2513,17 @@ class Plotter_Letter2():
 		plt.rcParams['ytick.major.size'] = 4
 		plt.rcParams['ytick.major.width'] = 3
 
-		B1 = np.where(np.logical_and(uv_slope < -0.3, mir_slope1 >= -0.1))[0]
-		B2 = np.where(np.logical_and(np.logical_and(uv_slope >= -0.3, uv_slope <=0.2),mir_slope1 >= -0.2))[0]	
-		B3 = np.where(np.logical_and(uv_slope > 0.2, mir_slope1 >= -0.2))[0]
-		B4 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 > 0.0)))[0]
-		B5 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 <= 0.0)))[0]
+		B1 = shape == 1
+		B2 = shape == 2
+		B3 = shape == 3
+		B4 = shape == 4
+		B5 = shape == 5
+
+		# B1 = np.where(np.logical_and(uv_slope < -0.3, mir_slope1 >= -0.1))[0]
+		# B2 = np.where(np.logical_and(np.logical_and(uv_slope >= -0.3, uv_slope <=0.2),mir_slope1 >= -0.2))[0]	
+		# B3 = np.where(np.logical_and(uv_slope > 0.2, mir_slope1 >= -0.2))[0]
+		# B4 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 > 0.0)))[0]
+		# B5 = np.where(np.logical_and(uv_slope > -0.05, np.logical_and(mir_slope1 < -0.2,mir_slope2 <= 0.0)))[0]
 
 		if X == 'Nh':
 			tax_check = False
@@ -2538,6 +2550,7 @@ class Plotter_Letter2():
 			xlim2 = 46.5
 			xlabel = r'log L$_{\mathrm{X}}$'
 			xunits = ' [erg/s]'
+			xticks = [43,44,45,46]
 
 		elif X == 'Lbol':
 			x = L
@@ -2565,6 +2578,7 @@ class Plotter_Letter2():
 			xunits = ' [erg/s]'
 			xlim1 = 42.5
 			xlim2 = 46.5
+			xticks = [43, 44, 45, 46]
 
 		elif X == 'FIR':
 			f_3 = np.asarray([10**i for i in f3])
@@ -2573,6 +2587,7 @@ class Plotter_Letter2():
 			xlabel = r'log L (100$\mu$m)'
 			xlim1 = 42
 			xlim2 = 46.5
+			xticks = [43,44,45,46]
 			xunits = ' [erg/s]'
 
 		elif X == 'MIR6/Lx':
@@ -3118,7 +3133,7 @@ class Plotter_Letter2():
 			ax1.plot(np.linspace(40,50,100),self.Durras(np.linspace(40,50,100),typ='Lbol'))
 
 
-		# ax1.set_yscale('log')
+		ax1.set_yscale('log')
 		ax1.set_xlim(xlim1,xlim2)
 		ax1.set_ylim(ylim1,ylim2)
 		ax1.set_xticks(xticks)

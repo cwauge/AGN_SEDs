@@ -1,4 +1,5 @@
 from ast import arg
+from stringprep import map_table_b2
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -142,7 +143,7 @@ class Plotter():
         ax.plot(self.wavelength,self.Lum)
         ax.plot(self.wavelength,self.Lum,'x',c='k')
         ax.plot(point_x,point_y,'x',c='r')
-        ax.plot(self.wfir,self.ffir,c='gray',lw=4)
+        # ax.plot(self.wfir,self.ffir,c='gray',lw=4)
 
         ax.set_xlabel(r'Rest Wavelength [$\mu$ m]')
         ax.set_ylabel(r'$\lambda$L$_\lambda$')
@@ -330,7 +331,7 @@ class Plotter():
             ax1.plot(np.nanmedian(x1[:, :2], axis=0),np.nanmedian(y1[:, :2], axis=0), c='k', lw=3)
             if FIR_med:
                 x_connect, y_connect = self.median_sed(median_x1, median_y1, connect_point=True, Bin=True, bin_in=b1, lw=3)
-                self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b1, lw=3)
+                self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b1, lw=3, ls='--')
             else:
                 self.median_sed(median_x1, median_y1,Bin=True, bin_in = b1, lw=3)
         plt.ylim(5E-4, 5E2)
@@ -361,7 +362,7 @@ class Plotter():
             ax2.plot(np.nanmedian(x2[2:,:2],axis=0),np.nanmedian(y2[:,:2],axis=0),c='k',lw=3)
             if FIR_med:
                 x_connect, y_connect = self.median_sed(median_x2, median_y2, connect_point=True, Bin=True, bin_in=b2, lw=3)
-                self.median_FIR_sed(wfir2,ffir2,connect=[x_connect,y_connect],upper=FIR_upper, Norm=False, Bin=True, bin_in=b2, lw=3)
+                self.median_FIR_sed(wfir2,ffir2,connect=[x_connect,y_connect],upper=FIR_upper, Norm=False, Bin=True, bin_in=b2, lw=3, ls='--')
             else:
                 self.median_sed(median_x2, median_y2, Bin=True, bin_in=b2, lw=3)
         plt.ylim(5E-4, 5E2)
@@ -392,7 +393,7 @@ class Plotter():
             if FIR_med:
                 if bin=='redshift':
                     x_connect, y_connect = self.median_sed(median_x3, median_y3, connect_point=True, Bin=True, bin_in=b3,lw=3)
-                    self.median_FIR_sed(wfir3,ffir3,connect=[x_connect,y_connect],upper=FIR_upper, Norm=False,Bin=True, bin_in=b3,lw=3)
+                    self.median_FIR_sed(wfir3,ffir3,connect=[x_connect,y_connect],upper=FIR_upper, Norm=False,Bin=True, bin_in=b3,lw=3, ls='--')
                 else:
                     # wfir3 = np.delete(wfir3, 0, 1)
                     # ffir3 = np.delete(ffir3, 0, 1)
@@ -652,28 +653,380 @@ class Plotter():
 
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
-    
-    # def Lum_Lum_1panel(self, savestring, X, Y, Norm_opt, Median, L, norm_val = 'Lone', norm=[np.nan], x=[np.nan], y=[np.nan], shape=[np.nan], up_check=[np.nan]):
-    #     '''Function to make a single panel Luminosity - Luminosity Plot'''
-    #     b1 = shape == 1
-    #     b2 = shape == 2
-    #     b3 = shape == 3
-    #     b4 = shape == 4
-    #     b5 = shape == 5
 
-    #     if X == 'Nh':
-    #         tax_check = False
-    #     elif Norm_opt == 'Both':
-    #         tax_check = False
-    #     elif Norm_opt == 'X-axis':
-    #         tax_check = False
+    def median_SED_1panel(self, savestring, median_x, median_y, wfir, ffir, shape, FIR_upper='upper lims',ls='-'):
+        '''Function to plot the median SED of SEDs separated by defined SED shape and bined into three z bins'''
 
-    #     # if Norm_opt == 'Both':
-    #     #     x = np.log10()
+        x = self.wavelength
+        y = self.Lum
 
-    #     # if X == 'Nh':
-    #     #     if Norm_opt == ''
 
+        b1 = shape == 1
+        b2 = shape == 2
+        b3 = shape == 3
+        b4 = shape == 4
+        b5 = shape == 5
+
+        median_x1 = median_x[b1]
+        median_x2 = median_x[b2]
+        median_x3 = median_x[b3]
+        median_x4 = median_x[b4]
+        median_x5 = median_x[b5]
+
+        median_y1 = median_y[b1]
+        median_y2 = median_y[b2]
+        median_y3 = median_y[b3]
+        median_y4 = median_y[b4]
+        median_y5 = median_y[b5]
+
+        wfir1 = wfir[b1]
+        wfir2 = wfir[b2]
+        wfir3 = wfir[b3]
+        wfir4 = wfir[b4]
+        wfir5 = wfir[b5]
+
+        ffir1 = ffir[b1]
+        ffir2 = ffir[b2]
+        ffir3 = ffir[b3]
+        ffir4 = ffir[b4]
+        ffir5 = ffir[b5]
+
+        x1 = x[b1]
+        x2 = x[b2]
+        x3 = x[b3]
+        x4 = x[b4]
+        x5 = x[b5]
+
+        y1 = y[b1]
+        y2 = y[b2]
+        y3 = y[b3]
+        y4 = y[b4]
+        y5 = y[b5]
+
+        norm1 = self.norm[b1]
+        norm2 = self.norm[b2]
+        norm3 = self.norm[b3]
+        norm4 = self.norm[b4]
+        norm5 = self.norm[b5] 
+
+
+        c1 = '#377eb8'
+        c2 = '#984ea3'
+        c3 = '#4daf4a'
+        c4 = '#ff7f00'
+        c5 = '#e41a1c'
+
+        yticks = [42, 43, 44, 45, 46]
+        xticks = [1E-4, 1E-3, 1E-2, 1E-1, 1E0, 1E1, 1E2]
+        ytick_labels = ['42', '43', '44', '45', '46']
+        xticks_labels = [r'10$^{-4}$', '', r'10$^{-2}$', '', r'10$^{0}$', '', r'10$^{2}$']
+
+        def solar(x):
+            return x/3.8E33
+
+        def ergs(x):
+            return x*3.8E33
+
+        fig = plt.figure(figsize=(12,12))
+        gs = fig.add_gridspec(nrows=1, ncols=1)
+        gs.update(wspace=0.08) # set the spacing between axes
+        gs.update(left=0.125,right=0.95,top=0.9,bottom=0.1)
+
+        ax1 = plt.subplot(gs[0])#, aspect='equal', adjustable='box')
+        # x_connect, y_connect = self.median_sed(median_x1_b1, median_y1_b1, Norm=False,connect_point=True,color='k',lw=4.5)
+        # self.median_FIR_sed(wfir1_b1, ffir1_b1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,ls=ls)
+        # self.median_FIR_sed(wfir1_b1, ffir1_b1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
+        x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=False,connect_point=True,color=c1,lw=4)
+        self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c1,lw=4,ls='--')
+        # self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c1,lw=4,line=False)
+        # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x1, median_y1, Norm=False,connect_point=True,fill=True,color=c1,lw=2)
+        # self.percentile_lines_FIR(wfir1,ffir1, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c1,lw=2)
+        ax1.plot(np.nanmedian(x1[:, :2], axis=0),np.nanmedian(y1[:, :2], axis=0)*np.nanmedian(norm1), c=c1, lw=4)
+
+        # x_connect, y_connect = self.median_sed(median_x1_b2, median_y1_b2, Norm=False,connect_point=True,color='k',lw=4.5)
+        # self.median_FIR_sed(wfir1_b2, ffir1_b2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,ls=ls)
+        # self.median_FIR_sed(wfir1_b2, ffir1_b2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
+        x_connect, y_connect = self.median_sed(median_x2, median_y2, Norm=False,connect_point=True,color=c2,lw=4)
+        self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c2,lw=4,ls='--')
+        # self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c2,lw=4,line=False)
+        # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x2, median_y2, Norm=False,connect_point=True,fill=True,color=c2,lw=2)
+        # self.percentile_lines_FIR(wfir2,ffir2, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c2,lw=2)
+        ax1.plot(np.nanmedian(x2[:, :2], axis=0),np.nanmedian(y2[:, :2], axis=0)*np.nanmedian(norm2), c=c2, lw=4)
+
+        # x_connect, y_connect = self.median_sed(median_x1_b3, median_y1_b3, Norm=False,connect_point=True,color='k',lw=4.5)
+        # self.median_FIR_sed(wfir1_b3, ffir1_b3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,ls=ls)
+        # self.median_FIR_sed(wfir1_b3, ffir1_b3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
+        x_connect, y_connect = self.median_sed(median_x3, median_y3, Norm=False,connect_point=True,color=c3,lw=4)
+        self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c3,lw=4,ls='--')
+        # self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c3,lw=4,line=False)
+        # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x3, median_y3, Norm=False,connect_point=True,fill=True,color=c3,lw=2)
+        # self.percentile_lines_FIR(wfir3,ffir3, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c3,lw=2)
+        ax1.plot(np.nanmedian(x3[:, :2], axis=0),np.nanmedian(y3[:, :2], axis=0)*np.nanmedian(norm3), c=c3, lw=4)
+
+        # x_connect, y_connect = self.median_sed(median_x1_b4, median_y1_b4, Norm=False,connect_point=True,color='k',lw=4.5)
+        # self.median_FIR_sed(wfir1_b4, ffir1_b4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5)
+        # self.median_FIR_sed(wfir1_b4, ffir1_b4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
+        x_connect, y_connect = self.median_sed(median_x4, median_y4, Norm=False,connect_point=True,color=c4,lw=4)
+        self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c4,lw=4,ls='--')
+        # self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c4,lw=4,line=False)
+        # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x4, median_y4, Norm=False,connect_point=True,fill=True,color=c4,lw=2)
+        # self.percentile_lines_FIR(wfir4,ffir4, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c4,lw=2)
+        ax1.plot(np.nanmedian(x4[:, :2], axis=0),np.nanmedian(y4[:, :2], axis=0)*np.nanmedian(norm4), c=c4, lw=4)
+
+        # x_connect, y_connect = self.median_sed(median_x1_b5, median_y1_b5, Norm=False,connect_point=True,color='k',lw=4.5)
+        # self.median_FIR_sed(wfir1_b5, ffir1_b5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5)
+        # self.median_FIR_sed(wfir1_b5, ffir1_b5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
+        x_connect, y_connect = self.median_sed(median_x5, median_y5, Norm=False,connect_point=True,color=c5,lw=4)
+        self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c5,lw=4,ls='--')
+        # self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c5,lw=4,line=False)
+        # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x5, median_y5, Norm=False,connect_point=True,fill=True,color=c5,lw=2)
+        # self.percentile_lines_FIR(wfir5,ffir5, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c5,lw=2)
+        ax1.plot(np.nanmedian(x5[:, :2], axis=0),np.nanmedian(y5[:, :2], axis=0)*np.nanmedian(norm5), c=c5, lw=4)
+
+        ax1.set_xscale('log')
+        ax1.set_yscale('log')
+        ax1.set_ylim(1E42, 1E46)
+        ax1.set_xlim(7E-5, 700)
+        ax1.set_xticks(xticks)
+        ax1.set_xticklabels(xticks_labels)
+        ax1.set_ylabel(r'$\lambda$ L$_\lambda$ [erg/s]')
+        ax1.set_xlabel(r'Rest Wavelength [$\mu$m]')
+        ax1.grid()
+
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
+        plt.show()
+
+    def plot_medians(self,savestring, F1, uv, mir, fir):
+        '''Function to plot the median values between different luminosities'''
+        Lx = self.L
+
+        b1 = self.z < 0.6
+        b2 = (self.z > 0.6) & (self.z < 0.9)
+        b3 = self.z > 0.9
+
+        uv1, uv2, uv3 = np.log10(uv[b1]), np.log10(uv[b2]), np.log10(uv[b3])
+        mir1, mir2, mir3 = np.log10(mir[b1]), np.log10(mir[b2]), np.log10(mir[b3])
+        fir1, fir2, fir3 = np.log10(fir[b1]), np.log10(fir[b2]), np.log10(fir[b3])
+        Lx1, Lx2, Lx3 = Lx[b1], Lx[b2], Lx[b3]
+
+        y11 = uv1 - Lx1
+        y12 = uv2 - Lx2
+        y13 = uv3 - Lx3
+
+        y21 = mir1 - Lx1
+        y22 = mir2 - Lx2
+        y23 = mir3 - Lx3
+
+        y31 = fir1 - Lx1
+        y32 = fir2 - Lx2
+        y33 = fir3 - Lx3
+
+        mb11 = Lx1 < 43.5
+        mb12 = (Lx1 > 43.5) & (Lx1 < 44)
+        mb13 = (Lx1 > 44) & (Lx1 < 44.5)
+        mb14 = (Lx1 > 44.5) & (Lx1 < 45)
+        mb15 = (Lx1 > 45)
+
+        mb21 = Lx2 < 43.5
+        mb22 = (Lx2 > 43.5) & (Lx2 < 44)
+        mb23 = (Lx2 > 44) & (Lx2 < 44.5)
+        mb24 = (Lx2 > 44.5) & (Lx2 < 45)
+        mb25 = (Lx2 > 45)
+
+        mb31 = Lx3 < 43.5
+        mb32 = (Lx3 > 43.5) & (Lx3 < 44)
+        mb33 = (Lx3 > 44) & (Lx3 < 44.5)
+        mb34 = (Lx3 > 44.5) & (Lx3 < 45)
+        mb35 = (Lx3 > 45)
+
+        x11, x12, x13, x14, x15 = np.nanmedian(Lx1[mb11]), np.nanmedian(Lx1[mb12]), np.nanmedian(Lx1[mb13]), np.nanmedian(Lx1[mb14]), np.nanmedian(Lx1[mb15])
+        x21, x22, x23, x24, x25 = np.nanmedian(Lx2[mb21]), np.nanmedian(Lx2[mb22]), np.nanmedian(Lx2[mb23]), np.nanmedian(Lx2[mb24]), np.nanmedian(Lx2[mb25])
+        x31, x32, x33, x34, x35 = np.nanmedian(Lx3[mb31]), np.nanmedian(Lx3[mb32]), np.nanmedian(Lx3[mb33]), np.nanmedian(Lx3[mb34]), np.nanmedian(Lx3[mb35])
+
+        y11_1, y11_2, y11_3, y11_4, y11_5 = np.nanmedian(y11[mb11]), np.nanmedian(y11[mb12]), np.nanmedian(y11[mb13]), np.nanmedian(y11[mb14]), np.nanmedian(y11[mb15])
+        y12_1, y12_2, y12_3, y12_4, y12_5 = np.nanmedian(y12[mb21]), np.nanmedian(y12[mb22]), np.nanmedian(y12[mb23]), np.nanmedian(y12[mb24]), np.nanmedian(y12[mb25])
+        y13_1, y13_2, y13_3, y13_4, y13_5 = np.nanmedian(y13[mb31]), np.nanmedian(y13[mb32]), np.nanmedian(y13[mb33]), np.nanmedian(y13[mb34]), np.nanmedian(y13[mb35])
+
+        y21_1, y21_2, y21_3, y21_4, y21_5 = np.nanmedian(y21[mb11]), np.nanmedian(y21[mb12]), np.nanmedian(y21[mb13]), np.nanmedian(y21[mb14]), np.nanmedian(y21[mb15])
+        y22_1, y22_2, y22_3, y22_4, y22_5 = np.nanmedian(y22[mb21]), np.nanmedian(y22[mb22]), np.nanmedian(y22[mb23]), np.nanmedian(y22[mb24]), np.nanmedian(y22[mb25])
+        y23_1, y23_2, y23_3, y23_4, y23_5 = np.nanmedian(y23[mb31]), np.nanmedian(y23[mb32]), np.nanmedian(y23[mb33]), np.nanmedian(y23[mb34]), np.nanmedian(y23[mb35])
+
+        y31_1, y31_2, y31_3, y31_4, y31_5 = np.nanmedian(y31[mb11]), np.nanmedian(y31[mb12]), np.nanmedian(y31[mb13]), np.nanmedian(y31[mb14]), np.nanmedian(y31[mb15])
+        y32_1, y32_2, y32_3, y32_4, y32_5 = np.nanmedian(y32[mb21]), np.nanmedian(y32[mb22]), np.nanmedian(y32[mb23]), np.nanmedian(y32[mb24]), np.nanmedian(y32[mb25])
+        y33_1, y33_2, y33_3, y33_4, y33_5 = np.nanmedian(y33[mb31]), np.nanmedian(y33[mb32]), np.nanmedian(y33[mb33]), np.nanmedian(y33[mb34]), np.nanmedian(y33[mb35])
+
+        print(y11_5)
+        print(y12_5)
+        print(y13_5)
+
+        xticks = [42,43,44,45,46]
+        yticks = [-2,-1,0,1,2]
+
+        fig = plt.figure(figsize=(21, 10))
+        ax1 = plt.subplot(131, aspect='equal', adjustable='box')
+
+        ax1.scatter(x11, y11_1, color='blue', marker='s', s=120,label=r'a = 0.25$\mu$m')
+        ax1.scatter(x12, y11_2, color='blue', marker='s', s=120)
+        ax1.scatter(x13, y11_3, color='blue', marker='s', s=120)
+        ax1.scatter(x14, y11_4, color='blue', marker='s', s=120)
+        ax1.scatter(x15, y11_5, color='blue', marker='s', s=120)
+
+        ax1.scatter(x11, y21_1, color='red', marker='o', s=120,label=r'a = 6$\mu$m')
+        ax1.scatter(x12, y21_2, color='red', marker='o', s=120)
+        ax1.scatter(x13, y21_3, color='red', marker='o', s=120)
+        ax1.scatter(x14, y21_4, color='red', marker='o', s=120)
+        ax1.scatter(x15, y21_5, color='red', marker='o', s=120)
+
+        ax1.scatter(x11, y31_1, color='orange', marker='P', s=120,label=r'a = 100$\mu$m')
+        ax1.scatter(x12, y31_2, color='orange', marker='P', s=120)
+        ax1.scatter(x13, y31_3, color='orange', marker='P', s=120)
+        ax1.scatter(x14, y31_4, color='orange', marker='P', s=120)
+        ax1.scatter(x15, y31_5, color='orange', marker='P', s=120)
+
+        ax1.set_title('z < 0.6')
+        ax1.set_ylabel(r'log L$_{\mathrm{a}}$/L$_{\mathrm{X}}$')
+        ax1.legend(fontsize=15)
+        ax1.set_xticks(xticks)
+        ax1.set_yticks(yticks)
+        ax1.set_xlim(42.,46.)
+        ax1.set_ylim(-2,2)
+        ax1.grid()
+
+        ax2 = plt.subplot(132, aspect='equal', adjustable='box')
+        ax2.scatter(x21, y12_1, color='blue', marker='s',s=120)
+        ax2.scatter(x22, y12_2, color='blue', marker='s',s=120)
+        ax2.scatter(x23, y12_3, color='blue', marker='s',s=120)
+        ax2.scatter(x24, y12_4, color='blue', marker='s',s=120)
+        ax2.scatter(x25, y12_5, color='blue', marker='s',s=120)
+
+        ax2.scatter(x21, y22_1, color='red', marker='o',s=120)
+        ax2.scatter(x22, y22_2, color='red', marker='o',s=120)
+        ax2.scatter(x23, y22_3, color='red', marker='o',s=120)
+        ax2.scatter(x24, y22_4, color='red', marker='o',s=120)
+        ax2.scatter(x25, y22_5, color='red', marker='o',s=120)
+
+        ax2.scatter(x21, y32_1, color='orange', marker='P',s=120)
+        ax2.scatter(x22, y32_2, color='orange', marker='P',s=120)
+        ax2.scatter(x23, y32_3, color='orange', marker='P',s=120)
+        ax2.scatter(x24, y32_4, color='orange', marker='P',s=120)
+        ax2.scatter(x25, y32_5, color='orange', marker='P',s=120)
+
+        ax2.set_title('0.6 < z < 0.9')
+        ax2.set_xlabel(r'log L$_{\mathrm{X}}$ [erg/s]')
+        ax2.set_yticklabels([])
+        ax2.set_xticks(xticks)
+        ax2.set_yticks(yticks)
+        ax2.set_xlim(42., 46.)
+        ax2.set_ylim(-2, 2)
+        ax2.grid()
+
+        ax3 = plt.subplot(133, aspect='equal', adjustable='box')
+        ax3.scatter(x31, y13_1, color='blue', marker='s',s=120)
+        ax3.scatter(x32, y13_2, color='blue', marker='s',s=120)
+        ax3.scatter(x33, y13_3, color='blue', marker='s',s=120)
+        ax3.scatter(x34, y13_4, color='blue', marker='s',s=120)
+        ax3.scatter(x35, y13_5, color='blue', marker='s',s=120)
+
+        ax3.scatter(x31, y23_1, color='red', marker='o',s=120)
+        ax3.scatter(x32, y23_2, color='red', marker='o',s=120)
+        ax3.scatter(x33, y23_3, color='red', marker='o',s=120)
+        ax3.scatter(x34, y23_4, color='red', marker='o',s=120)
+        ax3.scatter(x35, y23_5, color='red', marker='o',s=120)
+
+        ax3.scatter(x31, y33_1, color='orange', marker='P',s=120)
+        ax3.scatter(x32, y33_2, color='orange', marker='P',s=120)
+        ax3.scatter(x33, y33_3, color='orange', marker='P',s=120)
+        ax3.scatter(x34, y33_4, color='orange', marker='P',s=120)
+        ax3.scatter(x35, y33_5, color='orange', marker='P',s=120)
+
+        ax3.set_title('0.9 < z < 1.2')
+        ax3.set_yticklabels([])
+        ax3.set_xticks(xticks)
+        ax3.set_yticks(yticks)
+        ax3.set_xlim(42., 46.)
+        ax3.set_ylim(-2, 2)
+        ax3.grid()
+
+        plt.tight_layout()
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
+        plt.show()
+
+    def L_ratio(self,savestring,X,Y,F1,uv,mir,fir,shape,L=None):
+        '''Function to plot the ratio of two luminosites as a function of the denominator'''
+
+        b1 = shape == 1
+        b2 = shape == 2
+        b3 = shape == 3
+        b4 = shape == 4
+        b5 = shape == 5
+
+        if X == 'Lx':
+            x = self.L
+            xlabel = r'log L$_{\mathrm{X}}$ [erg/s]'
+            xticks = [42.5,43.5,44.5,45.5]
+            xlim = [42,46]
+
+        elif X == 'Lbol':
+            x = L
+            xlabel = r'log L$_{\mathrm{bol}} [erg/s]'
+            xticks = [43.5,44.5,45.5,46.5]
+            xlim = [42,46]
+        
+        else:
+            print('Provide valid X option. Options are:    Lx,    Lbol')
+            return
+
+        if Y == 'UV-MIR-FIR':
+            y1 = uv/x
+            y2 = mir/x
+            y3 = fir/x
+
+            ylabel1 = r'log L (0.25$\mu$m)/L$_{\mathrm{X}}$'  
+            ylabel2 = r'log L (6$\mu$m)/L$_{\mathrm{X}}$'
+            ylabel3 = r'log L (100$\mu$m)/L$_{\mathrm{X}}$'   
+
+            yticks = [-1,0,1,2]   
+            ylim = [-1.5,2.5]
+
+        else:
+            print('Provide valid Y option. Options are:    UV-MIR-FIR')
+
+        fig = plt.figure(figsize=(18, 7))
+        ax1 = plt.subplot(131, aspect='equal', adjustable='box')
+        ax1.set_xlim(xlim[0],xlim[1])
+        ax1.set_ylim(ylim[0],ylim[1])
+        ax1.set_ylabel(ylabel1)
+        ax1.set_yticks(yticks)
+        ax1.set_xticks(xticks)
+        ax1.scatter(x,y1,'.')
+
+        ax2 = plt.subplot(132, aspect='equal', adjustable='box')
+        ax2.set_xlim(xlim[0],xlim[1])
+        ax2.set_ylim(ylim[0],ylim[1])
+        ax2.set_ylabel(ylabel2)
+        ax2.set_xlabel(xlabel)
+        ax2.set_yticks(yticks)
+        ax2.set_xticks(xticks)
+        ax2.scatter(x,y2,'.')
+
+        ax3 = plt.subplot(133, aspect='equal', adjustable='box')
+        ax3.set_xlim(xlim[0],xlim[1])
+        ax3.set_ylim(ylim[0],ylim[1])
+        ax3.set_ylabel(ylabel3)
+        ax3.set_yticks(yticks)
+        ax3.set_xticks(xticks)
+        ax3.scatter(x,y3,'.')
+
+        plt.show()
+
+    def L_hist(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],bins=[np.nan,np.nan,np.nan]):
+        plt.figure(figsize=(9,9))
+        plt.hist(x,bins=np.arange(bins[0],bins[1],bins[2]),color='gray')
+        plt.xlabel(xlabel)
+        plt.grid()
+        
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
+        plt.show()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Plotting class to generate a variety of different plots based on the output of the AGN class from SED_v8.py')

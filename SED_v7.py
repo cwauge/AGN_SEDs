@@ -73,11 +73,14 @@ class AGN():
 
 		self.lambdaL_lambda = self.Flux_to_Lum(self.lambdaF_lambda,self.z)
 		self.nuL_nu = self.Flux_to_Lum(self.nuF_nu,self.z)
+		# print(self.nuL_nu)
 
 		# print('6: ', self.nuL_nu)
 		# print(self.z)
 		self.f_interp = interpolate.interp1d(np.log10(self.rest_w_microns[~np.isnan(self.nuL_nu)]),np.log10(self.nuL_nu[~np.isnan(self.nuL_nu)]),kind='linear',fill_value='extrapolate')
 		return None
+
+
 	def CheckSED(self,check_w,check_span=None):
 		# Check for an observational data point within check_span microns of a desired wavelength value (check_w)
 		# If check_span is not specified use 2 microns 
@@ -275,12 +278,13 @@ class AGN():
 		# x_interp_FIR = np.linspace(np.log10(0.003),np.log10(0.01))
 		# y_interp_FIR = 10**Lbol_interp(x_interp_FIR)
 	
-
+		# plt.figure(figsize=(8,8))
+		# plt.title(self.ID)
 		# plt.plot((10**x_interp)*1E4,y_interp)
-		# plt.plot((10**x_interp_FIR)*1E4,y_interp_FIR)
-		# plt.plot(self.FIRwave_out2,self.FIRnuLnu_out2,'v',color='k')
-		# plt.plot(x*1E4,y,'x',color='k')
-		# plt.plot(0.01*1E4,self.F100,'x',color='r')
+		# # plt.plot((10**x_interp_FIR)*1E4,y_interp_FIR)
+		# # plt.plot(self.FIRwave_out2,self.FIRnuLnu_out2,'v',color='k')
+		# # plt.plot(x*1E4,y,'x',color='k')
+		# # plt.plot(0.01*1E4,self.F100,'x',color='r')
 		# plt.xscale('log')
 		# plt.yscale('log')
 		# plt.show()
@@ -315,6 +319,7 @@ class AGN():
 		self.L_bol = L_bol
 		self.L_bol_FIR = L_bol_FIR
 		self.Lbol = L_bol
+		# print(L_bol)
 
 		return L_bol
 

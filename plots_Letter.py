@@ -5988,12 +5988,11 @@ class Plotter_Letter():
 		B3 = np.where(np.logical_and(uv_slope >  0.2, mir_slope1 >= -0.2))[0]
 		B4 = np.where(np.logical_and(uv_slope >= -0.3, np.logical_and(mir_slope1 < -0.2,mir_slope2 > 0.0)))[0]
 		B5 = np.where(np.logical_and(uv_slope >= -0.3, np.logical_and(mir_slope1 < -0.2,mir_slope2 <= 0.0)))[0]
-
+		print('CHECK: ',len(B3))
 		scale1 = np.nanmedian(norm[B1],axis=0)/np.nanmedian(norm[B3],axis=0)
 		scale2 = np.nanmedian(norm[B2],axis=0)/np.nanmedian(norm[B3],axis=0)
 		scale4 = np.nanmedian(norm[B4],axis=0)/np.nanmedian(norm[B3],axis=0)
 		scale5 = np.nanmedian(norm[B5],axis=0)/np.nanmedian(norm[B3],axis=0)
-		print(scale1,scale2,scale4,scale5)
 		# scale_s82x = np.nanmedian(norm[B3],axis=0)/np.nanmedian(norm[B2],axis=0)
 		# scale_goods = np.nanmedian(norm[B1],axis=0)/np.nanmedian(norm[B2],axis=0)
 

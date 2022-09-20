@@ -11,6 +11,8 @@ from SED_v7 import AGN
 from SED_plots import Plotter
 from plots_Letter import Plotter_Letter
 from plots_Letter2 import Plotter_Letter2
+from SED_plots_v2 import Plotter as Plotter_v2
+from SED_shape_plots import SED_shape_Plotter
 from match import match 
 from mag_flux import mag_to_flux
 from mag_flux import magerr_to_fluxerr
@@ -1883,7 +1885,7 @@ cosmos_target_dec = []
 # '''
 a = 0
 for i in range(len(chandra_cosmos_phot_id_match)):
-    # if chandra_cosmos_phot_id_match[i] == 248022:
+    # if chandra_cosmos_phot_id_match[i] == 222544:
         source = AGN(chandra_cosmos_phot_id_match[i],chandra_cosmos_z_match[i],COSMOS_filters,cosmos_flux_array[i],cosmos_flux_err_array[i])
         source.MakeSED()
         check = source.CheckSED(10, check_span=2.75)
@@ -2070,8 +2072,10 @@ for i in range(len(lamassa_id_use)):
             upper_check.append(up_check)
 
             # if check_sed[i] == 'GOOD':
-                # plot = Plotter(Id,redshift,w,f,frac_err,np.log10(s82x_Lx_sp_full[i]))
-                # plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
+            plot = Plotter(Id,redshift,w,f,frac_err,np.log10(s82x_Lx_sp_full[i]))
+            # if Id == 2363:
+            #     print(uvs)
+            #     plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
 
             med_x, med_y = source.median_SED(['U'], ['W4'])
             median_x.append(med_x)
@@ -2134,89 +2138,89 @@ goodsN_id_candels = []
 goodsN_id_auge = []
 
 # '''
-for i in range(len(goodsN_phot_id_match)):
-    # if goodsN_flux_array[i][GOODSN_filters == 'FLUX_24'] <= 0:
-    #     continue
-    # elif goodsN_flux_err_array[i][GOODSN_filters == 'FLUX_24']/goodsN_flux_array[i][GOODSN_filters == 'FLUX_24'] > 0.5:
-    #     continue
-    # else:
-        source = AGN(goodsN_phot_id_match[i],xue_z_match[i],GOODSN_filters,goodsN_flux_array[i],goodsN_flux_err_array[i])
-        source.MakeSED()
-        check_sed.append(source.CheckSED(10, check_span=2.75))
+# for i in range(len(goodsN_phot_id_match)):
+#     # if goodsN_flux_array[i][GOODSN_filters == 'FLUX_24'] <= 0:
+#     #     continue
+#     # elif goodsN_flux_err_array[i][GOODSN_filters == 'FLUX_24']/goodsN_flux_array[i][GOODSN_filters == 'FLUX_24'] > 0.5:
+#     #     continue
+#     # else:
+#         source = AGN(goodsN_phot_id_match[i],xue_z_match[i],GOODSN_filters,goodsN_flux_array[i],goodsN_flux_err_array[i])
+#         source.MakeSED()
+#         check_sed.append(source.CheckSED(10, check_span=2.75))
 
 
-        F1.append(source.Find_nuFnu(1.0))
-        F025.append(source.Find_nuFnu(0.25)/source.Find_nuFnu(1.0))
-        F6.append(source.Find_nuFnu(6.0)/source.Find_nuFnu(1.0))
-        F10.append(source.Find_nuFnu(10.0)/source.Find_nuFnu(1.0))
-        # F100_2.append(source.Find_nuFnu(100)/source.Find_nuFnu(1.0))
+#         F1.append(source.Find_nuFnu(1.0))
+#         F025.append(source.Find_nuFnu(0.25)/source.Find_nuFnu(1.0))
+#         F6.append(source.Find_nuFnu(6.0)/source.Find_nuFnu(1.0))
+#         F10.append(source.Find_nuFnu(10.0)/source.Find_nuFnu(1.0))
+#         # F100_2.append(source.Find_nuFnu(100)/source.Find_nuFnu(1.0))
 
-        ffir, wfir, f100 = source.median_FIR_filter(['FLUX_24','FLUX_100', 'FLUX_160','FLUX_250','FLUX_350','FLUX_500'],Find_value=100.0)
-        FFIR.append(ffir)
-        WFIR.append(wfir)
-        F100.append(f100/source.Find_nuFnu(1.0))
+#         ffir, wfir, f100 = source.median_FIR_filter(['FLUX_24','FLUX_100', 'FLUX_160','FLUX_250','FLUX_350','FLUX_500'],Find_value=100.0)
+#         FFIR.append(ffir)
+#         WFIR.append(wfir)
+#         F100.append(f100/source.Find_nuFnu(1.0))
 
-        uvs = source.Find_slope(0.15, 1.0)
-        mirs1 = source.Find_slope(1.0, 6.5)
-        mirs2 = source.Find_slope(6.5, 10)
+#         uvs = source.Find_slope(0.15, 1.0)
+#         mirs1 = source.Find_slope(1.0, 6.5)
+#         mirs2 = source.Find_slope(6.5, 10)
 
-        UVslope.append(uvs)
-        MIRslope1.append(mirs1)
-        MIRslope2.append(mirs2)
+#         UVslope.append(uvs)
+#         MIRslope1.append(mirs1)
+#         MIRslope2.append(mirs2)
 
-        uv_lum.append(source.find_Lum_range(0.1,0.35))
-        opt_lum.append(source.find_Lum_range(0.35,3))
-        mir_lum.append(source.find_Lum_range(3,30))
-        fir_lum.append(source.find_Lum_range(30,500/(1+xue_z_match[i])))
+#         uv_lum.append(source.find_Lum_range(0.1,0.35))
+#         opt_lum.append(source.find_Lum_range(0.35,3))
+#         mir_lum.append(source.find_Lum_range(3,30))
+#         fir_lum.append(source.find_Lum_range(30,500/(1+xue_z_match[i])))
 
-        Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
-        w = np.append(w,fill_nan)
-        f = np.append(f,fill_nan)
-        frac_err = np.append(frac_err, fill_nan)
-        all_id.append(Id)
-        all_z.append(redshift)
-        all_x.append(w)
-        all_y.append(f)
-        all_frac_err.append(frac_err)
-        upper_check.append(up_check)
+#         Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
+#         w = np.append(w,fill_nan)
+#         f = np.append(f,fill_nan)
+#         frac_err = np.append(frac_err, fill_nan)
+#         all_id.append(Id)
+#         all_z.append(redshift)
+#         all_x.append(w)
+#         all_y.append(f)
+#         all_frac_err.append(frac_err)
+#         upper_check.append(up_check)
 
-        med_x, med_y = source.median_SED(['U'], ['MIPS2'])
-        median_x.append(med_x)
-        median_y.append(med_y)
+#         med_x, med_y = source.median_SED(['U'], ['MIPS2'])
+#         median_x.append(med_x)
+#         median_y.append(med_y)
         
-        med_fir_x, med_fir_y = source.median_SED(['FLUX_24'], ['FLUX_500'])
-        median_fir_x.append(med_fir_x)
-        median_fir_y.append(med_fir_y)
+#         med_fir_x, med_fir_y = source.median_SED(['FLUX_24'], ['FLUX_500'])
+#         median_fir_x.append(med_fir_x)
+#         median_fir_y.append(med_fir_y)
 
-        Lx.append(xue_Lx_match[i])
-        Lx_hard.append(xue_Lx_hard_match[i])
-        # Lx.append(xue_Lx_hard_match[i])
-        Nh.append(goodsN_Nh_match[i])
-        Lbol.append(source.Find_Lbol())
-        Lbol_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
-        fir_frac.append(source.FIR_frac())
-        shape = source.SED_shape(uvs, mirs1, mirs2)
-        sed_shape.append(shape)
+#         Lx.append(xue_Lx_match[i])
+#         Lx_hard.append(xue_Lx_hard_match[i])
+#         # Lx.append(xue_Lx_hard_match[i])
+#         Nh.append(goodsN_Nh_match[i])
+#         Lbol.append(source.Find_Lbol())
+#         Lbol_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
+#         fir_frac.append(source.FIR_frac())
+#         shape = source.SED_shape(uvs, mirs1, mirs2)
+#         sed_shape.append(shape)
 
-        # irac_ch1.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_1_FLUX'][0])
-        # irac_ch2.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_2_FLUX'][0])
-        # irac_ch3.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_3_FLUX'][0])
-        # irac_ch4.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_4_FLUX'][0]) 
+#         # irac_ch1.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_1_FLUX'][0])
+#         # irac_ch2.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_2_FLUX'][0])
+#         # irac_ch3.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_3_FLUX'][0])
+#         # irac_ch4.append(goodsN_flux_array[i][GOODSN_filters == 'SPLASH_4_FLUX'][0]) 
         
-        if source.CheckSED(10, check_span=2.5) == 'GOOD':
-            goodsN_id_candels.append(goodsN_phot_id_match[i])
+#         if source.CheckSED(10, check_span=2.5) == 'GOOD':
+#             goodsN_id_candels.append(goodsN_phot_id_match[i])
 
-        field.append(2)
+#         field.append(2)
 
 fill_nan = np.zeros(len(GOODSS_auge_filters)-len(GOODSN_auge_filters))
 fill_nan[fill_nan == 0] = np.nan
 
 for i in range(len(goodsN_auge_ID_match)):
-    if goodsN_auge_ID_match[i] in xue_id_match:
-        print('repeat')
+    # if goodsN_auge_ID_match[i] in xue_id_match:
+    #     print('repeat')
     # if goodsN_auge_ID_match[i] == 348:
         # continue
-    else:
+    # else:
         try:
             source = AGN(goodsN_auge_ID_match[i],goodsN_auge_z_match[i],GOODSN_auge_filters,goodsN_flux_array_auge[i],goodsN_flux_err_array_auge[i])
             source.MakeSED()
@@ -2313,84 +2317,84 @@ fill_nan = np.zeros(len(GOODSS_auge_filters)-len(GOODSS_filters))
 fill_nan[fill_nan == 0] = np.nan
 
 # '''
-for i in range(len(goodsS_phot_id_match)):
-    # if goodsS_flux_array[i][GOODSS_filters == 'FLUX_24'] <= 0:
-    #     continue
-    # elif goodsS_flux_err_array[i][COSMOS_filters == 'FLUX_24']/goodsS_flux_array[i][COSMOS_filters == 'FLUX_24'] > 0.5:
-    #     continue
-    # else:
-        source = AGN(goodsS_phot_id_match[i],luo_z_match[i],GOODSS_filters,goodsS_flux_array[i],goodsS_flux_err_array[i])
-        source.MakeSED()
-        check_sed.append(source.CheckSED(10, check_span=2.75))
+# for i in range(len(goodsS_phot_id_match)):
+#     # if goodsS_flux_array[i][GOODSS_filters == 'FLUX_24'] <= 0:
+#     #     continue
+#     # elif goodsS_flux_err_array[i][COSMOS_filters == 'FLUX_24']/goodsS_flux_array[i][COSMOS_filters == 'FLUX_24'] > 0.5:
+#     #     continue
+#     # else:
+#         source = AGN(goodsS_phot_id_match[i],luo_z_match[i],GOODSS_filters,goodsS_flux_array[i],goodsS_flux_err_array[i])
+#         source.MakeSED()
+#         check_sed.append(source.CheckSED(10, check_span=2.75))
 
-        F1.append(source.Find_nuFnu(1.0))
-        F025.append(source.Find_nuFnu(0.25)/source.Find_nuFnu(1.0))
-        F6.append(source.Find_nuFnu(6.0)/source.Find_nuFnu(1.0))
-        F10.append(source.Find_nuFnu(10.0)/source.Find_nuFnu(1.0))
-        # F100_2.append(source.Find_nuFnu(100)/source.Find_nuFnu(1.0))
+#         F1.append(source.Find_nuFnu(1.0))
+#         F025.append(source.Find_nuFnu(0.25)/source.Find_nuFnu(1.0))
+#         F6.append(source.Find_nuFnu(6.0)/source.Find_nuFnu(1.0))
+#         F10.append(source.Find_nuFnu(10.0)/source.Find_nuFnu(1.0))
+#         # F100_2.append(source.Find_nuFnu(100)/source.Find_nuFnu(1.0))
 
-        ffir, wfir, f100 = source.median_FIR_filter(['FLUX_24','FLUX_100', 'FLUX_160','FLUX_250','FLUX_350','FLUX_500'],Find_value=100.0)
-        FFIR.append(ffir)
-        WFIR.append(wfir)
-        F100.append(f100/source.Find_nuFnu(1.0))
+#         ffir, wfir, f100 = source.median_FIR_filter(['FLUX_24','FLUX_100', 'FLUX_160','FLUX_250','FLUX_350','FLUX_500'],Find_value=100.0)
+#         FFIR.append(ffir)
+#         WFIR.append(wfir)
+#         F100.append(f100/source.Find_nuFnu(1.0))
 
-        uvs = source.Find_slope(0.15, 1.0)
-        mirs1 = source.Find_slope(1.0, 6.5)
-        mirs2 = source.Find_slope(6.5, 10)
+#         uvs = source.Find_slope(0.15, 1.0)
+#         mirs1 = source.Find_slope(1.0, 6.5)
+#         mirs2 = source.Find_slope(6.5, 10)
 
-        UVslope.append(uvs)
-        MIRslope1.append(mirs1)
-        MIRslope2.append(mirs2)
+#         UVslope.append(uvs)
+#         MIRslope1.append(mirs1)
+#         MIRslope2.append(mirs2)
 
-        uv_lum.append(source.find_Lum_range(0.1,0.35))
-        opt_lum.append(source.find_Lum_range(0.35,3))
-        mir_lum.append(source.find_Lum_range(3,30))
-        fir_lum.append(source.find_Lum_range(30,500/(1+luo_z_match[i])))
+#         uv_lum.append(source.find_Lum_range(0.1,0.35))
+#         opt_lum.append(source.find_Lum_range(0.35,3))
+#         mir_lum.append(source.find_Lum_range(3,30))
+#         fir_lum.append(source.find_Lum_range(30,500/(1+luo_z_match[i])))
 
-        Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
-        w = np.append(w, fill_nan)
-        f = np.append(f, fill_nan)
-        all_id.append(Id)
-        all_z.append(redshift)
-        all_x.append(w)
-        all_y.append(f)
-        all_frac_err.append(frac_err)
-        upper_check.append(up_check)
+#         Id, redshift, w, f, frac_err, up_check = source.pull_plot_info()
+#         w = np.append(w, fill_nan)
+#         f = np.append(f, fill_nan)
+#         all_id.append(Id)
+#         all_z.append(redshift)
+#         all_x.append(w)
+#         all_y.append(f)
+#         all_frac_err.append(frac_err)
+#         upper_check.append(up_check)
 
-        med_x, med_y = source.median_SED(['U'], ['MIPS2'])
-        median_x.append(med_x)
-        median_y.append(med_y)
+#         med_x, med_y = source.median_SED(['U'], ['MIPS2'])
+#         median_x.append(med_x)
+#         median_y.append(med_y)
         
-        med_fir_x, med_fir_y = source.median_SED(['FLUX_24'], ['FLUX_500'])
-        median_fir_x.append(med_fir_x)
-        median_fir_y.append(med_fir_y)
+#         med_fir_x, med_fir_y = source.median_SED(['FLUX_24'], ['FLUX_500'])
+#         median_fir_x.append(med_fir_x)
+#         median_fir_y.append(med_fir_y)
 
-        Lx.append(luo_Lx_match[i])
-        Lx_hard.append(luo_Lx_match[i])
-        # Lx.append(luo_Lx_hard_match[i])
-        Nh.append(goodsS_NH_match[i])
-        Lbol.append(source.Find_Lbol())
-        Lbol_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
-        fir_frac.append(source.FIR_frac())
-        shape = source.SED_shape(uvs, mirs1, mirs2)
-        sed_shape.append(shape)
+#         Lx.append(luo_Lx_match[i])
+#         Lx_hard.append(luo_Lx_match[i])
+#         # Lx.append(luo_Lx_hard_match[i])
+#         Nh.append(goodsS_NH_match[i])
+#         Lbol.append(source.Find_Lbol())
+#         Lbol_sub.append(source.Find_Lbol_temp_sub(scale_array,temp_wave,temp_lum))
+#         fir_frac.append(source.FIR_frac())
+#         shape = source.SED_shape(uvs, mirs1, mirs2)
+#         sed_shape.append(shape)
 
-        # irac_ch1.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_1_FLUX'][0])
-        # irac_ch2.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_2_FLUX'][0])
-        # irac_ch3.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_3_FLUX'][0])
-        # irac_ch4.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_4_FLUX'][0]) 
+#         # irac_ch1.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_1_FLUX'][0])
+#         # irac_ch2.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_2_FLUX'][0])
+#         # irac_ch3.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_3_FLUX'][0])
+#         # irac_ch4.append(goodsS_flux_array[i][GOODSS_filters == 'SPLASH_4_FLUX'][0]) 
 
-        if source.CheckSED(10, check_span=2.5) == 'GOOD':
-            goodsS_id_candels.append(goodsS_phot_id_match[i])
+#         if source.CheckSED(10, check_span=2.5) == 'GOOD':
+#             goodsS_id_candels.append(goodsS_phot_id_match[i])
 
-        field.append(3)
+#         field.append(3)
 
 
 for i in range(len(goodsS_auge_ID_match)):
-    if goodsS_auge_ID_match[i] in luo_id_match:
+    # if goodsS_auge_ID_match[i] in luo_id_match:
     #     # continue
-        print('repeat')
-    else:
+        # print('repeat')
+    # else:
         try:
             source = AGN(goodsS_auge_ID_match[i],goodsS_auge_z_match[i],GOODSS_auge_filters,goodsS_flux_array_auge[i],goodsS_flux_err_array_auge[i])
             source.MakeSED()
@@ -2434,9 +2438,11 @@ for i in range(len(goodsS_auge_ID_match)):
             shape = source.SED_shape(uvs, mirs1, mirs2)
             sed_shape.append(shape)
 
-            # if source.CheckSED(10, check_span=2.5) == 'GOOD':
-            #     plot = Plotter(Id,redshift,w,f,frac_err,np.log10(goodsS_auge_Lx_match[i]))
-            #     plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
+            # if source.CheckSED(10, check_span=2.5) == 'GOOD': 
+            plot = Plotter(Id,redshift,w,f,frac_err,np.log10(goodsS_auge_Lx_match[i]))
+            # if Id == 911:
+                # print(uvs)
+                # plot.PlotSingleSED(flux_point=f100/source.Find_nuFnu(1.0),wfir=wfir,ffir=ffir/source.Find_nuFnu(1.0))
 
 
             med_x, med_y = source.median_SED(['U'], ['MIPS2'])
@@ -2722,11 +2728,12 @@ plt.rcParams['ytick.minor.width'] = 2.
 # plt.ylim(0,300)
 # plt.show()
 
-# plt.figure(figsize=(10,9))
-# plt.hist(sed_shape,bins=np.arange(0,7,1))
-# plt.xlabel('SED Shape')
-# plt.ylim(0,400)
-# plt.show()
+plt.figure(figsize=(10,9))
+plt.hist(sed_shape,bins=np.arange(0,7,1))
+plt.xlabel('SED Shape')
+plt.ylim(0,400)
+plt.show()
+
 # x1 = np.linspace(0.08,1.5)
 # x2 = np.linspace(0.35,1.5)
 # # print(np.log10(ulirg_LIR_out))
@@ -2807,6 +2814,9 @@ plt.rcParams['ytick.minor.width'] = 2.
 # plt.ylabel('Lbol sub')
 # plt.show()
 
+for i in range(len(all_id)):
+    print(all_id[i],Lx[i],Lbol_sub[i])
+
 
 print('COSMOS Sample: ', len(Lx[field == 0]))
 print('S82X Sample: ', len(Lx[field == 1]))
@@ -2819,6 +2829,9 @@ plot2 = Plotter_Letter2(all_id,all_z,all_x,all_y,all_frac_err)
 
 ulirg_plot = Plotter_Letter(ulirg_id,ulirg_z,ulirg_x,ulirg_y,ulirg_frac_err)
 sort = Lx.argsort()
+
+plot_v2 = Plotter_v2(all_id, all_z, all_x, all_y, Lx, F1, upper_check)
+plot_shape_v2 = SED_shape_Plotter(all_id, all_z, all_x, all_y, Lx, F1, upper_check, sed_shape)
 
 
 # plt.plot(np.log10(F100[field == 0]*F1[field == 0]), np.log10(F100_2[field == 0]*F1[field == 0]), '.',color='b',label='COSMOS')
@@ -2887,10 +2900,15 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 # plt.grid()
 # plt.show()
 
+# plot_v2.L_hist('goodss_Lone_hist_old2',np.log10(F1),r'log L (1 $\mu$m) [erg/s]',[41.5,46],[41.5,46,0.25])
+# plot_v2.L_hist('all_Lx_hist_old2',Lx,r'log L$_{\mathrm{X}}$ [erg/s]',[42.5,47],[42.5,47,0.25])
+# plot_v2.L_hist('all_Lbol_old',np.log10(Lbol_sub),r'log L$_{\mathrm{bol}}$',[43,48],[43,48,0.25])
+# plot_v2.L_hist('goodss_Nh_hist_old2',np.log10(Nh),r'log N$_{\mathrm{H}}$ [cm$^{-2}$]',[19.5,25],[19.5,24.5,0.25])
 
 # plot.plot_1panel('43',all_w,all_f,Lx,spec_type,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),median_w,median_f,F1=norm,F2=marker,suptitle=str(z_min)+' < z < '+str(z_max),spec_z=all_z,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,wfir=np.asarray(WFIR),ffir=np.asarray(FFIR))
-
 # plot.NSF_seds_3panel(all_x[sort],all_y[sort],Lx[sort],UVslope[sort],MIRslope1[sort],MIRslope2[sort],median_x[sort],median_y[sort],F1[sort])
+# plot_shape_v2.shape_1bin_h('horizantal_5_panel2',median_x=10**median_x,median_y=median_y,wfir=WFIR,ffir=FFIR,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,Median_line=True,FIR_upper='upper lims')
+# plot_shape_v2.shape_1bin_v('goodss_vertical_5_panel_old2',median_x=10**median_x,median_y=median_y,wfir=WFIR,ffir=FFIR,uv_slope=UVslope,mir_slope1=MIRslope1,mir_slope2=MIRslope2,Median_line=True,FIR_upper='upper lims')
 
 ################ Paper Plots ###################
 # fig 3
@@ -2899,7 +2917,7 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 # plt.ylim(0,300)
 # plt.show()
 
-plot.multi_SED('all_check',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
+# plot.multi_SED('all_check',all_x[sort],all_y[sort],Lx[sort],median_x[sort],median_y[sort],suptitle='SEDs of X-ray',norm=F1[sort],mark=field[sort],spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
 
 # fig 4 & 5
 # plot.multi_SED_zbins('S82X',all_x[sort], all_y[sort], Lx[sort], all_z[sort], median_x[sort], median_y[sort], F1[sort], field[sort], spec_z=all_z[sort],wfir=WFIR[sort],ffir=FFIR[sort],up_check=upper_check[sort],med_x_fir=median_fir_x[sort],med_y_fir=median_fir_y[sort])
@@ -2986,7 +3004,7 @@ plot.multi_SED('all_check',all_x[sort],all_y[sort],Lx[sort],median_x[sort],media
 # plot2.scatter_1panel('UV_Lx_1panel_med_norm','Lx','UV','Both','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.scatter_1panel('MIR6_Lx_1panel_med_norm','Lx','MIR6','Both','X-axis',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 
-# plot2.Box_1panel('new2/Lx_box_1panel', 'Lx', Lx, UVslope, MIRslope1, MIRslope2)
+# plot2.Box_1panel('new2/Lx_box_1panel3', 'Lx', Lx, UVslope, MIRslope1, MIRslope2, shape=sed_shape)
 # plot2.Box_1panel('new2/Nh_box_1panel', 'Nh', np.log10(Nh[Nh > 0]), UVslope[Nh>0], MIRslope1[Nh>0], MIRslope2[Nh>0])
 # plot2.Box_1panel('new2/Lbol_box_1panel_sub', 'Lbol', np.log10(Lbol_sub), UVslope, MIRslope1, MIRslope2)
 # plot2.Box_1panel('new2/Lbol_Lx_box_1panel_sub', 'Lbol/Lx', np.log10(Lbol_sub)-Lx, UVslope, MIRslope1, MIRslope2)
@@ -2996,15 +3014,15 @@ plot.multi_SED('all_check',all_x[sort],all_y[sort],Lx[sort],median_x[sort],media
 
 
 # plot2.scatter_1panel('new2/Lx_Lbol2','Lbol','Lx/Lbol','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,durras=False)
-# plot2.scatter_1panel('new2/Lx_Lbol_1panel_sub_xmed_lbol2_allpts','Lbol','Lbol/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,durras=False)
+plot2.scatter_1panel('new2/Lx_Lbol_1panel_sub_xmed_lbol2_allpts','Lbol','Lbol/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,shape=sed_shape,durras=True)
 # plot2.scatter_1panel('new2/Lx_Lbol_1panel_sub_xmed_lbol_hard_allpts','Lbol','Lbol/Lx','None','Both',Nh,Lx_hard,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,durras=True)
-# plot2.scatter_1panel('new2/UV_Lx_Lx_norm_new','Lx','UV/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.scatter_1panel('new2/MIR_Lx_Lx_norm_new','Lx','MIR6/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.scatter_1panel('new2/UV_MIR_MIR_norm','MIR6','UV/MIR6','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.scatter_1panel('new2/UV_FIR_1panel_norm_new','FIR','UV/FIR','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.scatter_1panel('new2/FIR_Lx_1panel_norm_new','Lx','FIR/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.scatter_1panel('new2/UV_FIR_1panel_norm_new2','FIR','UV','Both','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
-# plot2.scatter_1panel('new2/FIR_Lx_1panel_norm_new2','Lx','FIR','Y-axis','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/UV_Lx_Lx_norm_new3','Lx','UV/Lx','None','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/MIR_Lx_Lx_norm_new3','Lx','MIR6/Lx','None','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/UV_MIR_MIR_norm3','MIR6','UV/MIR6','None','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/UV_FIR_1panel_norm_new3','FIR','UV/FIR','None','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/FIR_Lx_1panel_norm_new3','Lx','FIR/Lx','None','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/UV_FIR_1panel_norm_new3','FIR','UV','Both','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
+# plot2.scatter_1panel('new2/FIR_Lx_1panel_norm_new3','Lx','FIR','Y-axis','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 
 
 
