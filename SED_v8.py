@@ -72,7 +72,7 @@ class AGN():
 
     def Int_SED(self,xmin=1E-1,xmax=1E1):
         '''Function to determine the interpolated SED''' 
-        x_out = np.arange(xmin,xmax,0.01)
+        x_out = np.arange(xmin,xmax,0.05)
         y_out = self.f_interp(np.log10(x_out))
         return x_out, y_out
 
@@ -202,10 +202,10 @@ class AGN():
         x = np.log10(x[~np.isnan(y)])
         y = np.log10(y[~np.isnan(y)])        
 
-        Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
+        self.Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
 
         x_interp = np.linspace(min(x),max(x))
-        y_interp = 10**Lbol_interp(x_interp)
+        y_interp = 10**self.Lbol_interp(x_interp)
 
         # plt.figure(figsize=(8,8))
         # plt.title(self.ID)
@@ -246,10 +246,10 @@ class AGN():
         # y = np.log10(self.lambdaL_lambda[~np.isnan(self.lambdaL_lambda)])
         y = np.log10(self.nuL_nu[~np.isnan(self.nuL_nu)])
 
-        Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
+        # Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
 
         x_interp = np.linspace(np.log10(xmin*1E-4),np.log10(xmax*1E-4))
-        y_interp = 10**Lbol_interp(x_interp)
+        y_interp = 10**self.Lbol_interp(x_interp)
 
         x_interp, y_interp = x_interp[::-1], y_interp[::-1]
         freq = self.c/10**x_interp

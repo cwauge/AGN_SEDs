@@ -1460,7 +1460,7 @@ class Plotter_Letter2():
 		plt.savefig(f'/Users/connor_auge/Desktop/New_plots3/{savestring}.pdf')
 		plt.show()
 
-	def Upanels_ratio_plots(self, savestring, X, Y, Median, Nh, Lx, L, L1, L2, L3, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check):
+	def Upanels_ratio_plots(self, savestring, X, Y, Median, Nh, Lx, L, L1, L2, L3, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check, shape=None):
 			plt.rcParams['font.size'] = 20
 			plt.rcParams['axes.linewidth'] = 2
 			plt.rcParams['xtick.major.size'] = 4
@@ -1468,11 +1468,17 @@ class Plotter_Letter2():
 			plt.rcParams['ytick.major.size'] = 4
 			plt.rcParams['ytick.major.width'] = 3
 
-			B1 = (uv_slope < -0.3) & (mir_slope1 >= -0.2)
-			B2 = (uv_slope >= -0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2)
-			B3 = (uv_slope > 0.2) & (mir_slope1 >= -0.2)
-			B4 = (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0)
-			B5 = (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0)
+			# B1 = (uv_slope < -0.3) & (mir_slope1 >= -0.2)
+			# B2 = (uv_slope >= -0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2)
+			# B3 = (uv_slope > 0.2) & (mir_slope1 >= -0.2)
+			# B4 = (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0)
+			# B5 = (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0)
+
+			B1 = shape == 1
+			B2 = shape == 2
+			B3 = shape == 3
+			B4 = shape == 4
+			B5 = shape == 5
 
 
 			Nh[Nh <= 0] = np.nan
@@ -1792,11 +1798,11 @@ class Plotter_Letter2():
 			fig = plt.figure(figsize=(18, 7))
 			ax1 = plt.subplot(131, aspect='equal', adjustable='box')
 
-			ax1.scatter(x_11, y_11, color=c1, marker='P', rasterized=True, alpha=0.4, label='Panel 1',zorder=0)
-			ax1.scatter(x_12, y_12, color=c2, marker='P', rasterized=True, alpha=0.4, label='Panel 2',zorder=0)
-			ax1.scatter(x_13, y_13, color=c3, marker='P', rasterized=True, alpha=0.4, label='Panel 3',zorder=0)
-			ax1.scatter(x_14, y_14, color=c4, marker='P', rasterized=True, alpha=0.4, label='Panel 4',zorder=0)
-			ax1.scatter(x_15, y_15, color=c5, marker='P', rasterized=True, alpha=0.4, label='Panel 5',zorder=0)
+			ax1.scatter(x_11, y_11, color=c1, marker='+', rasterized=True, alpha=0.6, label='Panel 1',zorder=0)
+			ax1.scatter(x_12, y_12, color=c2, marker='+', rasterized=True, alpha=0.6, label='Panel 2',zorder=0)
+			ax1.scatter(x_13, y_13, color=c3, marker='+', rasterized=True, alpha=0.6, label='Panel 3',zorder=0)
+			ax1.scatter(x_14, y_14, color=c4, marker='+', rasterized=True, alpha=0.6, label='Panel 4',zorder=0)
+			ax1.scatter(x_15, y_15, color=c5, marker='+', rasterized=True, alpha=0.6, label='Panel 5',zorder=0)
 
 			if Median != 'None':
 				ax1.errorbar(x1_med, y1_med, xerr=[x1_err_min, x1_err_max], yerr=[y1_err_min, y1_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -1820,11 +1826,11 @@ class Plotter_Letter2():
 			ax1.grid()
 
 			ax2 = plt.subplot(132, aspect='equal', adjustable='box')
-			ax2.scatter(x_21, y_21, color=c1, marker='P', rasterized=True, alpha=0.4, label='Panel 1',zorder=0)
-			ax2.scatter(x_22, y_22, color=c2, marker='P', rasterized=True, alpha=0.4, label='Panel 2',zorder=0)
-			ax2.scatter(x_23, y_23, color=c3, marker='P', rasterized=True, alpha=0.4, label='Panel 3',zorder=0)
-			ax2.scatter(x_24, y_24, color=c4, marker='P', rasterized=True, alpha=0.4, label='Panel 4',zorder=0)
-			ax2.scatter(x_25, y_25, color=c5, marker='P', rasterized=True, alpha=0.4, label='Panel 5',zorder=0)
+			ax2.scatter(x_21, y_21, color=c1, marker='+', rasterized=True, alpha=0.6, label='Panel 1',zorder=0)
+			ax2.scatter(x_22, y_22, color=c2, marker='+', rasterized=True, alpha=0.6, label='Panel 2',zorder=0)
+			ax2.scatter(x_23, y_23, color=c3, marker='+', rasterized=True, alpha=0.6, label='Panel 3',zorder=0)
+			ax2.scatter(x_24, y_24, color=c4, marker='+', rasterized=True, alpha=0.6, label='Panel 4',zorder=0)
+			ax2.scatter(x_25, y_25, color=c5, marker='+', rasterized=True, alpha=0.6, label='Panel 5',zorder=0)
 
 			if Median != 'None':
 				ax2.errorbar(x2_med, y2_med, xerr=[x2_err_min, x2_err_max], yerr=[y2_err_min, y2_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -1847,23 +1853,23 @@ class Plotter_Letter2():
 
 			ax3 = plt.subplot(133, aspect='equal', adjustable='box')
 			if 'FIR' in Y:
-				ax3.scatter(x_31[up_check_31 == 1], y_31[up_check_31 == 1], facecolor='none', edgecolors=c1, rasterized=True, alpha=0.4,zorder=0)
-				ax3.scatter(x_32[up_check_32 == 1], y_32[up_check_32 == 1], facecolor='none', edgecolors=c2, rasterized=True, alpha=0.4,zorder=0)
-				ax3.scatter(x_33[up_check_33 == 1], y_33[up_check_33 == 1], facecolor='none', edgecolors=c3, rasterized=True, alpha=0.4,zorder=0)
-				ax3.scatter(x_34[up_check_34 == 1], y_34[up_check_34 == 1], facecolor='none', edgecolors=c4, rasterized=True, alpha=0.4,zorder=0)
-				ax3.scatter(x_35[up_check_35 == 1], y_35[up_check_35 == 1], facecolor='none', edgecolors=c5, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_31[up_check_31 == 1], y_31[up_check_31 == 1], marker=11, color=c1, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_32[up_check_32 == 1], y_32[up_check_32 == 1], marker=11, color=c2, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_33[up_check_33 == 1], y_33[up_check_33 == 1], marker=11, color=c3, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_34[up_check_34 == 1], y_34[up_check_34 == 1], marker=11, color=c4, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_35[up_check_35 == 1], y_35[up_check_35 == 1], marker=11, color=c5, rasterized=True, alpha=0.4,zorder=0)
 
-				ax3.scatter(x_31[up_check_31 == 1], y_31[up_check_31 == 1], marker=3, color=c1, rasterized=True, alpha=0.4,zorder=0)
-				ax3.scatter(x_32[up_check_32 == 1], y_32[up_check_32 == 1], marker=3, color=c2, rasterized=True, alpha=0.4,zorder=0)
-				ax3.scatter(x_33[up_check_33 == 1], y_33[up_check_33 == 1], marker=3, color=c3, rasterized=True, alpha=0.4,zorder=0)
-				ax3.scatter(x_34[up_check_34 == 1], y_34[up_check_34 == 1], marker=3, color=c4, rasterized=True, alpha=0.4,zorder=0)
-				ax3.scatter(x_35[up_check_35 == 1], y_35[up_check_35 == 1], marker=3, color=c5, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_31[up_check_31 == 1], y_31[up_check_31 == 1], marker=2, color=c1, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_32[up_check_32 == 1], y_32[up_check_32 == 1], marker=2, color=c2, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_33[up_check_33 == 1], y_33[up_check_33 == 1], marker=2, color=c3, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_34[up_check_34 == 1], y_34[up_check_34 == 1], marker=2, color=c4, rasterized=True, alpha=0.4,zorder=0)
+				ax3.scatter(x_35[up_check_35 == 1], y_35[up_check_35 == 1], marker=2, color=c5, rasterized=True, alpha=0.4,zorder=0)
 
-				ax3.scatter(x_31[up_check_31 == 0], y_31[up_check_31 == 0], color=c1, marker='P', rasterized=True, alpha=0.4, label='Panel 1',zorder=0)
-				ax3.scatter(x_32[up_check_32 == 0], y_32[up_check_32 == 0], color=c2, marker='P', rasterized=True, alpha=0.4, label='Panel 2',zorder=0)
-				ax3.scatter(x_33[up_check_33 == 0], y_33[up_check_33 == 0], color=c3, marker='P', rasterized=True, alpha=0.4, label='Panel 3',zorder=0)
-				ax3.scatter(x_34[up_check_34 == 0], y_34[up_check_34 == 0], color=c4, marker='P', rasterized=True, alpha=0.4, label='Panel 4',zorder=0)
-				ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='P', rasterized=True, alpha=0.4, label='Panel 5',zorder=0)
+				ax3.scatter(x_31[up_check_31 == 0], y_31[up_check_31 == 0], color=c1, marker='+', rasterized=True, alpha=0.6, label='Panel 1',zorder=0)
+				ax3.scatter(x_32[up_check_32 == 0], y_32[up_check_32 == 0], color=c2, marker='+', rasterized=True, alpha=0.6, label='Panel 2',zorder=0)
+				ax3.scatter(x_33[up_check_33 == 0], y_33[up_check_33 == 0], color=c3, marker='+', rasterized=True, alpha=0.6, label='Panel 3',zorder=0)
+				ax3.scatter(x_34[up_check_34 == 0], y_34[up_check_34 == 0], color=c4, marker='+', rasterized=True, alpha=0.6, label='Panel 4',zorder=0)
+				ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='+', rasterized=True, alpha=0.6, label='Panel 5',zorder=0)
 
 			else:
 				ax3.scatter(x_31, y_31, color=c1, marker='P', rasterized=True, alpha=0.4,zorder=0)
@@ -1892,7 +1898,7 @@ class Plotter_Letter2():
 			ax3.grid()
 
 			plt.tight_layout()
-			plt.savefig(f'/Users/connor_auge/Desktop/New_plots4/{savestring}.pdf')
+			plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
 			plt.show()
 
 	def Box_3panel(self, savestring, var, x, z, uv_slope, mir_slope1, mir_slope2, ulirg_x=None):
@@ -2168,7 +2174,7 @@ class Plotter_Letter2():
 			secax1.set_ylabel(ylabel+' [erg/s]')
 		ax1.grid()
 		plt.tight_layout()
-		plt.savefig('/Users/connor_auge/Desktop/New_plots4/'+savestring+'.pdf')
+		plt.savefig('/Users/connor_auge/Desktop/Final_Plots/'+savestring+'.pdf')
 		plt.show()
 
 	def ratios_1panel(self, savestring, X, Y, Median, Nh, Lx, L, F1, f1, f2, f3, f4, uv_slope, mir_slope1, mir_slope2, up_check, ulirg_Nh=None, ulirg_Lx=None, ulirg_Flux=None, ulirg_F1=None):
@@ -2547,17 +2553,20 @@ class Plotter_Letter2():
 		elif X == 'Lx':
 			x = Lx
 			xlim1 = 42.5
-			xlim2 = 46.5
+			xlim2 = 46
 			xlabel = r'log L$_{\mathrm{X}}$'
 			xunits = ' [erg/s]'
 			xticks = [43,44,45,46]
 
 		elif X == 'Lbol':
 			x = L
-			xlim1 = 43.5
-			xlim2 = 47
+			# xlim1 = 43.75
+			# xlim2 = 46.75
 			xlabel = r'log L$_{\mathrm{bol}}$'
 			xunits = '[erg/s]'
+			# xticks = [44.5,45.5,46.5]
+			xlim1 = 43.5
+			xlim2 = 47
 			xticks = [44,45,46,47]
 
 		elif X == 'UV':
@@ -2571,19 +2580,21 @@ class Plotter_Letter2():
 			
 
 		elif X == 'MIR6':
-			f_2 = np.asarray([10**i for i in f2])
-			f2 = f_2*F1
-			x = np.log10(f2)
+			# f_2 = np.asarray([10**i for i in f2])
+			# f2 = f_2*F1
+			# x = np.log10(f2)
+			x = f2
 			xlabel = r'log L (6$\mu$m)'
 			xunits = ' [erg/s]'
 			xlim1 = 42.5
-			xlim2 = 46.5
+			xlim2 = 46
 			xticks = [43, 44, 45, 46]
 
 		elif X == 'FIR':
-			f_3 = np.asarray([10**i for i in f3])
-			f3 = f_3*F1
-			x = np.log10(f3)
+			# f_3 = np.asarray([10**i for i in f3])
+			# f3 = f_3*F1
+			# x = np.log10(f3)
+			x = f3
 			xlabel = r'log L (100$\mu$m)'
 			xlim1 = 42
 			xlim2 = 46.5
@@ -2613,9 +2624,9 @@ class Plotter_Letter2():
 			xunits = ''
 
 		if Y == 'UV':
-			f_1 = np.asarray([10**i for i in f1])
-			f1 = f_1*F1
-			y = np.log10(f1)
+			# f_1 = np.asarray([10**i for i in f1])
+			# f1 = f_1*F1
+			# y = np.log10(f1)
 			y_var = r'0.25$\mu$m'
 			ylabel = r'log L (0.25$\mu$m)'
 			ylim1 = 42.5
@@ -2650,14 +2661,10 @@ class Plotter_Letter2():
 			yticks = [42, 43, 44, 45, 46]
 
 		elif Y == 'UV/MIR6':
-			f_1 = np.asarray([10**i for i in f1])
-			f1 = f_1*F1
-			f_2 = np.asarray([10**i for i in f2])
-			# f2 = f_2*F1
-			y = np.log10(f1/f2)
+			y = f1 - f2
 			ylabel = r'log L (0.25$\mu$m)/ L (6$\mu$m)'
 			ylim1 = -2.5
-			ylim2 = 1.5
+			ylim2 = 1.
 			yticks = [-2,-1,-2,0,1]
 
 		elif Y == 'UV/MIR10':
@@ -2672,44 +2679,48 @@ class Plotter_Letter2():
 			
 
 		elif Y == 'UV/FIR':
-			f_1 = np.asarray([10**i for i in f1])
-			f1 = f_1*F1
-			f_3 = np.asarray([10**i for i in f3])
+			# f_1 = np.asarray([10**i for i in f1])
+			# f1 = f_1*F1
+			# f_3 = np.asarray([10**i for i in f3])
 			# f3 = f_3*F1
-			y = np.log10(f1/f3)
+			# y = np.log10(f1/f3)
+			y = f1 - f3
 			ylabel = r'log L (0.25$\mu$m)/ L (100$\mu$m)'
-			ylim1 = -2.5
-			ylim2 = 2
+			ylim1 = -2.25
+			ylim2 = 1.75
 			yticks = [-2,-1,0,1,2]
 
 		elif Y == 'UV/Lx':
-			f_1 = np.asarray([10**i for i in f1])
-			f1 = f_1*F1
-			lx = np.asarray([10**i for i in Lx])
-			y = np.log10(f1/lx)
+			# f_1 = np.asarray([10**i for i in f1])
+			# f1 = f_1*F1
+			# lx = np.asarray([10**i for i in Lx])
+			# y = np.log10(f1/lx)
+			y = f1 - Lx
 			ylabel = r'log L (0.25$\mu$m)/ L$_{\mathrm{X}}$'
-			ylim1 = -2
-			ylim2 = 2
+			ylim1 = -1.75
+			ylim2 = 1.75
 			yticks = [-2,-1,0,1,2]
 
 		elif Y == 'MIR6/Lx':
-			f_2 = np.asarray([10**i for i in f2])
-			f2 = f_2*F1
-			lx = np.asarray([10**i for i in Lx])
-			y = np.log10(f2/lx)
+			# f_2 = np.asarray([10**i for i in f2])
+			# f2 = f_2*F1
+			# lx = np.asarray([10**i for i in Lx])
+			# y = np.log10(f2/lx)
+			y = f2 - Lx
 			ylabel = r'log L (6$\mu$m)/ L$_{\mathrm{X}}$'
 			ylim1 = -1.5
-			ylim2 = 2.5
+			ylim2 = 2
 			yticks = [-1,0,1,2]
 
 		elif Y == 'FIR/Lx':
-			f_3 = np.asarray([10**i for i in f3])
-			f3 = f_3*F1
-			lx = np.asarray([10**i for i in Lx])
-			y = np.log10(f3/lx)
+			# f_3 = np.asarray([10**i for i in f3])
+			# f3 = f_3*F1
+			# lx = np.asarray([10**i for i in Lx])
+			# y = np.log10(f3/lx)
+			y = f3 - Lx
 			ylabel = r'log L (100$\mu$m)/ L$_{\mathrm{X}}$'
-			ylim1 = -1.5
-			ylim2 = 2.5
+			ylim1 = -1.75
+			ylim2 = 2.25
 			yticks = [-1,0,1,2]
 
 		elif Y == 'MIR6/FIR':
@@ -2733,36 +2744,32 @@ class Plotter_Letter2():
 			ylim2 = 2
 
 		elif Y == 'Lbol/Lx':
-			print(L)
-			print(Lx)
+
 			# l = np.asarray([10**i for i in L])
 			# lx = np.asarray([10**i for i in Lx])
 			# y = l/lx
-			yi = L - Lx
-			print(yi)
-			y = np.asarray([10**i for i in yi])
+			y = L - Lx
+			# y = np.asarray([10**i for i in yi])
 			# y = np.log10(l/lx)
-			print(y)
 			ylabel = r'log L$_{\mathrm{bol}}$/ L$_{\mathrm{X}}$'
-			# ylim1 = 0 
-			# ylim2 = 4
-			# yticks = [0,1,2,3,4]
-			ylim1 = 1
-			ylim2 = 3000
-			yticks = [1,10,100,1000]
+			ylim1 = 0 
+			ylim2 = 3
+			yticks = [0,1,2,3]
+			# ylim1 = 1
+			# ylim2 = 3000
+			# yticks = [1,10,100,1000]
 
 		elif Y == 'Lx/Lbol':
-			print(L)
-			print(Lx)
 			l = np.asarray([10**i for i in L])
 			lx = np.asarray([10**i for i in Lx])
 			# y = l/lx
 			yi = Lx - L
-			print(yi)
 			# y = np.asarray([10**i for i in yi])
 			y = np.log10(lx/l)
-			print(y)
 			ylabel = r'log L$_{\mathrm{X}}$/ L$_{\mathrm{bol}}$'
+			# ylim1 = -3
+			# ylim2 = 0.5
+			# yticks = [-3,-2,-1,0]
 			ylim1 = -3
 			ylim2 = 0.5
 			yticks = [-3,-2,-1,0]
@@ -3133,7 +3140,7 @@ class Plotter_Letter2():
 			ax1.plot(np.linspace(40,50,100),self.Durras(np.linspace(40,50,100),typ='Lbol'))
 
 
-		ax1.set_yscale('log')
+		# ax1.set_yscale('log')
 		ax1.set_xlim(xlim1,xlim2)
 		ax1.set_ylim(ylim1,ylim2)
 		ax1.set_xticks(xticks)
@@ -3152,7 +3159,7 @@ class Plotter_Letter2():
 		ax1.grid()
 		# plt.ylim(1,3000)
 		# plt.xlim(42,49)
-		plt.savefig('/Users/connor_auge/Desktop/New_plots4/'+savestring+'.pdf')
+		plt.savefig('/Users/connor_auge/Desktop/Final_Plots/'+savestring+'.pdf')
 		plt.show()
 
 

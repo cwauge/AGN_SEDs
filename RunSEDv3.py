@@ -3014,7 +3014,7 @@ B3 = np.logical_and(all_z > zlim_3,all_z <= zlim_4)
 
 
 # plot2.scatter_1panel('new2/Lx_Lbol2','Lbol','Lx/Lbol','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,durras=False)
-plot2.scatter_1panel('new2/Lx_Lbol_1panel_sub_xmed_lbol2_allpts','Lbol','Lbol/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,shape=sed_shape,durras=True)
+# plot2.scatter_1panel('new2/Lx_Lbol_1panel_sub_xmed_lbol2_allpts','Lbol','Lbol/Lx','None','Both',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,shape=sed_shape,durras=True)
 # plot2.scatter_1panel('new2/Lx_Lbol_1panel_sub_xmed_lbol_hard_allpts','Lbol','Lbol/Lx','None','Both',Nh,Lx_hard,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check,durras=True)
 # plot2.scatter_1panel('new2/UV_Lx_Lx_norm_new3','Lx','UV/Lx','None','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
 # plot2.scatter_1panel('new2/MIR_Lx_Lx_norm_new3','Lx','MIR6/Lx','None','Bins',Nh,Lx,np.log10(Lbol_sub),F1,np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),UVslope,MIRslope1,MIRslope2,upper_check)
