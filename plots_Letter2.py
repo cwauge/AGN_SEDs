@@ -11,6 +11,7 @@ from astropy.io import fits
 from match import match
 # from SED_v7 import Flux_to_Lum
 import matplotlib.patheffects as pe
+import Lit_functions
 
 class Plotter_Letter2():
 	
@@ -2069,7 +2070,7 @@ class Plotter_Letter2():
 		plt.savefig('/Users/connor_auge/Desktop/New_plots4/'+savestring+'.pdf')
 		plt.show()
 
-	def Box_1panel(self, savestring, var, x, uv_slope, mir_slope1, mir_slope2, ulirg_x=None, shape=None):
+	def Box_1panel(self, savestring, var, x, uv_slope, mir_slope1, mir_slope2, ulirg_x=None, shape=None, L2=None):
 		plt.rcParams['font.size'] = 30
 		plt.rcParams['axes.linewidth'] = 3.5
 		plt.rcParams['xtick.major.size'] = 5.5
@@ -2135,6 +2136,18 @@ class Plotter_Letter2():
 		x4 = x[B4]
 		x5 = x[B5]
 
+		if any(L2) != None:
+			L2_1 = np.nanmean(L2[B1])
+			L2_2 = np.nanmean(L2[B2])
+			L2_3 = np.nanmean(L2[B3])
+			L2_4 = np.nanmean(L2[B4])
+			L2_5 = np.nanmean(L2[B5])
+			L2_array = np.array([L2_1,L2_2,L2_3,L2_4,L2_5])
+		else:
+			L2_array = np.array([np.nan, np.nan, np.nan, np.nan, np.nan])
+
+		print(L2_array)
+
 		c1 = '#377eb8'
 		c2 = '#984ea3'
 		c3 = '#4daf4a'
@@ -2150,13 +2163,12 @@ class Plotter_Letter2():
 
 		fig = plt.figure(figsize=(11, 11))
 		ax1 = plt.subplot(111, aspect='equal', adjustable='box')
-		ax1.plot([1,2,3,4,5],[np.nanmean(x1),np.nanmean(x2),np.nanmean(x3),np.nanmean(x4),np.nanmean(x5)],color='k')
-		ax1.boxplot(x1,positions=[1],patch_artist=True,boxprops=dict(facecolor=c1, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c1,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True)
-		ax1.boxplot(x2,positions=[2],patch_artist=True,boxprops=dict(facecolor=c2, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c2,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True)
-		ax1.boxplot(x3,positions=[3],patch_artist=True,boxprops=dict(facecolor=c3, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c3,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True)
-		ax1.boxplot(x4,positions=[4],patch_artist=True,boxprops=dict(facecolor=c4, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c4,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True)
-		ax1.boxplot(x5,positions=[5],patch_artist=True,boxprops=dict(facecolor=c5, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c5,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True)
-		
+		ax1.plot([1,2,3,4,5],[np.nanmean(x1),np.nanmean(x2),np.nanmean(x3),np.nanmean(x4),np.nanmean(x5)],color='k',zorder=6)
+		ax1.boxplot(x1,positions=[1],patch_artist=True,boxprops=dict(facecolor=c1, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c1,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True,zorder=1)
+		ax1.boxplot(x2,positions=[2],patch_artist=True,boxprops=dict(facecolor=c2, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c2,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True,zorder=2)
+		ax1.boxplot(x3,positions=[3],patch_artist=True,boxprops=dict(facecolor=c3, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c3,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True,zorder=3)
+		ax1.boxplot(x4,positions=[4],patch_artist=True,boxprops=dict(facecolor=c4, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c4,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True,zorder=4)
+		ax1.boxplot(x5,positions=[5],patch_artist=True,boxprops=dict(facecolor=c5, color='k'),medianprops=dict(color='k',lw=3,alpha=0),meanline=True,showmeans=True,meanprops=dict(color='k',lw=6),whiskerprops=dict(color=c5,lw=3,path_effects=[pe.Stroke(linewidth=5, foreground='k'), pe.Normal()]),showcaps=False,showfliers=True,zorder=5)
 		ax1.set_ylim(ylim1, ylim2)
 		plt.gca().invert_xaxis()		
 		ax1.set_ylabel(ylabel+units)
@@ -2172,7 +2184,10 @@ class Plotter_Letter2():
 		elif var == 'Lx':
 			secax1 = ax1.secondary_yaxis('right', functions=(ergs, solar))
 			secax1.set_ylabel(ylabel+' [erg/s]')
+
+		ax1.plot([1,2,3,4,5],L2_array,'P',ms=23,color='r',markeredgecolor='k',markeredgewidth=3,label='Duras+2020',zorder=7)
 		ax1.grid()
+		plt.legend(fontsize=15)
 		plt.tight_layout()
 		plt.savefig('/Users/connor_auge/Desktop/Final_Plots/'+savestring+'.pdf')
 		plt.show()
@@ -2565,9 +2580,9 @@ class Plotter_Letter2():
 			xlabel = r'log L$_{\mathrm{bol}}$'
 			xunits = '[erg/s]'
 			# xticks = [44.5,45.5,46.5]
-			xlim1 = 43.5
-			xlim2 = 47
-			xticks = [44,45,46,47]
+			xlim1 = 43.75
+			xlim2 = 46.75
+			xticks = [44.5,45.5,46.5]
 
 		elif X == 'UV':
 			f_1 = np.asarray([10**i for i in f1])
@@ -2975,6 +2990,9 @@ class Plotter_Letter2():
 			b4 = (x > 44.5) & (x < 45)
 			b5 = (x > 45)
 
+		Lx_duras = Lit_functions.Durras_Lbol(np.arange(42,48,0.25),typ='Lbol')
+		Lx_Hopkins = Lit_functions.Hopkins_Lbol(np.arange(42,48,0.25),band='Lx')
+
 		# Median
 		x11_medx, y11_medx = np.nanmedian(x[b1]), np.nanmedian(y[b1])
 		x12_medx, y12_medx = np.nanmedian(x[b2]), np.nanmedian(y[b2])
@@ -3056,24 +3074,24 @@ class Plotter_Letter2():
 			ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
 			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)		
 
-		elif 'Lbol' in Y:
-			ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], facecolor='none', edgecolors=c1, rasterized=True, alpha=0.8,zorder=0)
-			ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], facecolor='none', edgecolors=c2, rasterized=True, alpha=0.8,zorder=0)
-			ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], facecolor='none', edgecolors=c3, rasterized=True, alpha=0.8,zorder=0)
-			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], facecolor='none', edgecolors=c4, rasterized=True, alpha=0.8,zorder=0)
-			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], facecolor='none', edgecolors=c5, rasterized=True, alpha=0.8,zorder=0)
+		# elif 'Lbol' in Y:
+		# 	ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], facecolor='none', edgecolors=c1, rasterized=True, alpha=0.8,zorder=0)
+		# 	ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], facecolor='none', edgecolors=c2, rasterized=True, alpha=0.8,zorder=0)
+		# 	ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], facecolor='none', edgecolors=c3, rasterized=True, alpha=0.8,zorder=0)
+		# 	ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], facecolor='none', edgecolors=c4, rasterized=True, alpha=0.8,zorder=0)
+		# 	ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], facecolor='none', edgecolors=c5, rasterized=True, alpha=0.8,zorder=0)
 
-			ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], marker=3, color=c1, rasterized=True, alpha=0.8,zorder=0)
-			ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], marker=3, color=c2, rasterized=True, alpha=0.8,zorder=0)
-			ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], marker=3, color=c3, rasterized=True, alpha=0.8,zorder=0)
-			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], marker=3, color=c4, rasterized=True, alpha=0.8,zorder=0)
-			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], marker=3, color=c5, rasterized=True, alpha=0.8,zorder=0)
+		# 	ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], marker=3, color=c1, rasterized=True, alpha=0.8,zorder=0)
+		# 	ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], marker=3, color=c2, rasterized=True, alpha=0.8,zorder=0)
+		# 	ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], marker=3, color=c3, rasterized=True, alpha=0.8,zorder=0)
+		# 	ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], marker=3, color=c4, rasterized=True, alpha=0.8,zorder=0)
+		# 	ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], marker=3, color=c5, rasterized=True, alpha=0.8,zorder=0)
 
-			ax1.scatter(x_11[up_check_11 == 0], y_11[up_check_11 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax1.scatter(x_12[up_check_12 == 0], y_12[up_check_12 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax1.scatter(x_13[up_check_13 == 0], y_13[up_check_13 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+		# 	ax1.scatter(x_11[up_check_11 == 0], y_11[up_check_11 == 0], color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
+		# 	ax1.scatter(x_12[up_check_12 == 0], y_12[up_check_12 == 0], color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
+		# 	ax1.scatter(x_13[up_check_13 == 0], y_13[up_check_13 == 0], color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
+		# 	ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
+		# 	ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		elif 'FIR' in Y:
 			ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], facecolor='none', edgecolors=c1, rasterized=True, alpha=0.8,zorder=0)
@@ -3138,7 +3156,8 @@ class Plotter_Letter2():
 
 		if durras:
 			ax1.plot(np.linspace(40,50,100),self.Durras(np.linspace(40,50,100),typ='Lbol'))
-
+		ax1.plot(np.arange(42,48,0.25),np.log10(Lx_duras),color='r',label='Duras+2020')
+		ax1.plot(np.arange(42,48,0.25),np.log10(Lx_Hopkins),color='b',label='Hopkins+2007')
 
 		# ax1.set_yscale('log')
 		ax1.set_xlim(xlim1,xlim2)

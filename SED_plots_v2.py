@@ -222,10 +222,10 @@ class Plotter():
         # ax.add_collection(upper_all)
 
         # use multilines function to plot all SEDs mapped to colorbar based on L
-        # lc = self.multilines(x, y, L, lw=2.5, cmap=cmap, alpha=0.75, rasterized=True) 
-        # axcb1 = fig.colorbar(lc, fraction=0.046, pad=0.04)  # make colorbar
-        # axcb1.mappable.set_clim(clim1,clim2) # initialize colorbar limits
-        # axcb1.set_label(r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]')
+        lc = self.multilines(x, y, L, lw=2.5, cmap=cmap, alpha=0.75, rasterized=True) 
+        axcb1 = fig.colorbar(lc, fraction=0.046, pad=0.04)  # make colorbar
+        axcb1.mappable.set_clim(clim1,clim2) # initialize colorbar limits
+        axcb1.set_label(r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]')
 
         # plot data points for indvidual filters and optional point
         # ax.plot(x, y, 'x', color='k')
@@ -260,29 +260,29 @@ class Plotter():
         # print(x)
         # print(y)
 
-        plt.axvline(0.11,color='b',lw=3)
-        plt.axvline(0.5,color='b',lw=3)
-        plt.fill_between([0.11,0.5],[1E-2,1E-2],[1E2,1E2],color='b',alpha=0.3)
-        ax.text(0.056 , 0.85, f'Accretion', transform=ax.transAxes,fontsize=30, weight='bold')
-        ax.text(0.056, 0.8 , f'Disk', transform=ax.transAxes,fontsize=30, weight='bold')
+        # plt.axvline(0.11,color='b',lw=3)
+        # plt.axvline(0.5,color='b',lw=3)
+        # plt.fill_between([0.11,0.5],[1E-2,1E-2],[1E2,1E2],color='b',alpha=0.3)
+        # ax.text(0.056 , 0.85, f'Accretion', transform=ax.transAxes,fontsize=30, weight='bold')
+        # ax.text(0.056, 0.8 , f'Disk', transform=ax.transAxes,fontsize=30, weight='bold')
  
-        plt.axvline(1.8, color='orange', lw=3)
-        plt.axvline(10, color='orange', lw=3)
-        plt.fill_between([1.8, 10],[1E-2,1E-2],[1E2,1E2], color='orange', alpha=0.3)
-        ax.text(0.37 , 0.85, f'Dusty', transform=ax.transAxes,fontsize=30, weight='bold')
-        ax.text(0.37 , 0.8, f'Torus', transform=ax.transAxes,fontsize=30, weight='bold')
+        # plt.axvline(1.8, color='orange', lw=3)
+        # plt.axvline(10, color='orange', lw=3)
+        # plt.fill_between([1.8, 10],[1E-2,1E-2],[1E2,1E2], color='orange', alpha=0.3)
+        # ax.text(0.37 , 0.85, f'Dusty', transform=ax.transAxes,fontsize=30, weight='bold')
+        # ax.text(0.37 , 0.8, f'Torus', transform=ax.transAxes,fontsize=30, weight='bold')
 
-        plt.axvline(30, color='red', lw=3)
-        plt.axvline(450, color='red', lw=3)
-        plt.fill_between([30, 450],[1E-2,1E-2],[1E2,1E2], color='red', alpha=0.3)
-        ax.text(0.69, 0.85, f'Cold', transform=ax.transAxes,fontsize=30, weight='bold')
-        ax.text(0.69, 0.8, f'Dust', transform=ax.transAxes,fontsize=30, weight='bold')
+        # plt.axvline(30, color='red', lw=3)
+        # plt.axvline(450, color='red', lw=3)
+        # plt.fill_between([30, 450],[1E-2,1E-2],[1E2,1E2], color='red', alpha=0.3)
+        # ax.text(0.69, 0.85, f'Cold', transform=ax.transAxes,fontsize=30, weight='bold')
+        # ax.text(0.69, 0.8, f'Dust', transform=ax.transAxes,fontsize=30, weight='bold')
  
 
-        # plt.ylim(5E-4,5E2)
-        # plt.xlim(7E-5,700)
-        plt.ylim(1E-1, 40)
-        plt.xlim(7E-2,500)
+        plt.ylim(5E-4,5E2)
+        plt.xlim(7E-5,700)
+        # plt.ylim(1E-1, 40)
+        # plt.xlim(7E-2,500)
         plt.grid()
         plt.tight_layout()
         
@@ -1048,27 +1048,34 @@ class Plotter():
             return
 
         if Y == 'UV-MIR-FIR':
-            y1 = np.log10(uv) - x
-            y2 = np.log10(mir) - x
-            y3 = np.log10(fir) - x
+            # y1 = np.log10(uv) - x
+            # y2 = np.log10(mir) - x
+            # y3 = np.log10(fir) - x
 
-            # y1 = np.log10(uv)
-            # y2 = np.log10(mir)
-            # y3 = np.log10(fir)
+            y1 = np.log10(uv)
+            y2 = np.log10(mir)
+            y3 = np.log10(fir)
 
-            ylabel1 = r'log L (0.25$\mu$m)/L$_{\mathrm{X}}$'  
-            ylabel2 = r'log L (6$\mu$m)/L$_{\mathrm{X}}$'
-            ylabel3 = r'log L (100$\mu$m)/L$_{\mathrm{X}}$'   
+            # ylabel1 = r'log L (0.25$\mu$m)/L$_{\mathrm{X}}$'  
+            # ylabel2 = r'log L (6$\mu$m)/L$_{\mathrm{X}}$'
+            # ylabel3 = r'log L (100$\mu$m)/L$_{\mathrm{X}}$'  
+            ylabel1 = r'log L (0.25$\mu$m)'
+            ylabel2 = r'log L (6$\mu$m)'
+            ylabel3 = r'log L (100$\mu$m)'
 
-            yticks1 = [-1,0,1]   
-            yticks2 = [-1,0,1]
-            yticks3 = [0,1,2]
-            ylim1 = [-1.5,1.5]
-            ylim2 = [-1.5,1.5]
-            ylim3 = [-1, 2]
+            # yticks1 = [-1,0,1]   
+            # yticks2 = [-1,0,1]
+            # yticks3 = [0,1,2]
+            # ylim1 = [-1.5,1.5]
+            # ylim2 = [-1.5,1.5]
+            # ylim3 = [-1, 2]
 
-            # yticks = [42,43,44,45,46]
-            # ylim = [42,47]
+            yticks1 = [43,44,45]
+            ylim1 = [42.5,45.7]
+            yticks2 = [43,44,45]
+            ylim2 = [42.5,45.7]
+            yticks3 = [ 43, 44, 45]
+            ylim3 = [42.5, 45.7]
 
         else:
             print('Provide valid Y option. Options are:    UV-MIR-FIR')
@@ -1099,7 +1106,7 @@ class Plotter():
         y3std = np.array([y3std1, y3std2, y3std3, y3std4, y3std5])
         y3std_detect = np.array([y3std_detect1, y3std_detect2, y3std_detect3, y3std_detect4, y3std_detect5])
 
-        stern_Lx = Lit_functions.Stern_MIR(np.arange(42,48))
+        stern_Lx = Lit_functions.Stern_MIR(np.arange(42, 48))
 
         fig = plt.figure(figsize=(21, 8))
         gs = fig.add_gridspec(ncols=3,nrows=1,left=0.04,right=0.99,top=0.86,bottom=0.14,wspace=0.09)
@@ -1126,7 +1133,7 @@ class Plotter():
         ax2.set_xticks(xticks)
         ax2.grid()
         ax2.scatter(x, y2, color='gray', marker='P', s=10,rasterized=True)
-        # ax2.plot(stern_Lx,np.arange(42,48)-stern_Lx,color='r')
+        # ax2.plot(stern_Lx,np.arange(42,48),color='r')
         if median == 'X-axis' or median == 'Both':
             ax2.plot(xmed, y2med, marker='s', color='k', ms=10)
             ax2.errorbar(xmed, y2med, xerr=xstd, yerr=y2std, color='k')
@@ -1183,7 +1190,7 @@ class Plotter():
             bx5 = (x > 45)
  
         elif X == 'Lbol':
-            x = np.log10(L)
+            x = L
             xlabel = r'log L$_{\mathrm{bol}}$'
             xunits = ' [erg/s]'
             xvar = r'L$_{\mathrm{bol}}$'
@@ -1223,7 +1230,7 @@ class Plotter():
 
         elif Y == 'Lbol':
             if X != 'Lbol':
-                y = np.log10(L) - self.L
+                y = L - self.L
                 ylabel = r'log L$_{\mathrm{bol}}$/'+xvar  
                 yticks = [-1,0,1]   
                 ylim = [-1, 2]
@@ -1232,20 +1239,20 @@ class Plotter():
                 return
 
         elif Y == 'Lbol/Lx':
-            y = np.log10(L) - self.L
+            y = L - self.L
             ylabel = r'log L$_{\mathrm{bol}}$/L$_{\mathrm{X}}$' 
             yticks = [0, 1, 2, 3]   
             ylim = [0, 2, 3] 
 
         elif Y == 'Lx/Lbol':
-            if X != 'Lx':
-                y = self.L - np.log10(L)
-                ylabel = r'log L$_{\mathrm{X}}$/'+xvar  
-                yticks = [-1,0,1]   
-                ylim = [-1, 2]
-            else:
-                print('X and Y variable cannot be the same. Specify new X or Y variable.')
-                return
+            # if X != 'Lx':
+            y = self.L - L
+            ylabel = r'log L$_{\mathrm{X}}$/'+xvar  
+            yticks = [-1,0,1]   
+            ylim = [-1, 2]
+            # else:
+                # print('X and Y variable cannot be the same. Specify new X or Y variable.')
+                # return
 
         else:
             print('Provide valid Y option. Options are:    UV,    MIR,    FIR,    Lbol,    Lbol/Lx,    Lx')
@@ -1262,6 +1269,7 @@ class Plotter():
         y1std3 = np.std(y[bx3])
         y1std4 = np.std(y[bx4])
         y1std5 = np.std(y[bx5])
+  
 
         # xmed = np.array([xmed1,xmed2,xmed3,xmed4,xmed5])
         if X == 'Lbol':
@@ -1273,11 +1281,13 @@ class Plotter():
         xstd = np.array([0.25, 0.25, 0.25, 0.25, 0.25])
         y1std = np.array([y1std1, y1std2, y1std3, y1std4, y1std5])
 
-        stern_Lx = Lit_functions.Stern_MIR(np.arange(42,48))
-        durras_Lx = Lit_functions.Durras_Lbol(np.arange(42,48),typ='Lbol')
+        durras_K = Lit_functions.Durras_Lbol(np.arange(42,48,0.25),typ='Lbol')
+        hopkins_K = Lit_functions.Hopkins_Lbol(np.arange(42,48,0.25),band='Lx')
+
+        # check = Lit_functions.Durras_Lbol(L,typ='Lbol')
 
         fig = plt.figure(figsize=(10, 10))
-        ax1 = plt.subplot(111, aspect='equal', adjustable='box')
+        ax1 = plt.subplot(111)#, aspect='equal', adjustable='box')
         ax1.set_xlim(xlim[0],xlim[1])
         ax1.set_ylim(ylim[0],ylim[1])
         ax1.set_ylabel(ylabel)
@@ -1285,18 +1295,254 @@ class Plotter():
         ax1.set_yticks(yticks)
         ax1.set_xticks(xticks)
         ax1.grid()
-        # ax1.plot(np.arange(42,48),np.log10(durras_Lx),color='r')
-        ax1.scatter(x,y,color='gray',marker='P',s=10,rasterized=True)
+        ax1.plot(np.arange(42,48,0.25),np.log10(durras_K),color='r',label='Duras+2020')
+        ax1.plot(np.arange(42,48,0.25),np.log10(hopkins_K),color='b',label='Hopkins+2007')
+        # ax1.plot(L,np.log10(check),'.',color='b')
+        ax1.scatter(x,y,color='gray',marker='+',s=30,rasterized=True)
         if median == 'X-axis' or median == 'Both':
             ax1.plot(xmed, ymed, marker='s', color='k',ms=10)
             ax1.errorbar(xmed,ymed,xerr=xstd,yerr=y1std,color='k')
         secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
         secax1.set_xticks([9,10,11,12,13])
         secax1.set_xlabel(xlabel+r' [L$_{\odot}$]')
+        ax1.legend(fontsize=15)
 
-        plt.tight_layout()
+        # plt.tight_layout()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
         plt.show()
+
+    def L_scatter_3panels(self,savestring,X,Y,median,F1,uv,mir,fir,shape,L=None):
+        if X == 'Lx':
+            x = self.L
+            x1 = self.L
+            x2 = self.L
+            x3 = self.L
+
+            xlabel1 = r' '
+            xlabel2 = r'log L$_{\mathrm{X}}$'
+            xlabel3 = r' '
+            xunits = ' [erg/s]'
+            xvar = r'L$_{\mathrm{X}}$'
+            xticks = [42.5, 43.5, 44.5, 45.5]
+            xlim = [42.5, 46]
+
+            b1x1 = (x1 > 43) & (x1 < 43.5)
+            b1x2 = (x1 > 43.5) & (x1 < 44)
+            b1x3 = (x1 > 44) & (x1 < 44.5)
+            b1x4 = (x1 > 44.5) & (x1 < 45)
+            b1x5 = (x1 > 45)
+
+            b2x1 = (x2 > 43) & (x2 < 43.5)
+            b2x2 = (x2 > 43.5) & (x2 < 44)
+            b2x3 = (x2 > 44) & (x2 < 44.5)
+            b2x4 = (x2 > 44.5) & (x2 < 45)
+            b2x5 = (x2 > 45)
+
+            b3x1 = (x3 > 43) & (x3 < 43.5)
+            b3x2 = (x3 > 43.5) & (x3 < 44)
+            b3x3 = (x3 > 44) & (x3 < 44.5)
+            b3x4 = (x3 > 44.5) & (x3 < 45)
+            b3x5 = (x3 > 45)
+
+        elif X == 'Lbol':
+            L = np.log10(L)
+            x = L
+            x1 = L
+            x2 = L
+            x3 = L
+
+            xlabel = r'log L$_{\mathrm{bol}}$'
+            xunits = ' [erg/s]'
+            xvar = r'L$_{\mathrm{bol}}$'
+            xticks = [44.5, 45.5, 46.5]
+            xlim = [43.75, 46.75]
+
+            bx1 = (x > 43) & (x < 43.5)
+            bx2 = (x > 43.5) & (x < 44)
+            bx3 = (x > 44) & (x < 44.5)
+            bx4 = (x > 44.5) & (x < 45)
+            bx5 = (x > 45)
+
+        elif X == 'UV-MIR-FIR':
+            x1 = np.log10(uv)
+            x2 = np.log10(mir)
+            x3 = np.log10(fir)
+
+            xlabel1 = (r'log L (0.25$\mu$m)')
+            xlabel2 = (r'log L (6$\mu$m)')
+            xlabel3 = (r'log L (100$\mu$m)')
+            xunits = ' [erg/s]'
+            xvar1 = r'L (0.25$\mu$m)'
+            xvar2 = r'L (6$\mu$m)'
+            xvar3 = r'L (100$\mu$m)'
+            xticks = [43,44,45]
+            xlim = [42.25 ,45.75]
+
+            b1x1 = (x1 > 42.5) & (x1 < 43)
+            b1x2 = (x1 > 43) & (x1 < 43.5)
+            b1x3 = (x1 > 43.5) & (x1 < 44)
+            b1x4 = (x1 > 44) & (x1 < 44.5)
+            b1x5 = (x1 > 44.5) & (x1 < 45)
+
+            b2x1 = (x2 > 43) & (x2 < 43.5)
+            b2x2 = (x2 > 43.5) & (x2 < 44)
+            b2x3 = (x2 > 44) & (x2 < 44.5)
+            b2x4 = (x2 > 44.5) & (x2 < 45)
+            b2x5 = (x2 > 45) & (x2 < 45.5)
+
+            b3x1 = (x3 > 43) & (x3 < 43.5)
+            b3x2 = (x3 > 43.5) & (x3 < 44)
+            b3x3 = (x3 > 44) & (x3 < 44.5)
+            b3x4 = (x3 > 44.5) & (x3 < 45)
+            b3x5 = (x3 > 45) & (x3 < 45.5)
+
+        if Y == 'Lx':
+            y = self.L
+            y1 = self.L
+            y2 = self.L
+            y3 = self.L
+
+            ylabel = r'log L$_{\mathrm{X}}$'
+            yunits = ' [erg/s]'
+            yvar = r'L$_{\mathrm{X}}$'
+            yticks = [42.5 ,43.5, 44.5, 45.5]
+            ylim = [42.25, 45.75]
+
+        elif Y == 'UV-MIR-FIR':
+            y1 = np.log10(uv)
+            y2 = np.log10(mir)
+            y3 = np.log10(fir)
+
+            ylabel1 = (r'log L (0.25$\mu$m)')
+            ylabel2 = (r'log L (6$\mu$m)')
+            ylabel3 = (r'log L (100$\mu$m)')
+            ylabel = (r'log L (a $\mu$m)')
+            yunits = ' [erg/s]'
+            yvar1 = r'L (0.25$\mu$m)'
+            yvar2 = r'L (6$\mu$m)'
+            yvar3 = r'L (100$\mu$m)'
+            yticks = [43, 44, 45]
+            ylim = [42.25, 45.75]
+
+
+        # Set median points for X-axis bins
+        y1med1, y2med1, y3med1 = np.nanmean(y1[b1x1]), np.nanmean(y2[b2x1]), np.nanmean(y3[b3x1])
+        y1med2, y2med2, y3med2 = np.nanmean(y1[b1x2]), np.nanmean(y2[b2x2]), np.nanmean(y3[b3x2])
+        y1med3, y2med3, y3med3 = np.nanmean(y1[b1x3]), np.nanmean(y2[b2x3]), np.nanmean(y3[b3x3])
+        y1med4, y2med4, y3med4 = np.nanmean(y1[b1x4]), np.nanmean(y2[b2x4]), np.nanmean(y3[b3x4])
+        y1med5, y2med5, y3med5 = np.nanmean(y1[b1x5]), np.nanmean(y2[b2x5]), np.nanmean(y3[b3x5])
+
+        y1std1, y2std1, y3std1 = np.std(y1[b1x1]), np.std(y2[b2x1]), np.std(y3[b3x1]) 
+        y1std2, y2std2, y3std2 = np.std(y1[b1x2]), np.std(y2[b2x2]), np.std(y3[b3x2]) 
+        y1std3, y2std3, y3std3 = np.std(y1[b1x3]), np.std(y2[b2x3]), np.std(y3[b3x3]) 
+        y1std4, y2std4, y3std4 = np.std(y1[b1x4]), np.std(y2[b2x4]), np.std(y3[b3x4]) 
+        y1std5, y2std5, y3std5 = np.std(y1[b1x5]), np.std(y2[b2x5]), np.std(y3[b3x5]) 
+
+        # xmed = np.array([xmed1,xmed2,xmed3,xmed4,xmed5])
+        if X == 'Lbol':
+            xmed = np.array([44.25, 44.75, 45.25, 45.75, 46.25])
+        elif X == 'Lx':
+            x1med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+            x2med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+            x3med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+        elif X == 'UV-MIR-FIR':
+            x1med = np.array([42.75, 43.25, 43.75, 44.25, 44.75])
+            x2med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+            x3med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+
+        y1med = np.array([y1med1, y1med2, y1med3, y1med4, y1med5])
+        y2med = np.array([y2med1, y2med2, y2med3, y2med4, y2med5])
+        y3med = np.array([y3med1, y3med2, y3med3, y3med4, y3med5])
+
+        xstd = np.array([0.25, 0.25, 0.25, 0.25, 0.25])
+        y1std = np.array([y1std1, y1std2, y1std3, y1std4, y1std5])
+        y2std = np.array([y2std1, y2std2, y2std3, y2std4, y2std5])
+        y3std = np.array([y3std1, y3std2, y3std3, y3std4, y3std5])
+
+        print(y1std)
+        print(y2std)
+        print(y3std)
+        stern_Lx = Lit_functions.Stern_MIR(np.arange(42, 48, 0.25))
+
+        fig = plt.figure(figsize=(21, 8))
+        gs = fig.add_gridspec(ncols=3,nrows=1,left=0.06,right=0.96,top=0.86,bottom=0.14,wspace=0.0)
+        ax1 = plt.subplot(gs[0], aspect='equal', adjustable='box')
+        ax1.set_xlim(xlim[0], xlim[1])
+        ax1.set_ylim(ylim[0], ylim[1])
+        ax1.set_ylabel(ylabel+yunits)
+        ax1.set_xlabel(xlabel1+xunits)
+        ax1.set_yticks(yticks) 
+        ax1.set_xticks(xticks)
+        ax1.grid()
+
+        ax1.scatter(x1,y1,color='gray',marker='+',s=30,rasterized=True)
+        if median == 'X-axis' or median == 'Both':
+            ax1.plot(x1med, y1med, marker='s', color='k',ms=10)
+            ax1.errorbar(x1med,y1med,xerr=xstd,yerr=y1std,color='k')
+        secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+        secax1.set_xticks([9,10,11,12,13])
+        secax1.set_xlabel(xlabel1+r' [L$_{\odot}$]')
+        # if Y != 'Nh':
+        #     secax1 = ax1.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
+        #     secax1.set_yticks([9,10,11,12,13])
+        #     secax1.set_ylabel(ylabel+r' [L$_{\odot}$]')
+
+        ax2 = plt.subplot(gs[1], aspect='equal', adjustable='box')
+        ax2.set_xlim(xlim[0], xlim[1])
+        ax2.set_ylim(ylim[0], ylim[1])
+        # ax2.set_ylabel(ylabel+yunits)
+        ax2.set_yticklabels([])
+        ax2.set_xlabel(xlabel2+xunits)
+        ax2.set_yticks(yticks)
+        ax2.set_xticks(xticks)
+        ax2.grid()
+
+        ax2.plot(np.arange(42,48,0.25),stern_Lx,color='r',label='Stern 2015')
+        # ax2.plot(stern_Lx,np.arange(42,48,0.25),color='r',label='Stern 2015')
+        ax2.scatter(x2,y2,color='gray',marker='+',s=30,rasterized=True)
+        if median == 'X-axis' or median == 'Both':
+            ax2.plot(x2med, y2med, marker='s', color='k',ms=10)
+            ax2.errorbar(x2med,y2med,xerr=xstd,yerr=y2std,color='k')
+        secax2 = ax2.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+        secax2.set_xticks([9,10,11,12,13])
+        secax2.set_xlabel(xlabel2+r' [L$_{\odot}$]')
+        # if Y != 'Nh':
+        #     secax2 = ax2.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
+        #     secax2.set_yticks([9,10,11,12,13])
+        #     secax2.set_ylabel(ylabel+r' [L$_{\odot}$]')
+        ax2.legend(fontsize=15)
+
+        ax3 = plt.subplot(gs[2], aspect='equal', adjustable='box')
+        ax3.set_xlim(xlim[0], xlim[1])
+        ax3.set_ylim(ylim[0], ylim[1])
+        # ax3.set_ylabel(ylabel+yunits)
+        ax3.set_yticklabels([])
+        ax3.set_xlabel(xlabel3+xunits)
+        ax3.set_yticks(yticks)
+        ax3.set_xticks(xticks)
+        ax3.grid()
+
+        if 'FIR' in X:
+            ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='k',marker=8,s=35,edgecolors=None, alpha=0.5,rasterized=True)
+            ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray', marker=1,s=35, alpha=0.75)
+            ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='gray', marker='+', s=30, rasterized=True)
+        else:
+            ax3.scatter(x, y3, color='gray', marker='+', s=30,rasterized=True)
+        if median == 'X-axis' or median == 'Both':
+            ax3.plot(x3med, y3med, marker='s', color='k',ms=10)
+            ax3.errorbar(x3med,y3med,xerr=xstd,yerr=y3std,color='k')
+        secax3 = ax3.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+        secax3.set_xticks([9,10,11,12,13])
+        secax3.set_xlabel(xlabel3+r' [L$_{\odot}$]')
+        if Y != 'Nh':
+            secax3 = ax3.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
+            secax3.set_yticks([9,10,11,12,13])
+            secax3.set_ylabel(ylabel+r' [L$_{\odot}$]')
+
+        # plt.tight_layout()
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
+        plt.show()
+
 
     def L_scatter_1panel(self,savestring,X,Y,median,F1,uv,mir,fir,Nh,shape,L=None):
         '''Function to plot the ratio of two luminosites as a function of the denominator'''
@@ -1333,20 +1579,6 @@ class Plotter():
             bx3 = (x > 44) & (x < 44.5)
             bx4 = (x > 44.5) & (x < 45)
             bx5 = (x > 45)
-
-        elif X == 'MIR':
-            x = np.log10(mir)
-            xlabel = (r'log L (6$\mu$m)')
-            xunits = ' [erg/s]'
-            xvar = r'L (6$\mu$m)'
-            xticks = [43,44,45,46]
-            xlim = [43,46.5]
-
-            bx1 = (x > 44) & (x < 44.5)
-            bx2 = (x > 44.5) & (x < 45)
-            bx3 = (x > 45) & (x < 45.5)
-            bx4 = (x > 45.5) & (x < 46)
-            bx5 = (x > 46)
         
         else:
             print('Provide valid X option. Options are:    Lx,    Lbol,    MIR')
@@ -1397,6 +1629,7 @@ class Plotter():
         else:
             print('Provide valid Y option. Options are:    UV,    MIR,    FIR,    Lbol,    Lbol/Lx,    Lx')
 
+        y[y == 0.] = np.nan
         # Set median points for X-axis bins
         xmed1, ymed1 = np.nanmean(x[bx1]), np.nanmean(y[bx1])
         xmed2, ymed2 = np.nanmean(x[bx2]), np.nanmean(y[bx2])
@@ -1410,12 +1643,14 @@ class Plotter():
         y1std4 = np.std(y[bx4])
         y1std5 = np.std(y[bx5])
 
-        print(np.shape(x),np.shape(y))
+        print(min(y),max(y))
 
         # xmed = np.array([xmed1,xmed2,xmed3,xmed4,xmed5])
         if X == 'Lbol':
             xmed = np.array([44.25, 44.75, 45.25, 45.75, 46.25])
         elif X == 'Lx':
+            xmed = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+        else: 
             xmed = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
         ymed = np.array([ymed1, ymed2, ymed3, ymed4, ymed5])
 
@@ -1435,7 +1670,7 @@ class Plotter():
         ax1.set_xticks(xticks)
         ax1.grid()
         # ax1.plot(np.arange(42,48),np.log10(durras_Lx),color='r')
-        ax1.plot(np.arange(43,48),np.log10(stern_Lx),color='r')
+        ax1.plot(np.arange(42,48),stern_Lx,color='r')
         ax1.scatter(x,y,color='gray',marker='P',s=10,rasterized=True)
         if median == 'X-axis' or median == 'Both':
             ax1.plot(xmed, ymed, marker='s', color='k',ms=10)
@@ -1446,7 +1681,7 @@ class Plotter():
         if Y != 'Nh':
             secax1 = ax1.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
             secax1.set_yticks([9,10,11,12,13])
-            secax1.set_xlabel(ylabel+r' [L$_{\odot}$]')
+            secax1.set_ylabel(ylabel+r' [L$_{\odot}$]')
 
         plt.tight_layout()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
@@ -1456,7 +1691,7 @@ class Plotter():
         #75bbfb
         plt.figure(figsize=(9, 9))
         # ax1 = plt.subplot(111, aspect='equal', adjustable='box')
-        n = plt.hist(x,bins=np.arange(bins[0],bins[1],bins[2]),color='gray',zorder=0)
+        n = plt.hist(x,bins=np.arange(bins[0],bins[1],bins[2]),color='#75bbfb',zorder=0)
         if median:
             plt.axvline(np.nanmedian(x),color='k',ls='--',lw=3)
             if std:
