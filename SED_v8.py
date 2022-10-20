@@ -15,7 +15,6 @@ from filters import Filters
 def main(ID,z,filter_name,obs_flux,obs_flux_err):
     source = AGN(ID,z,filter_name,obs_flux,obs_flux_err)
 
-
 class AGN():
 
     def __init__(self,ID,z,filter_name,obs_flux,obs_flux_err):
@@ -512,6 +511,28 @@ class AGN():
             tin.add_row(data_in)
 
             tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
+
+    def write_cigale_file(self,fname,filtername):
+        upper_lims = Filters('filter_list.dat').pull_filter(self.filter_name,'upper limit')/1E3
+        header = np.asarray(['# id','redshift'])
+
+        data = np.asarray([str(self.ID),self.z]) 
+        for i in range(len(filtername)):
+            if filtername[i] == 'nan':
+                continue
+            elif self.obs_f[i] > 0:
+                data = np.append(data,self.obs_f[i]/1E3)
+                data = np.append(data,self.obs_f_err[i]/1E3)
+            elif self.obs_f[i] <= 1E-20:
+                data = np.append(data,upper_lims[i])
+                data = np.append(data,-9000.)
+            elif np.isnan(self.obs_f[i]) == True:
+                data = np.append(data,-9999.)
+                data = np.append(data,-9999.)
+
+        with open(f'../xcigale/data_input/{fname}','ab') as f:
+            f.write(b'\n')
+            np.savetxt(f,data,fmt='%s',delimiter='    ',newline=' ')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Long Class to generate restframe SED for AGN target. Can output additional info, suchas as lambdaL_lambda as specified wavelength, slope of SED in given range, general SED shape, Lbol, luminosity under specific region of SED, etc.')

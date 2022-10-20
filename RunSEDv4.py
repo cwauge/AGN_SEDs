@@ -16,6 +16,7 @@ from astropy.io import fits
 from astropy.io import ascii
 from SED_v8 import AGN
 from SED_plots_v2 import Plotter
+from filters import Filters
 from plots_Letter import Plotter_Letter
 from plots_Letter2 import Plotter_Letter2
 from SED_shape_plots import SED_shape_Plotter
@@ -838,6 +839,7 @@ scale_array = [1.87E44, 2.33E44, 3.93E44]
 tfl = time.perf_counter()
 print(f'Done with file reading ({tfl - ti:0.4f} second)')
 
+
 # Filters used in COSMOS field 
 # COSMOS_filters = np.array(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'J_FLUX_APER2', 'H_FLUX_APER2',
                         #   'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
@@ -861,6 +863,22 @@ GOODSN_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV',
 filter_total = np.array(['Fxh','Fxs','FUV','NUV','u','g','r','i','z','y','J','H','Ks','W1','IRAC1','IRAC2','W2','IRAC3','IRAC4','W3','W4','F24','F250','F350','F500'])
 filter_COSMOS_match = np.array(['Fxh','Fxs','nan','FUV','NUV','u','g','r','i','z','y','J','H','Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F250','F350','F500'])
 filter_S82X_match = np.array(['Fxh','Fxs','nan','FUV','NUV','u','g','r','i','z','J','H','Ks','W1','W2','W3','W4','nan','F250','F350','F500'])
+
+###############################################################################
+############################## Start CIGALE File ##############################
+cigale_name = 'COSMOS_Sample_Bin1.mag'
+inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
+header = np.asarray(['# id', 'redshift'])
+cigale_filters = Filters('filter_list.dat').pull_filter(
+    COSMOS_filters, 'xcigale name')
+for i in range(len(cigale_filters)):
+    header = np.append(header, cigale_filters[i])
+    header = np.append(header, cigale_filters[i]+'_err')
+np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
+inf.close()
+###############################################################################
+
+
 
 ###################################################################################
 ###################################################################################
@@ -889,6 +907,7 @@ UV_lum_out, OPT_lum_out, MIR_lum_out, FIR_lum_out = [], [], [], []
 # '''
 fill_nan = np.zeros(len(GOODSS_auge_filters)-len(COSMOS_filters))
 fill_nan[fill_nan == 0] = np.nan
+cigale_count = 0
 for i in range(len(chandra_cosmos_phot_id_match)):
 # for i in range(50):
     # if chandra_cosmos_phot_id_match[i] == 222544:
@@ -949,7 +968,8 @@ for i in range(len(chandra_cosmos_phot_id_match)):
 
         plot = Plotter(Id, redshift, w, f, chandra_cosmos_Lx_full_match[i],f1,up_check)
 
-        check_sed.append(source.check_SED(10, check_span=2.75))
+        check = source.check_SED(10, check_span=2.75)
+        check_sed.append(check)
         field.append('c')
         # if check_sed[i] == 'GOOD':
         #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
@@ -961,6 +981,17 @@ for i in range(len(chandra_cosmos_phot_id_match)):
             # plot.Plot_FIR_SED(wfir, ffir/f1)
             # plot.PlotSED(point_x=3E-4,point_y=xval/f1)
             # source.Find_Lbol()
+        if check == 'GOOD':
+            if shape == 1:
+                cigale_count += 1
+                if cigale_count <= 30:
+                    source.write_cigale_file(cigale_name,COSMOS_filters)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            continue    
     
 
 # '''
@@ -1368,7 +1399,7 @@ plot_shape = SED_shape_Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_up
 # plot.multi_SED_bins('All_z_bins',bin='redshift',field=field,median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
 # plot.multi_SED_bins('All_z_field',bin='field',field=field,median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
 # plot.median_SED_plot('All_median_SEDs2', median_x=int_x, median_y=int_y, wfir=wfir_out, ffir=ffir_out, shape=out_SED_shape, FIR_upper='upper lims')
-# plot.median_SED_1panel('median_shape1', median_x=int_x, median_y=int_y, wfir=wfir_out, ffir=ffir_out, shape=out_SED_shape, FIR_upper='upper lims')
+# plot.median_SED_1panel('median_SEDs2', median_x=int_x, median_y=int_y, wfir=wfir_out, ffir=ffir_out, shape=out_SED_shape, FIR_upper='upper lims')
 # plot_shape.shape_1bin_h('horizantal_5_panel3',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,uv_slope=uv_slope,mir_slope1=mir_slope1,mir_slope2=mir_slope2,Median_line=True,FIR_upper='upper lims')
 # plot.plot_medians('new_med_plot',F1,F025,F6,F100)
 
@@ -1393,6 +1424,11 @@ plot_shape = SED_shape_Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_up
 # plot.L_hist('Lx_sample',out_Lx,r'log L$_{\mathrm{X}}$ [erg/s]',[42.5,46],[42.5,46,0.25],median=True,std=False)
 # plot.L_hist('Lbol_tot_hist',np.log10(Lbol_out),r'Total log L$_{\mathrm{bol}}$ [erg/s]',[43,48],[43,48,0.25],median=True,std=True)
 
+# plot_shape.L_hist_bins('Lone_hist_shape_bins',np.log10(F1),r'log L (1 $\mu$m) [erg/s]',[41.5,46],[41.5,46,0.25],median=True,std=False)
+# plot_shape.L_hist_bins('Lbol_Duras_hist_shape_bins',Lbol_duras,r'log L (1 $\mu$m) [erg/s]',[42.5,47],[42.5,47,0.25],median=True,std=False)
+# plot_shape.L_hist_bins('Lbol_hist_shape_bins',Lbol_sub_out,r'log L (1 $\mu$m) [erg/s]',[42.5,47],[42.5,47,0.25],median=True,std=False)
+# plot_shape.L_hist_bins('ratio_hist_shape_bins',Lbol_sub_out-out_Lx,r'log L$_{\mathrm{bol}}$/L$_{\mathrm{X}}$',[0,5],[0,5,0.25],median=True,std=False)
+# plot_shape.L_hist_bins('ratio_Duras_hist_shape_bins',Lbol_duras-out_Lx,r'log L$_{\mathrm{bol}}$/L$_{\mathrm{X}}$',[0,5],[0,5,0.25],median=True,std=False)
 
 # print(out_Lx)
 # print(F025)
@@ -1406,10 +1442,11 @@ plot_shape = SED_shape_Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_up
 # print(np.nanmedian(np.log10(Lbol_sub_out[out_SED_shape == 4])))
 # print(np.nanmedian(np.log10(Lbol_sub_out[out_SED_shape == 5])))
 
+# plot2.Box_1panel('Lone_box_1panel', 'Lone', np.log10(F1), uv_slope, mir_slope1, mir_slope2,shape=out_SED_shape)
 
 # plot2.Upanels_ratio_plots('Lum_Lbol_Duras','Lbol','UV-MIR-FIR/Lbol','Bins',Nh,out_Lx,Lbol_duras,np.log10(UV_lum_out),np.log10(MIR_lum_out),np.log10(FIR_lum_out),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,out_z,uv_slope,mir_slope1,mir_slope2,FIR_upper_lims,shape=out_SED_shape)
 # plot2.Box_1panel('Lx_box_1panel', 'Lx', out_Lx, uv_slope, mir_slope1, mir_slope2,shape=out_SED_shape)
-plot2.Box_1panel('Lbol_Lx_box_Auge_Duras', 'Lbol/Lx', Lbol_sub_out-out_Lx, uv_slope, mir_slope1, mir_slope2, shape=out_SED_shape, L2=Lbol_duras-out_Lx)
+# plot2.Box_1panel('Lbol_Lx_box_Auge_Duras', 'Lbol/Lx', Lbol_sub_out-out_Lx, uv_slope, mir_slope1, mir_slope2, shape=out_SED_shape, L2=Lbol_duras-out_Lx)
 # plot2.Box_1panel('Lbol_box_Auge_Duras', 'Lbol', Lbol_sub_out, uv_slope, mir_slope1, mir_slope2, shape=out_SED_shape, L2= Lbol_duras-np.log10(3.8E33))
 # plot2.Box_1panel('Lbol_box_1panel_sub3', 'Lbol', np.log10(Lbol_sub_out), uv_slope, mir_slope1, mir_slope2, shape=out_SED_shape)
 # plot2.scatter_1panel('UV_Lx_Lx_norm_new','Lx','UV/Lx','None','Both',Nh,out_Lx,np.log10(Lbol_sub_out),F1,np.log10(F025/norm),np.log10(F6/norm),np.log10(F100/norm),np.log10(F10/norm),uv_slope,mir_slope1,mir_slope2,FIR_upper_lims)
