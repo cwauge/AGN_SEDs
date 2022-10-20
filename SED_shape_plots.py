@@ -459,4 +459,51 @@ class SED_shape_Plotter(Plotter):
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
     
+    def L_hist_bins(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],bins=[np.nan,np.nan,np.nan],median=True,std=False):
+        b1 = self.shape == 1
+        b2 = self.shape == 2
+        b3 = self.shape == 3
+        b4 = self.shape == 4
+        b5 = self.shape == 5
 
+        c1 = '#377eb8'
+        c2 = '#984ea3'
+        c3 = '#4daf4a'
+        c4 = '#ff7f00'
+        c5 = '#e41a1c'
+
+        # print(x[b1])
+        # print(x[b2])
+        # print(x[b3])
+
+        
+        plt.figure(figsize=(9,9))
+        n5 = plt.hist(x[b5], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c5,lw=4,alpha=0.8,label= 'Panel 5')
+        n4 = plt.hist(x[b4], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c4,lw=4,alpha=0.8,label= 'Panel 4')
+        n3 = plt.hist(x[b3], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c3,lw=4,alpha=0.8,label= 'Panel 3')        
+        n2 = plt.hist(x[b2], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c2,lw=4,alpha=0.8,label= 'Panel 2')        
+        n1 = plt.hist(x[b1], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c1,lw=4,alpha=0.8,label= 'Panel 1')
+
+        n = np.append(n1[0],n2[0])
+        n = np.append(n,n3[0])
+        n = np.append(n,n4[0])
+        n = np.append(n,n5[0])
+        if median:
+            plt.axvline(np.nanmean(x[b1]), color=c1, ls='--', lw=3)
+            plt.axvline(np.nanmean(x[b2]), color=c2, ls='--', lw=3)
+            plt.axvline(np.nanmean(x[b3]), color=c3, ls='--', lw=3)
+            plt.axvline(np.nanmean(x[b4]), color=c4, ls='--', lw=3)
+            plt.axvline(np.nanmean(x[b5]), color=c5, ls='--', lw=3)
+        plt.xlabel(xlabel)
+        plt.grid()
+        plt.ylim(0,max(n)+max(n)*0.1)
+        plt.legend()
+
+        print('bin 1: ',np.nanmean(x[b1]))
+        print('bin 2: ',np.nanmean(x[b2]))
+        print('bin 3: ',np.nanmean(x[b3]))
+        print('bin 4: ',np.nanmean(x[b4]))
+        print('bin 5: ',np.nanmean(x[b5]))
+
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
+        plt.show()

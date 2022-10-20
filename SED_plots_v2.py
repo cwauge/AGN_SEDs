@@ -774,8 +774,10 @@ class Plotter():
         c5 = '#e41a1c'
 
         yticks = [42, 43, 44, 45, 46]
-        xticks = [1E-4, 1E-3, 1E-2, 1E-1, 1E0, 1E1, 1E2]
+        # xticks = [1E-4, 1E-3, 1E-2, 1E-1, 1E0, 1E1, 1E2]
+        xticks = [1E-1, 1E0, 1E1, 1E2]
         ytick_labels = ['42', '43', '44', '45', '46']
+        # xticks_labels = [r'10$^{-4}$', '', r'10$^{-2}$', '', r'10$^{0}$', '', r'10$^{2}$']
         xticks_labels = [r'10$^{-4}$', '', r'10$^{-2}$', '', r'10$^{0}$', '', r'10$^{2}$']
 
         fig = plt.figure(figsize=(18,12))
@@ -799,8 +801,8 @@ class Plotter():
         # # x_connect, y_connect = self.median_sed(median_x1_b2, median_y1_b2, Norm=False,connect_point=True,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b2, ffir1_b2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,ls=ls)
         # # self.median_FIR_sed(wfir1_b2, ffir1_b2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
-        # x_connect, y_connect = self.median_sed(median_x2, median_y2, Norm=False,connect_point=True,color=c2,lw=4)
-        # self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c2,lw=4,ls='--')
+        x_connect, y_connect = self.median_sed(median_x2, median_y2, Norm=False,connect_point=True,color=c2,lw=4)
+        self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c2,lw=4,ls='--')
         # # self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c2,lw=4,line=False)
         # # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x2, median_y2, Norm=False,connect_point=True,fill=True,color=c2,lw=2)
         # # self.percentile_lines_FIR(wfir2,ffir2, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c2,lw=2)
@@ -809,8 +811,8 @@ class Plotter():
         # # x_connect, y_connect = self.median_sed(median_x1_b3, median_y1_b3, Norm=False,connect_point=True,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b3, ffir1_b3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,ls=ls)
         # # self.median_FIR_sed(wfir1_b3, ffir1_b3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
-        # x_connect, y_connect = self.median_sed(median_x3, median_y3, Norm=False,connect_point=True,color=c3,lw=4)
-        # self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c3,lw=4,ls='--')
+        x_connect, y_connect = self.median_sed(median_x3, median_y3, Norm=False,connect_point=True,color=c3,lw=4)
+        self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c3,lw=4,ls='--')
         # # self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c3,lw=4,line=False)
         # # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x3, median_y3, Norm=False,connect_point=True,fill=True,color=c3,lw=2)
         # # self.percentile_lines_FIR(wfir3,ffir3, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c3,lw=2)
@@ -819,8 +821,8 @@ class Plotter():
         # # x_connect, y_connect = self.median_sed(median_x1_b4, median_y1_b4, Norm=False,connect_point=True,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b4, ffir1_b4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b4, ffir1_b4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
-        # x_connect, y_connect = self.median_sed(median_x4, median_y4, Norm=False,connect_point=True,color=c4,lw=4)
-        # self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c4,lw=4,ls='--')
+        x_connect, y_connect = self.median_sed(median_x4, median_y4, Norm=False,connect_point=True,color=c4,lw=4)
+        self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c4,lw=4,ls='--')
         # # self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c4,lw=4,line=False)
         # # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x4, median_y4, Norm=False,connect_point=True,fill=True,color=c4,lw=2)
         # # self.percentile_lines_FIR(wfir4,ffir4, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c4,lw=2)
@@ -829,8 +831,8 @@ class Plotter():
         # # x_connect, y_connect = self.median_sed(median_x1_b5, median_y1_b5, Norm=False,connect_point=True,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b5, ffir1_b5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b5, ffir1_b5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
-        # x_connect, y_connect = self.median_sed(median_x5, median_y5, Norm=False,connect_point=True,color=c5,lw=4)
-        # self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c5,lw=4,ls='--')
+        x_connect, y_connect = self.median_sed(median_x5, median_y5, Norm=False,connect_point=True,color=c5,lw=4)
+        self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c5,lw=4,ls='--')
         # # self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c5,lw=4,line=False)
         # # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x5, median_y5, Norm=False,connect_point=True,fill=True,color=c5,lw=2)
         # # self.percentile_lines_FIR(wfir5,ffir5, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c5,lw=2)
@@ -838,8 +840,9 @@ class Plotter():
 
         ax1.set_xscale('log')
         ax1.set_yscale('log')
-        ax1.set_ylim(3E41, 3E46)
-        ax1.set_xlim(1E-4, 450)
+        # ax1.set_ylim(3E41, 3E46)
+        ax1.set_ylim(1E42,1E46)
+        ax1.set_xlim(5E-2, 450)
         ax1.set_xticks(xticks)
         ax1.set_xticklabels(xticks_labels)
         ax1.set_ylabel(r'$\lambda$ L$_\lambda$ [erg/s]')

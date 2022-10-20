@@ -2096,6 +2096,14 @@ class Plotter_Letter2():
 			ylim1 = 19.5
 			ylim2 = 24.5
 
+		elif var == 'Lone':
+			x -= np.log10(3.8E33)
+
+			ylabel = r'log L (1$\mu$m)'
+			units = r' [L$_{\odot}$]'
+			ylim1 = 8
+			ylim2 = 13
+
 		elif var == 'Lx':
 			x -= np.log10(3.8E33)
 
