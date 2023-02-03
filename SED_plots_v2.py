@@ -56,7 +56,7 @@ class Plotter():
         ax.autoscale()
         return lc
 
-    def median_sed(self,x_in,y_in,Norm=True,connect_point=False,Bin=False,bin_in=None,color='k',lw=6):
+    def median_sed(self,x_in,y_in,Norm=True,connect_point=False,Bin=False,bin_in=None,color='k',lw=6, label=None):
         '''Function to generate the median line for array of SEDs to be plotted'''
         x_out = np.nanmedian(x_in, axis=0)
         y_out = 10**np.nanmedian(y_in,axis=0)
@@ -66,7 +66,10 @@ class Plotter():
             else:
                 y_out /= np.nanmedian(self.norm)
 
-        plt.plot(x_out,y_out,lw=lw,color=color)
+        if label is None:
+            plt.plot(x_out,y_out,lw=lw,color=color)
+        else:
+            plt.plot(x_out,y_out,lw=lw,color=color,label=label)
         if connect_point:
             return x_out[-1], y_out[-1]
 
@@ -153,7 +156,6 @@ class Plotter():
    
     def PlotSED(self,point_x=np.nan,point_y=np.nan,save=False):
         fig, ax = plt.subplots(figsize=(10,8))
-
         ax.plot(self.wavelength,self.Lum)
         ax.plot(self.wavelength,self.Lum,'x',c='k')
         ax.plot(point_x,point_y,'x',c='r')
@@ -286,7 +288,7 @@ class Plotter():
         plt.grid()
         plt.tight_layout()
         
-        plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
+        plt.savefig(f'/Users/connor_auge/Desktop/{savestring}.pdf')
         plt.show()
 
     def multi_SED_bins(self, savestring, bin, field, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], opt_p=[np.nan, np.nan], Median_line=True, FIR_med=True, FIR_upper='upper lims'):
@@ -307,8 +309,17 @@ class Plotter():
             t1 = 'GOODS-N/S'
             t2 = 'COSMOS'
             t3 = 'Stripe82X'
+
+        elif bin == 'Lx':
+            b1 = self.L < 43.75
+            b2 = (self.L > 43.75) & (self.L < 44.5)
+            b3 = self.L > 44.5
+            t1 = r'43 < log L$_{\rm X}$ < 43.75'
+            t2 = r'43.75 < L$_{\rm X}$ < 44.5'
+            t3 = r'44.5 < L$_{\rm X}$ < 45.5'
+
         else:
-            print('Specify bins. Options are: redshift,    field')
+            print('Specify bins. Options are: redshift,    field,    Lx')
             return
 
         if  len(self.norm) == len(ffir):
@@ -702,7 +713,7 @@ class Plotter():
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
 
-    def median_SED_1panel(self, savestring, median_x, median_y, wfir, ffir, shape, FIR_upper='upper lims',ls='-'):
+    def median_SED_1panel(self, savestring, median_x, median_y, wfir, ffir, shape, FIR_upper='upper lims',ls='-',bins='shape'):
         '''Function to plot the median SED of SEDs separated by defined SED shape and bined into three z bins'''
         plt.rcParams['font.size'] = 35
         plt.rcParams['axes.linewidth'] = 4.5
@@ -718,11 +729,66 @@ class Plotter():
         x = self.wavelength
         y = self.Lum
 
-        b1 = shape == 1
-        b2 = shape == 2
-        b3 = shape == 3
-        b4 = shape == 4
-        b5 = shape == 5
+        if bins == 'shape':
+            b1 = shape == 1
+            b2 = shape == 2
+            b3 = shape == 3
+            b4 = shape == 4
+            b5 = shape == 5
+
+            bin1_name = 'Panel 1'
+            bin2_name = 'Panel 2'
+            bin3_name = 'Panel 3'
+            bin4_name = 'Panel 4'
+            bin5_name = 'Panel 5'
+
+            c1 = '#377eb8'
+            c2 = '#984ea3'
+            c3 = '#4daf4a'
+            c4 = '#ff7f00'
+            c5 = '#e41a1c'
+
+        elif bins == 'Lx_5':
+            b5 = self.L < 43.5
+            b4 = (self.L > 43.5) & (self.L < 44)
+            b3 = (self.L > 44) & (self.L < 44.5)
+            b2 = (self.L > 44.5) & (self.L < 45)
+            b1 = self.L > 45
+
+            bin1_name = r'log L$_{\rm X}$ > 45'
+            bin2_name = r'44.5 < log L$_{\rm X}$ < 45'
+            bin3_name = r'44 < log L$_{\rm X}$ < 44.5'
+            bin4_name = r'43.5 < log L$_{\rm X}$ < 44'
+            bin5_name = r'log L$_{\rm X}$ < 43.5'
+
+            c1 = '#377eb8'
+            c2 = '#984ea3'
+            c3 = '#4daf4a'
+            c4 = '#ff7f00'
+            c5 = '#e41a1c'
+
+        elif bins == 'Lx_3':
+            b1 = self.L < 43.75
+            b2 = (self.L > 43.75) & (self.L < 44.5)
+            b3 = self.L > 44.5
+            b4 = self.L < 0
+            b5 = self.L < 0
+
+            bin1_name = r'43 < log L$_{\rm X}$ < 43.75'
+            bin2_name = r'43.75 < L$_{\rm X}$ < 44.5'
+            bin3_name = r'44.5 < L$_{\rm X}$ < 45.5'
+            # bin4_name = r' '
+            # bin5_name = r' '
+
+            c1 = 'blue'
+            c2 = 'green'
+            c3 = 'red'
+
+
+        else:
+            print('Invalid bins option. Options are:   shape,    Lx_5,    Lx_3')
+            return
+        
 
         median_x1 = median_x[b1]
         median_x2 = median_x[b2]
@@ -766,19 +832,12 @@ class Plotter():
         norm4 = self.norm[b4]
         norm5 = self.norm[b5] 
 
-
-        c1 = '#377eb8'
-        c2 = '#984ea3'
-        c3 = '#4daf4a'
-        c4 = '#ff7f00'
-        c5 = '#e41a1c'
-
         yticks = [42, 43, 44, 45, 46]
         # xticks = [1E-4, 1E-3, 1E-2, 1E-1, 1E0, 1E1, 1E2]
         xticks = [1E-1, 1E0, 1E1, 1E2]
         ytick_labels = ['42', '43', '44', '45', '46']
         # xticks_labels = [r'10$^{-4}$', '', r'10$^{-2}$', '', r'10$^{0}$', '', r'10$^{2}$']
-        xticks_labels = [r'10$^{-4}$', '', r'10$^{-2}$', '', r'10$^{0}$', '', r'10$^{2}$']
+        xticks_labels = [r'10$^{-1}$', r'10$^{0}$', r'10$^{1}$', r'10$^{2}$']
 
         fig = plt.figure(figsize=(18,12))
         gs = fig.add_gridspec(nrows=1, ncols=1)
@@ -788,11 +847,23 @@ class Plotter():
         # median_y1[-1] = median_y1[-1]*0.9
 
         ax1 = plt.subplot(gs[0], aspect='equal', adjustable='box')
+
+        if bins == 'Lx_3':
+            x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=False,connect_point=True,color=c3,lw=4,label=bin1_name)
+            self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c3,lw=4,ls='--')
+            x_connect, y_connect = self.median_sed(median_x2, median_y2, Norm=False,connect_point=True,color=c2,lw=4,label=bin2_name)
+            self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c2,lw=4,ls='--')
+            x_connect, y_connect = self.median_sed(median_x3, median_y3, Norm=False,connect_point=True,color=c1,lw=4,label=bin3_name)
+            self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c1,lw=4,ls='--')
+
+        else:
+
+
         # x_connect, y_connect = self.median_sed(median_x1_b1, median_y1_b1, Norm=False,connect_point=True,color='k',lw=4.5)
         # self.median_FIR_sed(wfir1_b1, ffir1_b1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,ls=ls)
         # self.median_FIR_sed(wfir1_b1, ffir1_b1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
-        x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=False,connect_point=True,color=c1,lw=4)
-        self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c1,lw=4,ls='--')
+            x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=False,connect_point=True,color=c1,lw=4,label=bin1_name)
+            self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c1,lw=4,ls='--')
         # self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c1,lw=4,line=False)
         # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x1, median_y1, Norm=False,connect_point=True,fill=True,color=c1,lw=2)
         # self.percentile_lines_FIR(wfir1,ffir1, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c1,lw=2)
@@ -801,8 +872,8 @@ class Plotter():
         # # x_connect, y_connect = self.median_sed(median_x1_b2, median_y1_b2, Norm=False,connect_point=True,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b2, ffir1_b2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,ls=ls)
         # # self.median_FIR_sed(wfir1_b2, ffir1_b2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
-        x_connect, y_connect = self.median_sed(median_x2, median_y2, Norm=False,connect_point=True,color=c2,lw=4)
-        self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c2,lw=4,ls='--')
+            x_connect, y_connect = self.median_sed(median_x2, median_y2, Norm=False,connect_point=True,color=c2,lw=4,label=bin2_name)
+            self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c2,lw=4,ls='--')
         # # self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c2,lw=4,line=False)
         # # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x2, median_y2, Norm=False,connect_point=True,fill=True,color=c2,lw=2)
         # # self.percentile_lines_FIR(wfir2,ffir2, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c2,lw=2)
@@ -811,8 +882,8 @@ class Plotter():
         # # x_connect, y_connect = self.median_sed(median_x1_b3, median_y1_b3, Norm=False,connect_point=True,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b3, ffir1_b3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,ls=ls)
         # # self.median_FIR_sed(wfir1_b3, ffir1_b3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
-        x_connect, y_connect = self.median_sed(median_x3, median_y3, Norm=False,connect_point=True,color=c3,lw=4)
-        self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c3,lw=4,ls='--')
+            x_connect, y_connect = self.median_sed(median_x3, median_y3, Norm=False,connect_point=True,color=c3,lw=4,label=bin3_name)
+            self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c3,lw=4,ls='--')
         # # self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c3,lw=4,line=False)
         # # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x3, median_y3, Norm=False,connect_point=True,fill=True,color=c3,lw=2)
         # # self.percentile_lines_FIR(wfir3,ffir3, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c3,lw=2)
@@ -821,8 +892,8 @@ class Plotter():
         # # x_connect, y_connect = self.median_sed(median_x1_b4, median_y1_b4, Norm=False,connect_point=True,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b4, ffir1_b4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b4, ffir1_b4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
-        x_connect, y_connect = self.median_sed(median_x4, median_y4, Norm=False,connect_point=True,color=c4,lw=4)
-        self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c4,lw=4,ls='--')
+            x_connect, y_connect = self.median_sed(median_x4, median_y4, Norm=False,connect_point=True,color=c4,lw=4,label=bin4_name)
+            self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c4,lw=4,ls='--')
         # # self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c4,lw=4,line=False)
         # # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x4, median_y4, Norm=False,connect_point=True,fill=True,color=c4,lw=2)
         # # self.percentile_lines_FIR(wfir4,ffir4, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c4,lw=2)
@@ -831,8 +902,8 @@ class Plotter():
         # # x_connect, y_connect = self.median_sed(median_x1_b5, median_y1_b5, Norm=False,connect_point=True,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b5, ffir1_b5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5)
         # # self.median_FIR_sed(wfir1_b5, ffir1_b5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color='k',lw=4.5,line=False,ms=12)
-        x_connect, y_connect = self.median_sed(median_x5, median_y5, Norm=False,connect_point=True,color=c5,lw=4)
-        self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c5,lw=4,ls='--')
+            x_connect, y_connect = self.median_sed(median_x5, median_y5, Norm=False,connect_point=True,color=c5,lw=4,label=bin5_name)
+            self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c5,lw=4,ls='--')
         # # self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,color=c5,lw=4,line=False)
         # # x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x5, median_y5, Norm=False,connect_point=True,fill=True,color=c5,lw=2)
         # # self.percentile_lines_FIR(wfir5,ffir5, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, Norm=False, fill=True,color=c5,lw=2)
@@ -851,6 +922,7 @@ class Plotter():
         secax1.set_yticks([9, 10, 11, 12, 13])
         secax1.set_ylabel(r'$\lambda$ L$_\lambda$ [L$_{\odot}$]')
         ax1.grid()
+        ax1.legend(fontsize=16)
 
         # plt.tight_layout()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
@@ -1242,6 +1314,7 @@ class Plotter():
                 return
 
         elif Y == 'Lbol/Lx':
+            # y = L - (self.L+np.log10(0.611))
             y = L - self.L
             ylabel = r'log L$_{\mathrm{bol}}$/L$_{\mathrm{X}}$' 
             yticks = [0, 1, 2, 3]   
@@ -1288,6 +1361,9 @@ class Plotter():
         hopkins_K = Lit_functions.Hopkins_Lbol(np.arange(42,48,0.25),band='Lx')
 
         # check = Lit_functions.Durras_Lbol(L,typ='Lbol')
+        print('x med: ',xmed)
+        print('y med: ',ymed)
+        print('y std: ', y1std)
 
         fig = plt.figure(figsize=(10, 10))
         ax1 = plt.subplot(111)#, aspect='equal', adjustable='box')
@@ -1462,10 +1538,9 @@ class Plotter():
         y2std = np.array([y2std1, y2std2, y2std3, y2std4, y2std5])
         y3std = np.array([y3std1, y3std2, y3std3, y3std4, y3std5])
 
-        print(y1std)
-        print(y2std)
-        print(y3std)
         stern_Lx = Lit_functions.Stern_MIR(np.arange(42, 48, 0.25))
+        just_Lx = Lit_functions.Just_alpha_ox(np.arange(42, 48, 0.25))
+        print(just_Lx)
 
         fig = plt.figure(figsize=(21, 8))
         gs = fig.add_gridspec(ncols=3,nrows=1,left=0.06,right=0.96,top=0.86,bottom=0.14,wspace=0.0)
@@ -1477,11 +1552,11 @@ class Plotter():
         ax1.set_yticks(yticks) 
         ax1.set_xticks(xticks)
         ax1.grid()
-
-        ax1.scatter(x1,y1,color='gray',marker='+',s=30,rasterized=True)
+        ax1.plot(np.arange(42,48,0.25),just_Lx,color='b',label='Just 2007')
+        ax1.scatter(x1,y1,color='gray',marker='x',s=35,rasterized=True)
         if median == 'X-axis' or median == 'Both':
-            ax1.plot(x1med, y1med, marker='s', color='k',ms=10)
-            ax1.errorbar(x1med,y1med,xerr=xstd,yerr=y1std,color='k')
+            ax1.plot(x1med, y1med, marker='s', color='k',ms=10, markeredgecolor='white')
+            ax1.errorbar(x1med,y1med,xerr=xstd,yerr=y1std,color='k',markeredgecolor='white')
         secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
         secax1.set_xticks([9,10,11,12,13])
         secax1.set_xlabel(xlabel1+r' [L$_{\odot}$]')
@@ -1489,6 +1564,7 @@ class Plotter():
         #     secax1 = ax1.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
         #     secax1.set_yticks([9,10,11,12,13])
         #     secax1.set_ylabel(ylabel+r' [L$_{\odot}$]')
+        plt.legend(fontsize=15)
 
         ax2 = plt.subplot(gs[1], aspect='equal', adjustable='box')
         ax2.set_xlim(xlim[0], xlim[1])
@@ -1502,9 +1578,9 @@ class Plotter():
 
         ax2.plot(np.arange(42,48,0.25),stern_Lx,color='r',label='Stern 2015')
         # ax2.plot(stern_Lx,np.arange(42,48,0.25),color='r',label='Stern 2015')
-        ax2.scatter(x2,y2,color='gray',marker='+',s=30,rasterized=True)
+        ax2.scatter(x2,y2,color='gray',marker='x',s=35,rasterized=True)
         if median == 'X-axis' or median == 'Both':
-            ax2.plot(x2med, y2med, marker='s', color='k',ms=10)
+            ax2.plot(x2med, y2med, marker='s', color='k',ms=10, markeredgecolor='white')
             ax2.errorbar(x2med,y2med,xerr=xstd,yerr=y2std,color='k')
         secax2 = ax2.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
         secax2.set_xticks([9,10,11,12,13])
@@ -1526,13 +1602,14 @@ class Plotter():
         ax3.grid()
 
         if 'FIR' in X:
-            ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='k',marker=8,s=35,edgecolors=None, alpha=0.5,rasterized=True)
-            ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray', marker=1,s=35, alpha=0.75)
-            ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='gray', marker='+', s=30, rasterized=True)
+            # ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray',marker=8,s=45,edgecolors=None, alpha=1,rasterized=True)
+            # ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray', marker=1,s=45, alpha=1)
+            ax3.plot(x3[self.up_check == 1], y3[self.up_check == 1],'<',markerfacecolor='None',markeredgecolor='k',alpha=0.7,ms=8)
+            ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='gray', marker='x', s=35, rasterized=True)
         else:
             ax3.scatter(x, y3, color='gray', marker='+', s=30,rasterized=True)
         if median == 'X-axis' or median == 'Both':
-            ax3.plot(x3med, y3med, marker='s', color='k',ms=10)
+            ax3.plot(x3med, y3med, marker='s', color='k',ms=10, markeredgecolor='white')
             ax3.errorbar(x3med,y3med,xerr=xstd,yerr=y3std,color='k')
         secax3 = ax3.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
         secax3.set_xticks([9,10,11,12,13])
@@ -1546,8 +1623,7 @@ class Plotter():
         plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
         plt.show()
 
-
-    def L_scatter_1panel(self,savestring,X,Y,median,F1,uv,mir,fir,Nh,shape,L=None):
+    def L_scatter_1panel(self,savestring,X,Y,median,F1,uv,mir,fir,Nh,shape,L=None,line=None,Lx_h=None,Lum_range=None):
         '''Function to plot the ratio of two luminosites as a function of the denominator'''
         bs1 = shape == 1
         bs2 = shape == 2
@@ -1582,7 +1658,22 @@ class Plotter():
             bx3 = (x > 44) & (x < 44.5)
             bx4 = (x > 44.5) & (x < 45)
             bx5 = (x > 45)
-        
+
+        elif X == 'FIR_lum':
+            x = np.log10(Lum_range)
+            # x = fir
+            xlabel = r'log L$_{\rm FIR}$'
+            xunits = ' [erg/s]'
+            xvar = r'L$_{\rm FIR}$'
+            xticks = [42, 43, 44, 45, 46]
+            xlim = [42, 46]
+
+            bx1 = (x > 43) & (x < 43.5)
+            bx2 = (x > 43.5) & (x < 44)
+            bx3 = (x > 44) & (x < 44.5)
+            bx4 = (x > 44.5) & (x < 45)
+            bx5 = (x > 45)
+
         else:
             print('Provide valid X option. Options are:    Lx,    Lbol,    MIR')
             return
@@ -1629,6 +1720,16 @@ class Plotter():
             yticks = [41, 42, 43, 44, 45, 46]
             ylim = [41, 46]
 
+        elif Y == 'Lx_h':
+            y = Lx_h
+            ylabel = r'log L$_{\mathrm{HX}}$'
+            yunits = ' [erg/s]'
+            yticks = [39, 40, 41, 42, 43, 44, 45, 46]
+            yticks = [38, 39, 40, 41, 42]
+            ylim = [38, 42]
+
+        
+
         else:
             print('Provide valid Y option. Options are:    UV,    MIR,    FIR,    Lbol,    Lbol/Lx,    Lx')
 
@@ -1662,6 +1763,11 @@ class Plotter():
 
         stern_Lx = Lit_functions.Stern_MIR(np.arange(42,48))
         durras_Lx = Lit_functions.Durras_Lbol(np.arange(42,48),typ='Lbol')
+        ranalli = Lit_functions.Ranalli(np.arange(42,48))
+        torres = Lit_functions.Torres(np.arange(42,48))
+
+        print(ranalli)
+        print(torres)
 
         fig = plt.figure(figsize=(10, 10))
         ax1 = plt.subplot(111, aspect='equal', adjustable='box')
@@ -1673,7 +1779,8 @@ class Plotter():
         ax1.set_xticks(xticks)
         ax1.grid()
         # ax1.plot(np.arange(42,48),np.log10(durras_Lx),color='r')
-        ax1.plot(np.arange(42,48),stern_Lx,color='r')
+        if line == 'Stern':
+            ax1.plot(np.arange(42,48),stern_Lx,color='r')
         ax1.scatter(x,y,color='gray',marker='P',s=10,rasterized=True)
         if median == 'X-axis' or median == 'Both':
             ax1.plot(xmed, ymed, marker='s', color='k',ms=10)
@@ -1686,7 +1793,12 @@ class Plotter():
             secax1.set_yticks([9,10,11,12,13])
             secax1.set_ylabel(ylabel+r' [L$_{\odot}$]')
 
+        if line == 'Ranalli':
+            ax1.plot(np.arange(42,48),ranalli,color='k',ls='--',label='Ranalli')
+            ax1.plot(np.arange(42,48),torres,color='b',ls='--',label='Torres')
+
         plt.tight_layout()
+        plt.legend()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
         plt.show()
 
@@ -1711,25 +1823,43 @@ class Plotter():
         print('mean: ', np.nanmean(x))
         print('std: ', np.std(x))
 
-    def L_hist_zbins(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],bins=[np.nan,np.nan,np.nan],median=True,std=False):
-        b1 = self.z < 0.6
-        b2 = (self.z > 0.6) & (self.z < 0.9)
-        b3 = self.z > 0.9
+    def L_hist_zbins(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],bins=[np.nan,np.nan,np.nan],median=True,std=False,bin_type='shape'):
+        if bin_type == 'z':
+            b1 = self.z < 0.6
+            b2 = (self.z > 0.6) & (self.z < 0.9)
+            b3 = self.z > 0.9
+            l1 = 'z < 0.6'
+            l2 = '0.6 < z < 0.9'
+            l3 = '0.9 < z < 1.2'
+            c1 = '#1E62E5'
+            c2 = '#04BF0C'
+            c3 = '#D23737'
+        elif bin_type == 'Lx':
+            b1 = self.L < 43.75
+            b2 = (self.L > 43.75) & (self.L < 44.5)
+            b3 = self.L > 44.5
+            l1 = r'43 < log L$_{\rm X}$ < 43.75'
+            l2 = r'43.75 < L$_{\rm X}$ < 44.5'
+            l3 = r'44.5 < L$_{\rm X}$ < 45.5'
+            c1 = 'blue'
+            c2 = 'green'
+            c3 = 'red'
+            
         
-        plt.figure(figsize=(9,9))
-        n1 = plt.hist(x[b1], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color='#1E62E5',lw=4,alpha=0.8,label= 'z < 0.6')
-        n2 = plt.hist(x[b2], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color='#04BF0C',lw=4,alpha=0.8,label= '0.6 < z < 0.9')
-        n3 = plt.hist(x[b3], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color='#D23737',lw=4,alpha=0.8,label= '0.9 < z < 1.2')
+        plt.figure(figsize=(12,12))
+        n1 = plt.hist(x[b1], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c3,lw=4,alpha=0.8,label=l1)
+        n2 = plt.hist(x[b2], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c2,lw=4,alpha=0.8,label=l2)
+        n3 = plt.hist(x[b3], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c1,lw=4,alpha=0.8,label=l3)
         n = np.append(n1[0],n2[0])
         n = np.append(n,n3[0])
         if median:
-            plt.axvline(np.nanmean(x[b1]), color='#1E62E5', ls='--', lw=3)
-            plt.axvline(np.nanmean(x[b2]), color='#04BF0C', ls='--', lw=3)
-            plt.axvline(np.nanmean(x[b3]), color='#D23737', ls='--', lw=3)
+            plt.axvline(np.nanmean(x[b1]), color=c3, ls='--', lw=3)
+            plt.axvline(np.nanmean(x[b2]), color=c2, ls='--', lw=3)
+            plt.axvline(np.nanmean(x[b3]), color=c1, ls='--', lw=3)
         plt.xlabel(xlabel)
         plt.grid()
         plt.ylim(0,max(n)+max(n)*0.1)
-        plt.legend()
+        plt.legend(fontsize=18)
 
         print('bin 1: ',np.nanmean(x[b1]))
         print('bin 2: ',np.nanmean(x[b2]))
@@ -1738,6 +1868,401 @@ class Plotter():
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
 
+    def L_scatter_comp(self,savestring,L1,L2,color_array,cbar=True,one2one=True,xlabel=None,ylabel=None,colorbar_label=None):
+        L1 = np.asarray(L1)
+        L2 = np.asarray(L2)
+
+        if xlabel is None:
+            xlab = ''
+        else:
+            xlab = xlabel
+
+        if ylabel is None:
+            ylab = ''
+        else:
+            ylab = ylabel
+
+        x1 = min(L1) - 0.5
+        x2 = max(L1) + 1
+
+        fig = plt.figure(figsize=(9,9))
+        ax1 = plt.subplot(111, aspect='equal', adjustable='box')
+        if cbar:
+            pts = plt.scatter(L1, L2, c=color_array, edgecolor='k', s=100)
+            axcb = fig.colorbar(pts)  # make colorbar
+            axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits
+            axcb.set_label(label=colorbar_label)
+        else:
+            plt.plot(L1,L2,'.',ms=15,color='gray')
+        plt.xlabel(xlab)
+        plt.ylabel(ylab)
+        if one2one:
+            plt.plot(np.arange(x1,x2),np.arange(x1,x2),color='k')
+        plt.xlim(40.5,45)
+        plt.ylim(40.5,45)
+        ax1.set_xticks([41,42,43,44,45])
+        ax1.set_yticks([41,42,43,44,45])
+        plt.grid()
+        plt.savefig(f'/Users/connor_auge/Desktop/{savestring}.pdf')
+        plt.show()
+
+    def IR_colors(self,savestring,x,y,L=[np.nan],gal_x=[np.nan],gal_y=[np.nan],donley=True,Lacy=False,colorbar=False,colorbar_label='',agn=[np.nan]):
+
+        x1d = np.linspace(0.08, 1.5)
+        x2d = np.linspace(0.35, 2.0)
+
+        x1L = np.linspace(-0.3, 1.5)
+
+        fig = plt.figure(figsize=(12,12))
+        if colorbar:
+            pts = plt.scatter(x[~agn],y[~agn],c=L[~agn],edgecolor='k',s=100)
+            agn_pts = plt.scatter(x[agn],y[agn],c=L[agn],marker='*',edgecolor='k',s=150)
+            # plt.colorbar(label=colorbar_label)
+            axcb = fig.colorbar(agn_pts)  # make colorbar
+            axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits
+            axcb.remove()
+            axcb2 = fig.colorbar(pts)  # make colorbar
+            axcb2.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits
+            axcb2.set_label(label=colorbar_label)
+            
+        else:
+            plt.plot(x,y,'.',ms=15,color='r')
+        if donley:
+            plt.plot(x1d, 1.21*x1d + 0.27,color='k',lw=3,label='Donley et al. 2012')
+            plt.plot(x2d, 1.21*x2d - 0.27,color='k',lw=3)
+            plt.vlines(0.08,ymin=0.15,ymax=0.37,color='k',lw=3)
+            plt.hlines(0.15,xmin=0.08,xmax=0.35,color='k',lw=3)
+        if Lacy:
+            plt.plot(x1L, 0.8*x1L + 0.5,color='b',lw=3,label='Lacy et al. 2013')
+            plt.vlines(-0.3,ymin=-0.3,ymax=0.2575,color='b',lw=3)
+            plt.hlines(-0.3,xmin=-0.3,xmax=2,color='b',lw=3)
+        plt.xlim(-0.4,1.)
+        plt.ylim(-0.4,1.)
+        plt.xlabel(r'log $\frac{f_{5.8}}{f_{3.4}}$',fontsize=22)
+        plt.ylabel(r'log $\frac{f_{8.0}}{f_{4.5}}$',fontsize=22)
+        plt.grid()
+        plt.legend(fontsize=13)
+        plt.savefig(f'/Users/connor_auge/Desktop/{savestring}.pdf')
+        plt.show()
+
+    def L_ratio_1panel_GOALS(self,savestring,X,Y,median,F1,uv,mir,fir,shape,L=None,goals_Lx=[np.nan],goals_Lbol=[np.nan]):
+        '''Function to plot the ratio of two luminosites as a function of the denominator'''
+        bs1 = shape == 1
+        bs2 = shape == 2
+        bs3 = shape == 3
+        bs4 = shape == 4
+        bs5 = shape == 5
+
+        if X == 'Lx':
+            x = self.L
+            xlabel = r'log L$_{\mathrm{X}}$'
+            xunits = ' [erg/s]'
+            xvar = r'L$_{\mathrm{X}}$'
+            xticks = [43.5,44.5,45.5]
+            xlim = [42.75,45.75]
+
+            bx1 = (x > 43) & (x < 43.5)
+            bx2 = (x > 43.5) & (x < 44)
+            bx3 = (x > 44) & (x < 44.5)
+            bx4 = (x > 44.5) & (x < 45)
+            bx5 = (x > 45)
+ 
+        elif X == 'Lbol':
+            x = L
+            xlabel = r'log L$_{\mathrm{bol}}$'
+            xunits = ' [erg/s]'
+            xvar = r'L$_{\mathrm{bol}}$'
+            xticks = [44.5,45.5,46.5]
+            xlim = [43.75,46.75]
+
+            bx1 = (x > 44) & (x < 44.5)
+            bx2 = (x > 44.5) & (x < 45)
+            bx3 = (x > 45) & (x < 45.5)
+            bx4 = (x > 45.5) & (x < 46)
+            bx5 = (x > 46)
+        
+        else:
+            print('Provide valid X option. Options are:    Lx,    Lbol')
+            return
+
+        if Y == 'UV':
+            y = np.log10(uv) - x
+
+            ylabel = r'log L (0.25$\mu$m)/'+xvar  
+            yticks = [-1,0,1]   
+            ylim = [-1, 2]
+            
+        elif Y == 'MIR':
+            y = np.log10(mir) - x
+
+            ylabel = r'log L (6$\mu$m)/'+xvar
+            yticks = [-1, 0, 1]
+            ylim = [-1, 2]
+
+        elif Y == 'FIR':
+            y = np.log10(fir) - x
+
+            ylabel = r'log L (100$\mu$m)/'+xvar  
+            yticks = [-1,0,1]   
+            ylim = [-1, 2]
+
+        elif Y == 'Lbol':
+            if X != 'Lbol':
+                y = L - self.L
+                ylabel = r'log L$_{\mathrm{bol}}$/'+xvar  
+                yticks = [-1,0,1]   
+                ylim = [-1, 2]
+            else:
+                print('X and Y variable cannot be the same. Specify new X or Y variable.')
+                return
+
+        elif Y == 'Lbol/Lx':
+            # y = L - (self.L+np.log10(0.611))
+            y = L - self.L
+            ylabel = r'log L$_{\mathrm{bol}}$/L$_{\mathrm{X}}$' 
+            yticks = [0, 1, 2, 3]   
+            ylim = [0, 2, 3] 
+
+        elif Y == 'Lx/Lbol':
+            # if X != 'Lx':
+            y = self.L - L
+            ylabel = r'log L$_{\mathrm{X}}$/'+xvar  
+            yticks = [-1,0,1]   
+            ylim = [-1, 2]
+            # else:
+                # print('X and Y variable cannot be the same. Specify new X or Y variable.')
+                # return
+
+        else:
+            print('Provide valid Y option. Options are:    UV,    MIR,    FIR,    Lbol,    Lbol/Lx,    Lx')
+
+        # Set median points for X-axis bins
+        xmed1, ymed1 = np.nanmean(x[bx1]), np.nanmean(y[bx1])
+        xmed2, ymed2 = np.nanmean(x[bx2]), np.nanmean(y[bx2])
+        xmed3, ymed3 = np.nanmean(x[bx3]), np.nanmean(y[bx3])
+        xmed4, ymed4 = np.nanmean(x[bx4]), np.nanmean(y[bx4])
+        xmed5, ymed5 = np.nanmean(x[bx5]), np.nanmean(y[bx5])
+
+        y1std1 = np.std(y[bx1])
+        y1std2 = np.std(y[bx2])
+        y1std3 = np.std(y[bx3])
+        y1std4 = np.std(y[bx4])
+        y1std5 = np.std(y[bx5])
+  
+
+        # xmed = np.array([xmed1,xmed2,xmed3,xmed4,xmed5])
+        if X == 'Lbol':
+            xmed = np.array([44.25, 44.75, 45.25, 45.75, 46.25])
+        elif X == 'Lx':
+            xmed = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+        ymed = np.array([ymed1, ymed2, ymed3, ymed4, ymed5])
+
+        xstd = np.array([0.25, 0.25, 0.25, 0.25, 0.25])
+        y1std = np.array([y1std1, y1std2, y1std3, y1std4, y1std5])
+
+        durras_K = Lit_functions.Durras_Lbol(np.arange(42,48,0.25),typ='Lbol')
+        hopkins_K = Lit_functions.Hopkins_Lbol(np.arange(42,48,0.25),band='Lx')
+
+        # check = Lit_functions.Durras_Lbol(L,typ='Lbol')
+
+        fig = plt.figure(figsize=(10, 10))
+        ax1 = plt.subplot(111)#, aspect='equal', adjustable='box')
+        ax1.set_xlim(xlim[0],xlim[1])
+        ax1.set_ylim(ylim[0],ylim[1])
+        # ax1.set_xlim(42.5,46.75)
+        ax1.set_ylabel(ylabel)
+        ax1.set_xlabel(xlabel+xunits)
+        ax1.set_yticks(yticks)
+        ax1.set_xticks(xticks)
+        ax1.grid()
+        ax1.plot(np.arange(42,48,0.25),np.log10(durras_K),color='r',label='Duras+2020')
+        ax1.plot(np.arange(42,48,0.25),np.log10(hopkins_K),color='b',label='Hopkins+2007')
+        # ax1.plot(L,np.log10(check),'.',color='b')
+        ax1.scatter(x,y,color='gray',marker='o',edgecolor=None,s=100,alpha=0.25,rasterized=True)
+        # if median == 'X-axis' or median == 'Both':
+            # ax1.plot(xmed, ymed, marker='s', color='k',ms=10)
+            # ax1.errorbar(xmed,ymed,xerr=xstd,yerr=y1std,color='k')
+        plt.plot(goals_Lbol,goals_Lbol-goals_Lx,'o',ms=10,color='r',label='GOALS AGN')
+        secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+        secax1.set_xticks([9,10,11,12,13])
+        secax1.set_xlabel(xlabel+r' [L$_{\odot}$]')
+        ax1.legend(fontsize=15)
+
+        # plt.tight_layout()
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
+        plt.show()
+
+    def violin_plot(self,savestring,var,x,shape,bins='shape'):
+        plt.rcParams['font.size'] = 30
+        plt.rcParams['axes.linewidth'] = 3.5
+        plt.rcParams['xtick.major.size'] = 5.5
+        plt.rcParams['xtick.major.width'] = 4.5
+        plt.rcParams['ytick.major.size'] = 5.5
+        plt.rcParams['ytick.major.width'] = 4.5
+
+        shape = shape[np.isfinite(x)]
+        x = x[np.isfinite(x)]
+
+        b1 = shape == 1
+        b2 = shape == 2
+        b3 = shape == 3
+        b4 = shape == 4
+        b5 = shape == 5
+
+        if var == 'Nh':
+            ylabel = r'log N$_{\mathrm{H}}$'
+            units = r' [cm$^{-2}$]'
+            ylim1 = 19.5
+            ylim2 = 25
+
+        elif var == 'Lone':
+            x -= np.log10(3.8E33)
+            ylabel = r'log L (1$\mu$m)'
+            units = r' [L$_{\odot}$]'
+            ylim1 = 8
+            ylim2 = 13
+
+        elif var == 'Lx':
+            x -= np.log10(3.8E33)
+
+            ylabel = r'log L$_{\mathrm{X}}$'
+            units = r' [L$_{\odot}$]'
+            ylim1 = 8
+            ylim2 = 13
+
+        elif var == 'Lbol':
+            x -= np.log10(3.8E33)
+            # if any(ulirg_x) != None:
+                # ulirg_x -= np.log10(3.8E33)
+            ylabel = r'log L$_{\mathrm{bol}}$'
+            units = r' [L$_{\odot}$]'  
+            ylim1 = 9.5
+            ylim2 = 14.5
+
+        elif var == 'Lbol/Lx':
+            ylabel = r'log L$_{\mathrm{bol}}$/L$_{\mathrm{X}}$'
+            units = ''
+            ylim1 = -1
+            ylim2 = 4
+
+        xticklabels = ['0','1','2','3','4','5']
+
+        x1 = x[b1]
+        x2 = x[b2]
+        x3 = x[b3]
+        x4 = x[b4]
+        x5 = x[b5]
+
+        x1_25 = np.nanpercentile(x1,25)
+        x2_25 = np.nanpercentile(x2,25)
+        x3_25 = np.nanpercentile(x3,25)
+        x4_25 = np.nanpercentile(x4,25)
+        x5_25 = np.nanpercentile(x5,25)
+
+        x1_75 = np.nanpercentile(x1,75)
+        x2_75 = np.nanpercentile(x2,75)
+        x3_75 = np.nanpercentile(x3,75)
+        x4_75 = np.nanpercentile(x4,75)
+        x5_75 = np.nanpercentile(x5,75)
+
+        x_median = np.array([np.nanmedian(x1),np.nanmedian(x2),np.nanmedian(x3),np.nanmedian(x4),np.nanmedian(x5)])
+        x_25 = np.array([x1_25,x2_25,x3_25,x4_25,x5_25])
+        x_75 = np.array([x1_75,x2_75,x3_75,x4_75,x5_75])
+
+        xerr_lo = x_median - x_25
+        xerr_hi = x_75 - x_median
+
+        c1 = '#377eb8'
+        c2 = '#984ea3'
+        c3 = '#4daf4a'
+        c4 = '#ff7f00'
+        c5 = '#e41a1c'
+
+        def solar(x):
+            return x - np.log10(3.8E33)
+
+        def ergs(x):
+            return x + np.log10(3.8E33)
+
+        fig = plt.figure(figsize=(11,11))
+        ax1 = plt.subplot(111, aspect='equal', adjustable='box')
+
+        # parts = ax1.violinplot([x1,x2,x3,x4,x5], positions=[1,2,3,4,5])
+        parts1 = ax1.violinplot(x1, positions=[2], widths=0.7)
+        parts2 = ax1.violinplot(x2, positions=[3], widths=0.7)
+        parts3 = ax1.violinplot(x3, positions=[4], widths=0.7)
+        parts4 = ax1.violinplot(x4, positions=[5], widths=0.7)
+        parts5 = ax1.violinplot(x5, positions=[6], widths=0.7)
+        ax1.plot([2,3,4,5,6],x_median,color='k')
+        ax1.plot([2,3,4,5,6],x_median,'o',ms=12,color='k')
+
+        ax1.errorbar([2,3,4,5,6],x_median,yerr=[xerr_lo,xerr_hi],color='k',elinewidth=3.5,lw=0)
+
+        for partname in ('cbars','cmins','cmaxes'):
+            vp = parts1[partname]
+            vp.set_edgecolor('black')
+            vp.set_linewidth(1)
+
+            vp = parts2[partname]
+            vp.set_edgecolor('black')
+            vp.set_linewidth(1)
+
+            vp = parts3[partname]
+            vp.set_edgecolor('black')
+            vp.set_linewidth(1)
+
+            vp = parts4[partname]
+            vp.set_edgecolor('black')
+            vp.set_linewidth(1)
+
+            vp = parts5[partname]
+            vp.set_edgecolor('black')
+            vp.set_linewidth(1)
+
+        for pc in parts1['bodies']:
+            pc.set_facecolor(c1)
+            pc.set_edgecolor(c1)
+            pc.set_alpha(1)
+
+        for pc in parts2['bodies']:
+            pc.set_facecolor(c2)
+            pc.set_edgecolor(c2)
+            pc.set_alpha(1)
+
+        for pc in parts3['bodies']:
+            pc.set_facecolor(c3)
+            pc.set_edgecolor(c3)
+            pc.set_alpha(1)
+
+        for pc in parts4['bodies']:
+            pc.set_facecolor(c4)
+            pc.set_edgecolor(c4)
+            pc.set_alpha(1)
+
+        for pc in parts5['bodies']:
+            pc.set_facecolor(c5)
+            pc.set_edgecolor(c5)
+            pc.set_alpha(1)
+
+        ax1.set_ylim(ylim1, ylim2)
+        plt.gca().invert_xaxis()
+        ax1.set_ylabel(ylabel+units)
+        ax1.set_xlabel('Panel Number')
+        ax1.set_xticklabels(xticklabels)
+        
+        if var == 'Lbol':
+            secax1 = ax1.secondary_yaxis('right', functions=(ergs, solar))
+            secax1.set_ylabel(ylabel+' [erg/s]')
+        elif var == 'Lone':
+            secax1 = ax1.secondary_yaxis('right', functions=(ergs, solar))
+            secax1.set_ylabel(ylabel+' [erg/s]')
+        elif var == 'Lx':
+            secax1 = ax1.secondary_yaxis('right', functions=(ergs, solar))
+            secax1.set_ylabel(ylabel+' [erg/s]')
+
+        ax1.grid()
+        plt.savefig('/users/connor_auge/Desktop/Final_Plots/'+savestring+'.pdf')
+        plt.show()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Plotting class to generate a variety of different plots based on the output of the AGN class from SED_v8.py')

@@ -12,12 +12,12 @@ class SED_shape_Plotter(Plotter):
 
     def shape_1bin_h(self, savestring, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], uv_slope=None, mir_slope1=None, mir_slope2=None, Median_line=True, FIR_med=True, FIR_upper='upper lims'):
         '''Function to plot the 5 sed shapes in a single horizonal plot. This creates a 1 row x 5 column plot'''
-        plt.rcParams['font.size'] = 40
-        plt.rcParams['axes.linewidth'] = 4
-        plt.rcParams['xtick.major.size'] = 6
-        plt.rcParams['xtick.major.width'] = 5
-        plt.rcParams['ytick.major.size'] = 6
-        plt.rcParams['ytick.major.width'] = 5
+        plt.rcParams['font.size'] = 32
+        plt.rcParams['axes.linewidth'] = 3
+        plt.rcParams['xtick.major.size'] = 5
+        plt.rcParams['xtick.major.width'] = 4
+        plt.rcParams['ytick.major.size'] = 5
+        plt.rcParams['ytick.major.width'] = 4
         
         b1 = self.shape == 1
         b2 = self.shape == 2
@@ -30,7 +30,6 @@ class SED_shape_Plotter(Plotter):
         # b3 = np.where(np.logical_and(uv_slope >  0.2, mir_slope1 >= -0.2))[0]
         # b4 = np.where(np.logical_and(uv_slope >= -0.3, np.logical_and(mir_slope1 < -0.2,mir_slope2 > 0.0)))[0]
         # b5 = np.where(np.logical_and(uv_slope >= -0.3, np.logical_and(mir_slope1 < -0.2,mir_slope2 <= 0.0)))[0]
-        print('CHECK: ',len(b3[b3]))
 
         if len(self.norm) == len(ffir):
             ffir_norm = ffir.T/self.norm
@@ -40,7 +39,7 @@ class SED_shape_Plotter(Plotter):
         ffir_norm = np.asarray(ffir_norm)
 
         # Set colorbar limits
-        clim1 = 43
+        clim1 = 42.5
         clim2 = 45.5
         cmap = 'rainbow_r'  # set colormap
 
@@ -66,15 +65,18 @@ class SED_shape_Plotter(Plotter):
         # xticks_labels = [r'10$^{-4}$','',r'10$^{-2}$','',r'10$^{0}$','',r'10$^{2}$']
 
         xticks = [1E-4, 1E-3, 1E-2, 1E-1, 1, 10, 100]
+        # xticks = [1E-4, 1E-2, 1, 100]
         yticks = [1E-2, 0.1, 1, 10]
 
         xticks_labels = ['-4', ' ', '-2', ' ', '0', ' ', '2']
-        yticklabels = [-2, -1, 0, 1]
+        # xticks_labels = ['-4', '-2', '0', '2']
+        yticklabels = ['-2', '-1', '0',' 1']
 
-        fig = plt.figure(figsize=(50,11))
-        gs = fig.add_gridspec(nrows=2, ncols=5, left=0.1,right=0.9,wspace=0.05,hspace=0.01,height_ratios=[0.2,3])
+        fig = plt.figure(figsize=(30,12))
+        # gs = fig.add_gridspec(nrows=2, ncols=3, left=0.1,top=0.7,bottom=0.3,right=0.9,wspace=0.05,hspace=0.05,height_ratios=[0.2,3])
+        gs = fig.add_gridspec(nrows=2, ncols=3,wspace=0.05,top=0.7,bottom=0.2,hspace=-0.5,height_ratios=[0.2,3])
 
-        ax1 = fig.add_subplot(gs[1, 4])#, aspect='equal', adjustable='box')
+        ax1 = fig.add_subplot(gs[1, 2], aspect='equal', adjustable='box')
         ax1.set_xscale('log')
         ax1.set_yscale('log')
         ax1.set_xticks(xticks)
@@ -85,139 +87,141 @@ class SED_shape_Plotter(Plotter):
         ax1.grid()
 
         # Plot data
-        upper_seg1 = np.stack((wfir1_seg,ffir1_seg), axis=2)
-        upper_all1 = LineCollection(upper_seg1, color='gray', alpha=0.3)
-        ax1.add_collection(upper_all1)
+        # upper_seg1 = np.stack((wfir1_seg,ffir1_seg), axis=2)
+        # upper_all1 = LineCollection(upper_seg1, color='gray', alpha=0.3)
+        # ax1.add_collection(upper_all1)
         lc1 = self.multilines(x1,y1,L1,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
         axcb1 = fig.colorbar(lc1, orientation='horizontal', pad=-0.1)
         axcb1.mappable.set_clim(clim1, clim2)
         axcb1.remove()
         # Plot median line
         if Median_line:
-            ax1.plot(np.nanmedian(x1[:, :2], axis=0),np.nanmedian(y1[:, :2], axis=0), c='k', lw=3)
+            ax1.plot(np.nanmedian(x1[:, :2], axis=0),np.nanmedian(y1[:, :2], axis=0), c='k', lw=5)
             if FIR_med:
-                x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=True, connect_point=True, Bin=True, bin_in=b1, lw=3)
-                self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b1, lw=3)
+                x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=True, connect_point=True, Bin=True, bin_in=b1, lw=5)
+                self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b1, lw=3,ls='--')
             else:
-                self.median_sed(median_x1, median_y1,Bin=True, bin_in = b1, lw=3)
+                self.median_sed(median_x1, median_y1,Bin=True, bin_in = b1, lw=5)
         plt.ylim(1E-3, 75)
         plt.xlim(8E-5, 7E2)
 
-        ax2 = fig.add_subplot(gs[1, 3])#, aspect='equal', adjustable='box')
+        ax2 = fig.add_subplot(gs[1, 1], aspect='equal', adjustable='box')
         ax2.set_xscale('log')
         ax2.set_yscale('log')
         ax2.set_xticks(xticks)
         ax2.set_yticks(yticks)
         ax2.set_yticklabels([])
         ax2.set_xticklabels(xticks_labels)
+        ax2.set_xlabel(r'Log Rest Wavelength [$\mu$m]')
         ax2.text(0.05, 0.8, f'n = {len(x2)}', transform=ax2.transAxes)
         ax2.grid()
 
         # Plot data
-        upper_seg2 = np.stack((wfir2_seg,ffir2_seg), axis=2)
-        upper_all2 = LineCollection(upper_seg2, color='gray', alpha=0.3)
-        ax2.add_collection(upper_all2)
+        # upper_seg2 = np.stack((wfir2_seg,ffir2_seg), axis=2)
+        # upper_all2 = LineCollection(upper_seg2, color='gray', alpha=0.3)
+        # ax2.add_collection(upper_all2)
         lc2 = self.multilines(x2,y2,L2,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
         axcb2 = fig.colorbar(lc2,orientation='horizontal',pad=-0.1)
         axcb2.mappable.set_clim(clim1, clim2)
         axcb2.remove()
         # Plot median line
         if Median_line:
-            ax2.plot(np.nanmedian(x2[:, :2], axis=0),np.nanmedian(y2[:, :2], axis=0), c='k', lw=3)
+            ax2.plot(np.nanmedian(x2[:, :2], axis=0),np.nanmedian(y2[:, :2], axis=0), c='k', lw=5)
             if FIR_med:
-                x_connect, y_connect = self.median_sed(median_x2, median_y2, Norm=True, connect_point=True, Bin=True, bin_in=b2, lw=3)
-                self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b2, lw=3)
+                x_connect, y_connect = self.median_sed(median_x2, median_y2, Norm=True, connect_point=True, Bin=True, bin_in=b2, lw=5)
+                self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b2, lw=3,ls='--')
             else:
-                self.median_sed(median_x2, median_y2,Bin=True, bin_in = b2, lw=3)
+                self.median_sed(median_x2, median_y2,Bin=True, bin_in = b2, lw=5)
         plt.ylim(1E-3, 75)
         plt.xlim(8E-5, 7E2)
 
-        ax3 = fig.add_subplot(gs[1, 2])#, aspect='equal', adjustable='box')
+        ax3 = fig.add_subplot(gs[1, 0], aspect='equal', adjustable='box')
         ax3.set_xscale('log')
         ax3.set_yscale('log')
         ax3.set_xticks(xticks)
         ax3.set_yticks(yticks)
-        ax3.set_yticklabels([])
+        ax3.set_yticklabels(yticklabels)
         ax3.set_xticklabels(xticks_labels)
+        ax3.set_ylabel(r'Log $\lambda L_{\lambda}$ Normalized at 1$\mu$m')
         ax3.text(0.05, 0.8, f'n = {len(x3)}', transform=ax3.transAxes)
         ax3.grid()
 
         # Plot data
-        upper_seg3 = np.stack((wfir3_seg,ffir3_seg), axis=2)
-        upper_all3 = LineCollection(upper_seg3, color='gray', alpha=0.3)
-        ax3.add_collection(upper_all3)
+        # upper_seg3 = np.stack((wfir3_seg,ffir3_seg), axis=2)
+        # upper_all3 = LineCollection(upper_seg3, color='gray', alpha=0.3)
+        # ax3.add_collection(upper_all3)
         lc3 = self.multilines(x3,y3,L3,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
         axcb3 = fig.colorbar(lc3,orientation='horizontal',pad=-0.1)
         axcb3.mappable.set_clim(clim1, clim2)
         axcb3.remove()
         # Plot median line
         if Median_line:
-            ax3.plot(np.nanmedian(x3[:, :2], axis=0),np.nanmedian(y3[:, :2], axis=0), c='k', lw=3)
+            ax3.plot(np.nanmedian(x3[:, :2], axis=0),np.nanmedian(y3[:, :2], axis=0), c='k', lw=5)
             if FIR_med:
-                x_connect, y_connect = self.median_sed(median_x3, median_y3, Norm=True, connect_point=True, Bin=True, bin_in=b3, lw=3)
-                self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b3, lw=3)
+                x_connect, y_connect = self.median_sed(median_x3, median_y3, Norm=True, connect_point=True, Bin=True, bin_in=b3, lw=5)
+                self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b3, lw=3,ls='--')
             else:
-                self.median_sed(median_x3, median_y3, Bin=True, bin_in = b3, lw=3)
+                self.median_sed(median_x3, median_y3, Bin=True, bin_in = b3, lw=5)
         plt.ylim(1E-3, 75)
         plt.xlim(8E-5, 7E2)
 
-        ax4 = fig.add_subplot(gs[1, 1])#, aspect='equal', adjustable='box')
-        ax4.set_xscale('log')
-        ax4.set_yscale('log')
-        ax4.set_xticks(xticks)
-        ax4.set_yticks(yticks)
-        ax4.set_yticklabels([])
-        ax4.set_xticklabels(xticks_labels)
-        ax4.text(0.05, 0.8, f'n = {len(x4)}', transform=ax4.transAxes)
-        ax4.grid()
+        # ax4 = fig.add_subplot(gs[1, 1])#, aspect='equal', adjustable='box')
+        # ax4.set_xscale('log')
+        # ax4.set_yscale('log')
+        # ax4.set_xticks(xticks)
+        # ax4.set_yticks(yticks)
+        # ax4.set_yticklabels([])
+        # ax4.set_xticklabels(xticks_labels)
+        # ax4.text(0.05, 0.8, f'n = {len(x4)}', transform=ax4.transAxes)
+        # ax4.grid()
 
-        # Plot data
-        upper_seg4 = np.stack((wfir4_seg,ffir4_seg), axis=2)
-        upper_all4 = LineCollection(upper_seg4, color='gray', alpha=0.3)
-        ax4.add_collection(upper_all4)
-        lc4 = self.multilines(x4,y4,L4,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
-        axcb4 = fig.colorbar(lc4,orientation='horizontal',pad=-0.1)
-        axcb4.mappable.set_clim(clim1, clim2)
-        axcb4.remove()
-        # Plot median line
-        if Median_line:
-            ax4.plot(np.nanmedian(x4[:, :2], axis=0),np.nanmedian(y4[:, :2], axis=0), c='k', lw=3)
-            if FIR_med:
-                x_connect, y_connect = self.median_sed(median_x4, median_y4, Norm=True, connect_point=True, Bin=True, bin_in=b4, lw=3)
-                self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b4, lw=3)
-            else:
-                self.median_sed(median_x4, median_y4, Bin=True, bin_in = b4, lw=3)
-        plt.ylim(1E-3, 75)
-        plt.xlim(8E-5, 7E2)
+        # # Plot data
+        # upper_seg4 = np.stack((wfir4_seg,ffir4_seg), axis=2)
+        # upper_all4 = LineCollection(upper_seg4, color='gray', alpha=0.3)
+        # ax4.add_collection(upper_all4)
+        # lc4 = self.multilines(x4,y4,L4,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
+        # axcb4 = fig.colorbar(lc4,orientation='horizontal',pad=-0.1)
+        # axcb4.mappable.set_clim(clim1, clim2)
+        # axcb4.remove()
+        # # Plot median line
+        # if Median_line:
+        #     ax4.plot(np.nanmedian(x4[:, :2], axis=0),np.nanmedian(y4[:, :2], axis=0), c='k', lw=3)
+        #     if FIR_med:
+        #         x_connect, y_connect = self.median_sed(median_x4, median_y4, Norm=True, connect_point=True, Bin=True, bin_in=b4, lw=3)
+        #         self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b4, lw=3,ls='--')
+        #     else:
+        #         self.median_sed(median_x4, median_y4, Bin=True, bin_in = b4, lw=3)
+        # plt.ylim(1E-3, 75)
+        # plt.xlim(8E-5, 7E2)
 
-        ax5 = fig.add_subplot(gs[1, 0])#, aspect='equal', adjustable='box')
-        ax5.set_xscale('log')
-        ax5.set_yscale('log')
-        ax5.set_xticks(xticks)
-        ax5.set_yticks(yticks)
-        ax5.set_xticklabels(xticks_labels)
-        ax5.text(0.05, 0.8, f'n = {len(x5)}', transform=ax5.transAxes)
-        ax5.set_ylabel(r'Normalized $\lambda$ L$_\lambda$')
-        ax5.grid()
+        # ax5 = fig.add_subplot(gs[1, 0])#, aspect='equal', adjustable='box')
+        # ax5.set_xscale('log')
+        # ax5.set_yscale('log')
+        # ax5.set_xticks(xticks)
+        # ax5.set_yticks(yticks)
+        # ax5.set_xticklabels(xticks_labels)
+        # ax5.text(0.05, 0.8, f'n = {len(x5)}', transform=ax5.transAxes)
+        # ax5.set_ylabel(r'Normalized $\lambda$ L$_\lambda$')
+        # ax5.grid()
 
-        # Plot data
-        upper_seg5 = np.stack((wfir5_seg,ffir5_seg), axis=2)
-        upper_all5 = LineCollection(upper_seg5, color='gray', alpha=0.3)
-        ax5.add_collection(upper_all5)
-        lc5 = self.multilines(x5,y5,L5,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
-        axcb5 = fig.colorbar(lc5,orientation='horizontal',pad=-0.1)
-        axcb5.mappable.set_clim(clim1, clim2)
-        axcb5.remove()
-        # Plot median line
-        if Median_line:
-            ax5.plot(np.nanmedian(x5[:, :2], axis=0),np.nanmedian(y5[:, :2], axis=0), c='k', lw=3)
-            if FIR_med:
-                x_connect, y_connect = self.median_sed(median_x5, median_y5, Norm=True, connect_point=True, Bin=True, bin_in=b5, lw=3)
-                self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b5, lw=3)
-            else:
-                self.median_sed(median_x5, median_y5, Bin=True, bin_in = b5, lw=3)
-        plt.ylim(1E-3, 75)
-        plt.xlim(8E-5, 7E2)
+        # # Plot data
+        # upper_seg5 = np.stack((wfir5_seg,ffir5_seg), axis=2)
+        # upper_all5 = LineCollection(upper_seg5, color='gray', alpha=0.3)
+        # ax5.add_collection(upper_all5)
+        # lc5 = self.multilines(x5,y5,L5,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
+        # axcb5 = fig.colorbar(lc5,orientation='horizontal',pad=-0.1)
+        # axcb5.mappable.set_clim(clim1, clim2)
+        # axcb5.remove()
+        # # Plot median line
+        # if Median_line:
+        #     ax5.plot(np.nanmedian(x5[:, :2], axis=0),np.nanmedian(y5[:, :2], axis=0), c='k', lw=3)
+        #     if FIR_med:
+        #         x_connect, y_connect = self.median_sed(median_x5, median_y5, Norm=True, connect_point=True, Bin=True, bin_in=b5, lw=3)
+        #         self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b5, lw=3,ls='--')
+        #     else:
+        #         self.median_sed(median_x5, median_y5, Bin=True, bin_in = b5, lw=3)
+        # plt.ylim(1E-3, 75)
+        # plt.xlim(8E-5, 7E2)
 
         cbar_ax = fig.add_subplot(gs[:-1, :])
         cb = fig.colorbar(lc1, cax=cbar_ax, orientation='horizontal')
@@ -229,7 +233,7 @@ class SED_shape_Plotter(Plotter):
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
 
-    def shape_1bin_v(self, savestring, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], uv_slope=None, mir_slope1=None, mir_slope2=None, Median_line=True, FIR_med=True, FIR_upper='upper lims'):
+    def shape_1bin_v(self, savestring, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], uv_slope=None, mir_slope1=None, mir_slope2=None, Median_line=True, FIR_med=True, FIR_upper='upper lims', bins='shape'):
         '''Function to plot the 5 sed shapes in a single horizonal plot. This creates a 1 row x 5 column plot'''
         # plt.rcParams['font.size'] = 40
         # plt.rcParams['axes.linewidth'] = 4
@@ -238,11 +242,23 @@ class SED_shape_Plotter(Plotter):
         # plt.rcParams['ytick.major.size'] = 6
         # plt.rcParams['ytick.major.width'] = 5
         
-        b1 = self.shape == 1
-        b2 = self.shape == 2
-        b3 = self.shape == 3
-        b4 = self.shape == 4
-        b5 = self.shape == 5
+        if bins == 'shape':
+            b1 = self.shape == 1
+            b2 = self.shape == 2
+            b3 = self.shape == 3
+            b4 = self.shape == 4
+            b5 = self.shape == 5
+
+        elif bins == 'Lx':
+            b5 = self.L < 43.5
+            b4 = (self.L > 43.5) & (self.L < 44)
+            b3 = (self.L > 44) & (self.L < 44.5)
+            b2 = (self.L > 44.5) & (self.L < 45)
+            b1 = self.L > 45
+
+        else:
+            print('Invalid bins option. Options are:   shape,    Lx')
+            return
 
         # b1 = np.where(np.logical_and(uv_slope < -0.3, mir_slope1 >= -0.2))[0]
         # b2 = np.where(np.logical_and(np.logical_and(uv_slope >= -0.3, uv_slope <=0.2),mir_slope1 >= -0.2))[0]	
@@ -459,12 +475,36 @@ class SED_shape_Plotter(Plotter):
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
     
-    def L_hist_bins(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],bins=[np.nan,np.nan,np.nan],median=True,std=False):
-        b1 = self.shape == 1
-        b2 = self.shape == 2
-        b3 = self.shape == 3
-        b4 = self.shape == 4
-        b5 = self.shape == 5
+    def L_hist_bins(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],hist_bins=[np.nan,np.nan,np.nan],median=True,std=False,bins='shape'):
+        if bins == 'shape':
+            b1 = self.shape == 1
+            b2 = self.shape == 2
+            b3 = self.shape == 3
+            b4 = self.shape == 4
+            b5 = self.shape == 5
+
+            bin1_name = 'Panel 1'
+            bin2_name = 'Panel 2'
+            bin3_name = 'Panel 3'
+            bin4_name = 'Panel 4'
+            bin5_name = 'Panel 5'
+
+        elif bins == 'Lx':
+            b5 = self.L < 43.5
+            b4 = (self.L > 43.5) & (self.L < 44)
+            b3 = (self.L > 44) & (self.L < 44.5)
+            b2 = (self.L > 44.5) & (self.L < 45)
+            b1 = self.L > 45
+
+            bin1_name = r'log L$_{\rm X}$ > 45'
+            bin2_name = r'44.5 < log L$_{\rm X}$ < 45'
+            bin3_name = r'44 < log L$_{\rm X}$ < 44.5'
+            bin4_name = r'43.5 < log L$_{\rm X}$ < 44'
+            bin5_name = r'log L$_{\rm X}$ < 43.5'
+
+        else:
+            print('Invalid bins option. Options are:   shape,    Lx')
+            return
 
         c1 = '#377eb8'
         c2 = '#984ea3'
@@ -472,17 +512,12 @@ class SED_shape_Plotter(Plotter):
         c4 = '#ff7f00'
         c5 = '#e41a1c'
 
-        # print(x[b1])
-        # print(x[b2])
-        # print(x[b3])
-
-        
         plt.figure(figsize=(9,9))
-        n5 = plt.hist(x[b5], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c5,lw=4,alpha=0.8,label= 'Panel 5')
-        n4 = plt.hist(x[b4], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c4,lw=4,alpha=0.8,label= 'Panel 4')
-        n3 = plt.hist(x[b3], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c3,lw=4,alpha=0.8,label= 'Panel 3')        
-        n2 = plt.hist(x[b2], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c2,lw=4,alpha=0.8,label= 'Panel 2')        
-        n1 = plt.hist(x[b1], bins=np.arange(bins[0],bins[1],bins[2]),histtype='step',color=c1,lw=4,alpha=0.8,label= 'Panel 1')
+        n5 = plt.hist(x[b5], bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),histtype='step',color=c5,lw=4,alpha=0.8,label=bin5_name)
+        n4 = plt.hist(x[b4], bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),histtype='step',color=c4,lw=4,alpha=0.8,label=bin4_name)
+        n3 = plt.hist(x[b3], bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),histtype='step',color=c3,lw=4,alpha=0.8,label=bin3_name)        
+        n2 = plt.hist(x[b2], bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),histtype='step',color=c2,lw=4,alpha=0.8,label=bin2_name)        
+        n1 = plt.hist(x[b1], bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),histtype='step',color=c1,lw=4,alpha=0.8,label=bin1_name)
 
         n = np.append(n1[0],n2[0])
         n = np.append(n,n3[0])
@@ -497,7 +532,7 @@ class SED_shape_Plotter(Plotter):
         plt.xlabel(xlabel)
         plt.grid()
         plt.ylim(0,max(n)+max(n)*0.1)
-        plt.legend()
+        plt.legend(fontsize=15)
 
         print('bin 1: ',np.nanmean(x[b1]))
         print('bin 2: ',np.nanmean(x[b2]))
@@ -505,5 +540,111 @@ class SED_shape_Plotter(Plotter):
         print('bin 4: ',np.nanmean(x[b4]))
         print('bin 5: ',np.nanmean(x[b5]))
 
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
+        plt.show()
+
+    def L_hist_panels(self, savestring, x, xlabel=None, xlim=[np.nan, np.nan],hist_bins=[np.nan, np.nan], median=True,std=False,bins='shape'):
+
+        if bins == 'shape':
+            b1 = self.shape == 1
+            b2 = self.shape == 2
+            b3 = self.shape == 3
+            b4 = self.shape == 4
+            b5 = self.shape == 5
+
+            bin1_name = 'Panel 1'
+            bin2_name = 'Panel 2'
+            bin3_name = 'Panel 3'
+            bin4_name = 'Panel 4'
+            bin5_name = 'Panel 5'
+
+        elif bins == 'Lx':
+            b5 = self.L < 43.5
+            b4 = (self.L > 43.5) & (self.L < 44)
+            b3 = (self.L > 44) & (self.L < 44.5)
+            b2 = (self.L > 44.5) & (self.L < 45)
+            b1 = self.L > 45
+
+            bin1_name = r'log L$_{\rm X}$ > 45'
+            bin2_name = r'44.5 < log L$_{\rm X}$ < 45'
+            bin3_name = r'44 < log L$_{\rm X}$ < 44.5'
+            bin4_name = r'43.5 < log L$_{\rm X}$ < 44'
+            bin5_name = r'log L$_{\rm X}$ < 43.5'
+
+        else:
+            print('Invalid bins option. Options are:   shape,    Lx')
+            return
+
+        c1 = '#377eb8'
+        c2 = '#984ea3'
+        c3 = '#4daf4a'
+        c4 = '#ff7f00'
+        c5 = '#e41a1c'
+
+        x1 = x[b1]
+        x2 = x[b2]
+        x3 = x[b3]
+        x4 = x[b4]
+        x5 = x[b5]
+
+        fig = plt.figure(figsize=(14,18))
+        gs = fig.add_gridspec(nrows=5, ncols=2, left=0.2, right=0.75, hspace=0.05,wspace=-0.05,width_ratios=[3,0.25])
+
+        ax1 = fig.add_subplot(gs[0, 0])
+        n1 = ax1.hist(x1, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color=c1,lw=4,alpha=0.8,label=bin1_name)
+        ax1.hist(x1, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color='k',histtype='step',lw=1.5,alpha=1.0,label=bin1_name)
+
+        ax2 = fig.add_subplot(gs[1, 0])
+        n2 = ax2.hist(x2, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color=c2,lw=4,alpha=0.8,label=bin2_name)
+        ax2.hist(x2, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color='k',histtype='step',lw=1.5,alpha=1.0,label=bin2_name)        
+
+        ax3 = fig.add_subplot(gs[2, 0])
+        n3 = ax3.hist(x3, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color=c3,lw=4,alpha=0.8,label=bin3_name)
+        ax3.hist(x3, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color='k',histtype='step',lw=1.5,alpha=1.0,label=bin3_name)
+
+        ax4 = fig.add_subplot(gs[3, 0])
+        n4 = ax4.hist(x4, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color=c4,lw=4,alpha=0.8,label=bin4_name)
+        ax4.hist(x4, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color='k',histtype='step',lw=1.5,alpha=1.0,label=bin4_name)
+
+        ax5 = fig.add_subplot(gs[4, 0])
+        n5 = ax5.hist(x5, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color=c5,lw=4,alpha=0.8,label=bin5_name)
+        ax5.hist(x5, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color='k',histtype='step',lw=1.5,alpha=1.0,label=bin5_name)
+        
+        n = np.append(n1[0], n2[0])
+        n = np.append(n, n3[0])
+        n = np.append(n, n4[0])
+        n = np.append(n, n5[0])
+
+        ax1.text(hist_bins[1]-1, max(n)-max(n)*0.1, 'Panel 1')
+        ax2.text(hist_bins[1]-1, max(n)-max(n)*0.1, 'Panel 2')
+        ax3.text(hist_bins[1]-1, max(n)-max(n)*0.1, 'Panel 3')
+        ax4.text(hist_bins[1]-1, max(n)-max(n)*0.1, 'Panel 4')
+        ax5.text(hist_bins[1]-1, max(n)-max(n)*0.1, 'Panel 5')
+
+        if median:
+            ax1.axvline(np.nanmean(x1[np.isfinite(x1)]), color='k', ls='--', lw=3.5)
+            ax2.axvline(np.nanmean(x2[np.isfinite(x2)]), color='k', ls='--', lw=3.5)
+            ax3.axvline(np.nanmean(x3[np.isfinite(x3)]), color='k', ls='--', lw=3.5)
+            ax4.axvline(np.nanmean(x4[np.isfinite(x4)]), color='k', ls='--', lw=3.5)
+            ax5.axvline(np.nanmean(x5[np.isfinite(x5)]), color='k', ls='--', lw=3.5)
+
+        ax1.set_xticklabels([])
+        ax2.set_xticklabels([])
+        ax3.set_xticklabels([])
+        ax4.set_xticklabels([])
+        ax1.grid()
+        ax2.grid()
+        ax3.grid()
+        ax4.grid()
+        ax5.grid()
+
+        ax5.set_xlabel(xlabel,fontsize=35)
+        ax1.set_ylim(0, max(n)+max(n)*0.1)
+        ax2.set_ylim(0, max(n)+max(n)*0.1)
+        ax3.set_ylim(0, max(n)+max(n)*0.1)
+        ax4.set_ylim(0, max(n)+max(n)*0.1)
+        ax5.set_ylim(0, max(n)+max(n)*0.1)
+
+        plt.tight_layout()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()

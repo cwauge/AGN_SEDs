@@ -181,8 +181,10 @@ class AGN():
             norm_lambdaL_lambda = self.nuL_nu
 
         try:
+            # print('yes: ',self.ID)
             return self.ID, self.z, self.rest_w_microns, norm_lambdaL_lambda, self.flux_jy_err/self.flux_jy, self.upper_check
         except AttributeError:
+            # print('no: ', self.ID)
             return self.ID, self.z, self.rest_w_microns, norm_lambdaL_lambda, self.flux_jy_err/self.flux_jy
 
     def Find_Lbol(self,xin=None,yin=None):
@@ -223,14 +225,23 @@ class AGN():
 
         return self.Lbol
 
-    def Find_Lbol_temp_sub(self,scale_L,temp_x,temp_y):
+    def Find_Lbol_temp_sub(self,scale_L,Lnorm,temp_x,temp_y):
         Lone_temp = temp_y[temp_x == 1.0050][0]
         if self.z <= 0.6:
-            scale = scale_L[0]/Lone_temp
+            if Lnorm < scale_L[0]:
+                scale = Lnorm/Lone_temp
+            else:
+                scale = scale_L[0]/Lone_temp
         elif (self.z > 0.6) & (self.z < 0.9):
-            scale = scale_L[1]/Lone_temp
+            if Lnorm < scale_L[1]:
+                scale = Lnorm/Lone_temp
+            else:
+                scale = scale_L[1]/Lone_temp
         else:
-            scale = scale_L[2]/Lone_temp
+            if Lnorm < scale_L[2]:
+                scale = Lnorm/Lone_temp
+            else:
+                scale = scale_L[2]/Lone_temp
         scale_y = temp_y*scale
 
         temp_interp = interpolate.interp1d(np.log10(temp_x), np.log10(scale_y),kind='linear',fill_value='extrapolate')
@@ -363,6 +374,19 @@ class AGN():
             check_return == 'BAD'
 
         return check_return
+
+    def IR_colors(self,filter1,filter2,filter3,filter4):
+        x1 = self.obs_f[self.filter_name == filter1]
+        x2 = self.obs_f[self.filter_name == filter2]
+        x3 = self.obs_f[self.filter_name == filter3]
+        x4 = self.obs_f[self.filter_name == filter4]
+
+        x = np.log10(x3/x1)
+        y = np.log10(x4/x2)
+
+        ir_agn = (x >=  0.08) & (y >= 0.15) & (y >= 1.21*x - 0.27) & (y <= 1.21*x +0.27) & (x4 > x3) & (x3 > x2) & (x2 > x1)
+
+        return x, y, ir_agn[0]
 
     def Source_output(self,fname,Lx,Nh,opt,Lone):
         data_out = np.asarray([self.ID,self.z,Lx,Nh,self.Lbol,Lone])
@@ -512,7 +536,7 @@ class AGN():
 
             tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
 
-    def write_cigale_file(self,fname,filtername):
+    def write_cigale_file(self,fname,filtername,int_fx=[np.nan,np.nan],use_int_fx=True,):
         upper_lims = Filters('filter_list.dat').pull_filter(self.filter_name,'upper limit')/1E3
         header = np.asarray(['# id','redshift'])
 
@@ -520,6 +544,20 @@ class AGN():
         for i in range(len(filtername)):
             if filtername[i] == 'nan':
                 continue
+            elif filtername[i] == 'Fx_hard':
+                if use_int_fx:
+                    data = np.append(data,int_fx[0])
+                    data = np.append(data,self.obs_f_err[i]/1E3)
+                else:
+                    data = np.append(data,self.obs_f[i]/1E3)
+                    data = np.append(data,self.obs_f_err[i]/1E3)
+            elif filtername[i] == 'Fx_soft':
+                if use_int_fx:
+                    data = np.append(data,int_fx[1])
+                    data = np.append(data,self.obs_f_err[i]/1E3)
+                else:
+                    data = np.append(data,self.obs_f[i]/1E3)
+                    data = np.append(data,self.obs_f_err[i]/1E3)
             elif self.obs_f[i] > 0:
                 data = np.append(data,self.obs_f[i]/1E3)
                 data = np.append(data,self.obs_f_err[i]/1E3)
@@ -533,6 +571,8 @@ class AGN():
         with open(f'../xcigale/data_input/{fname}','ab') as f:
             f.write(b'\n')
             np.savetxt(f,data,fmt='%s',delimiter='    ',newline=' ')
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Long Class to generate restframe SED for AGN target. Can output additional info, suchas as lambdaL_lambda as specified wavelength, slope of SED in given range, general SED shape, Lbol, luminosity under specific region of SED, etc.')

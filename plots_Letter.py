@@ -6169,7 +6169,7 @@ class Plotter_Letter():
 
 
 		# plt.tight_layout()
-		plt.savefig('/Users/connor_auge/Desktop/SEDs_horizontal_5panel.pdf')
+		plt.savefig('/Users/connor_auge/Desktop/SEDs_horizontal_5panel_new.pdf')
 		plt.show()
 
 

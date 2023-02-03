@@ -23,11 +23,14 @@ def Durras_Lbol(L,typ,err=False):
         print('Specify typ. Options are:    Lx    Lbol')
         return
 
+    # L += np.log10(0.611)
+
     kx = a*(1+((L - np.log10(3.8E33))/b)**c)
+    kx *= 1/1.64
     kx_lo = alo*(1+((L - np.log10(3.8E33))/blo)**clo)
     kx_up = aup*(1+((L - np.log10(3.8E33))/bup)**cup)
     kx_lo = kx - std
-    kx_upp = kx +std
+    kx_up = kx + std
     if err:
         return kx, kx_up, kx_lo
     else:
@@ -42,7 +45,7 @@ def Stern_MIR(L6):
     L6 -= 41
     Lx = a + b*L6 - c*L6**2
 
-    # Lx += np.log10(1.64)
+    Lx += np.log10(1.64)
 
     return Lx
 
@@ -55,7 +58,45 @@ def Hopkins_Lbol(L,band='Lx'):
         k2 = -0.020
 
     kx = c1*((10**L)/(10E10*3.8E33))**k1+c2*((10**L)/(10E10*3.8E33))**k2
+    kx *= 1/1.64
     return kx
+
+def Just_alpha_ox(Luv):
+    a = -0.140
+    b = 2.705
+    c = -0.093
+    d = 0.899
+    w = 2500*1E-8  # observed wavelength from Angstroms to cm
+    nu_uv = 3E10/w  # convert obs wavelength to a frequ
+
+    wx = 6.2*1E-8
+    nu_x = 3E10/wx
+
+    # Luv =- np.log10(nu)
+    Lnu = Luv - np.log10(nu_uv)
+
+    # Lx = (1/c)*(a*Lnu+b-d)
+    Lx = 0.709*Lnu+4.822
+    Lx_out = Lx
+
+    Lx_out = Lx + np.log10(nu_x)
+    Lx_out += 0.67
+
+    return Lx_out
+
+
+def Ranalli(L_FIR):
+    Lhx = L_FIR - 3.62
+
+    return Lhx
+
+
+def Torres(L_FIR):
+    Lhx = -0.17*L_FIR**2 + 15.2*L_FIR - 169
+
+    return Lhx
+
+
     
 
 
