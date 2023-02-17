@@ -2628,13 +2628,15 @@ class Plotter_Letter2():
 			xticks = [44.5,45.5,46.5]
 
 		elif X == 'UV':
-			f_1 = np.asarray([10**i for i in f1])
-			f1 = f_1*F1
-			x = np.log10(f1)
+			# f_1 = np.asarray([10**i for i in f1])
+			# f1 = f_1*F1
+			# x = np.log10(f1)
+			x = f1
 			xlabel = r'log L (0.25$\mu$m)'
 			xunits = ' [erg/s]'
-			xlim1 = 42.5
+			xlim1 = 41.5
 			xlim2 = 46.5
+			xticks = [42,43,44,45,46]
 			
 
 		elif X == 'MIR6':
@@ -2748,6 +2750,13 @@ class Plotter_Letter2():
 			ylim2 = 1.75
 			yticks = [-2,-1,0,1,2]
 
+		elif Y == 'FIR/UV':
+			y = f3 - f1
+			ylabel = r'log L (100$\mu$m)/ L (0.25$\mu$m)'
+			ylim2 = 3
+			ylim1 = -2
+			yticks = [-2,-1,0,1,2,3]
+
 		elif Y == 'UV/Lx':
 			# f_1 = np.asarray([10**i for i in f1])
 			# f1 = f_1*F1
@@ -2787,9 +2796,17 @@ class Plotter_Letter2():
 			f_3 = np.asarray([10**i for i in f3])
 			f3 = f_3*F1
 			y = np.log10(f2/f3)
-			ylabel = r'log L (10$\mu$m)/ L (100$\mu$m)'
+			ylabel = r'log L (6$\mu$m)/ L (100$\mu$m)'
 			ylim1 = -3
 			ylim2 = 2
+			yticks = [-2, -1, 0, 1, 2]
+
+		elif Y == 'FIR/MIR6':
+			y = f3 - f2
+			ylabel = r'log L (100$\mu$m)/ L (6$\mu$m)'
+			ylim1 = -2
+			ylim2 = 2
+			yticks = [-2,-1,0,1,2]
 
 		elif Y == 'MIR10/FIR':
 			f_4 = np.asarray([10**i for i in f4])
@@ -2911,6 +2928,9 @@ class Plotter_Letter2():
 				ylim2 = 1.5
 				yticks = [-2, -1, 0, 1]
 
+		print('x: ',x)
+		print('y: ',y)
+
 
 		c1 = '#377eb8'
 		c2 = '#984ea3'
@@ -2948,30 +2968,39 @@ class Plotter_Letter2():
 		x14_med, y14_med = np.nanmedian(x_14), np.nanmedian(y_14)
 		x15_med, y15_med = np.nanmedian(x_15), np.nanmedian(y_15)
 
-		# if X == 'FIR' or Y == 'FIR':
+		# print('here: ')
+		# print('med: ',y11_med)
+		# print(y_11)
+		# print(up_check_11)
+		# print(y_11[up_check_11 == 0])
+		# print('med: ',np.nanmedian(y_11[up_check_11 == 0]))
+
+		# if X == 'FIR' or Y in 'FIR':
 		# if 'Lbol' in Y:
-		# 	x11_med, y11_med = np.nanmedian(x_11[up_check_11 == 0]), np.nanmedian(y_11[up_check_11 == 0])
-		# 	x12_med, y12_med = np.nanmedian(x_12[up_check_12 == 0]), np.nanmedian(y_12[up_check_12 == 0])
-		# 	x13_med, y13_med = np.nanmedian(x_13[up_check_13 == 0]), np.nanmedian(y_13[up_check_13 == 0])
-		# 	x14_med, y14_med = np.nanmedian(x_14[up_check_14 == 0]), np.nanmedian(y_14[up_check_14 == 0])
-			# x15_med, y15_med = np.nanmedian(x_15[up_check_15 == 0]), np.nanmedian(y_15[up_check_15 == 0])
+			# print('check yes1')
+		# x11_med, y11_med = np.nanmedian(x_11[up_check_11 == 0]), np.nanmedian(y_11[up_check_11 == 0])
+		# x12_med, y12_med = np.nanmedian(x_12[up_check_12 == 0]), np.nanmedian(y_12[up_check_12 == 0])
+		# x13_med, y13_med = np.nanmedian(x_13[up_check_13 == 0]), np.nanmedian(y_13[up_check_13 == 0])
+		# x14_med, y14_med = np.nanmedian(x_14[up_check_14 == 0]), np.nanmedian(y_14[up_check_14 == 0])
+		# x15_med, y15_med = np.nanmedian(x_15[up_check_15 == 0]), np.nanmedian(y_15[up_check_15 == 0])
+			# print(y11_med)
 
 		x1_med, y1_med = np.asarray([x11_med,x12_med,x13_med,x14_med,x15_med]), np.asarray([y11_med,y12_med,y13_med,y14_med,y15_med])
 
-		# 25 Percentile 
+		# # 25 Percentile 
 		x11_25per, y11_25per = np.nanpercentile(x_11, 25), np.nanpercentile(y_11, 25)
 		x12_25per, y12_25per = np.nanpercentile(x_12, 25), np.nanpercentile(y_12, 25)
 		x13_25per, y13_25per = np.nanpercentile(x_13, 25), np.nanpercentile(y_13, 25)
 		x14_25per, y14_25per = np.nanpercentile(x_14, 25), np.nanpercentile(y_14, 25)
 		x15_25per, y15_25per = np.nanpercentile(x_15, 25), np.nanpercentile(y_15, 25)
 
-		# if X == 'FIR' or Y == 'FIR':
+		# if X == 'FIR' or Y in 'FIR':
 		# if 'Lbol' in Y:
-		# 	x11_25per, y11_25per = np.nanpercentile(x_11[up_check_11 == 0], 25), np.nanpercentile(y_11[up_check_11 == 0], 25)
-		# 	x12_25per, y12_25per = np.nanpercentile(x_12[up_check_12 == 0], 25), np.nanpercentile(y_12[up_check_12 == 0], 25)
-		# 	x13_25per, y13_25per = np.nanpercentile(x_13[up_check_13 == 0], 25), np.nanpercentile(y_13[up_check_13 == 0], 25)
-		# 	x14_25per, y14_25per = np.nanpercentile(x_14[up_check_14 == 0], 25), np.nanpercentile(y_14[up_check_14 == 0], 25)
-		# 	x15_25per, y15_25per = np.nanpercentile(x_15[up_check_15 == 0], 25), np.nanpercentile(y_15[up_check_15 == 0], 25)
+		# x11_25per, y11_25per = np.nanpercentile(x_11[up_check_11 == 0], 25), np.nanpercentile(y_11[up_check_11 == 0], 25)
+		# x12_25per, y12_25per = np.nanpercentile(x_12[up_check_12 == 0], 25), np.nanpercentile(y_12[up_check_12 == 0], 25)
+		# x13_25per, y13_25per = np.nanpercentile(x_13[up_check_13 == 0], 25), np.nanpercentile(y_13[up_check_13 == 0], 25)
+		# x14_25per, y14_25per = np.nanpercentile(x_14[up_check_14 == 0], 25), np.nanpercentile(y_14[up_check_14 == 0], 25)
+		# x15_25per, y15_25per = np.nanpercentile(x_15[up_check_15 == 0], 25), np.nanpercentile(y_15[up_check_15 == 0], 25)
 
 		x1_err_min, y1_err_min = x1_med - np.asarray([x11_25per,x12_25per,x13_25per,x14_25per,x15_25per]), y1_med - np.asarray([y11_25per,y12_25per,y13_25per,y14_25per,y15_25per])
 		# 75 Percentile 
@@ -2981,13 +3010,13 @@ class Plotter_Letter2():
 		x14_75per, y14_75per = np.nanpercentile(x_14, 75), np.nanpercentile(y_14, 75)
 		x15_75per, y15_75per = np.nanpercentile(x_15, 75), np.nanpercentile(y_15, 75)
 
-		# if X == 'FIR' or Y == 'FIR':
+		# if X == 'FIR' or Y in 'FIR':
 		# if 'Lbol' in Y:
-		# 	x11_75per, y11_75per = np.nanpercentile(x_11[up_check_11 == 0], 75), np.nanpercentile(y_11[up_check_11 == 0], 75)
-		# 	x12_75per, y12_75per = np.nanpercentile(x_12[up_check_12 == 0], 75), np.nanpercentile(y_12[up_check_12 == 0], 75)
-		# 	x13_75per, y13_75per = np.nanpercentile(x_13[up_check_13 == 0], 75), np.nanpercentile(y_13[up_check_13 == 0], 75)
-		# 	x14_75per, y14_75per = np.nanpercentile(x_14[up_check_14 == 0], 75), np.nanpercentile(y_14[up_check_14 == 0], 75)
-		# 	x15_75per, y15_75per = np.nanpercentile(x_15[up_check_15 == 0], 75), np.nanpercentile(y_15[up_check_15 == 0], 75)
+		# x11_75per, y11_75per = np.nanpercentile(x_11[up_check_11 == 0], 75), np.nanpercentile(y_11[up_check_11 == 0], 75)
+		# x12_75per, y12_75per = np.nanpercentile(x_12[up_check_12 == 0], 75), np.nanpercentile(y_12[up_check_12 == 0], 75)
+		# x13_75per, y13_75per = np.nanpercentile(x_13[up_check_13 == 0], 75), np.nanpercentile(y_13[up_check_13 == 0], 75)
+		# x14_75per, y14_75per = np.nanpercentile(x_14[up_check_14 == 0], 75), np.nanpercentile(y_14[up_check_14 == 0], 75)
+		# x15_75per, y15_75per = np.nanpercentile(x_15[up_check_15 == 0], 75), np.nanpercentile(y_15[up_check_15 == 0], 75)
 
 		x1_err_max, y1_err_max = np.asarray([x11_75per,x12_75per,x13_75per,x14_75per,x15_75per]) - x1_med, np.asarray([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per]) - y1_med
 		
@@ -3044,14 +3073,14 @@ class Plotter_Letter2():
 		x15_medx, y15_medx = np.nanmedian(x[b5]), np.nanmedian(y[b5])
 
 		# if X == 'FIR' or 'FIR' in Y:
-		# # if 'Lbol' in Y:
+		# # # if 'Lbol' in Y:
+		# 	print('check yes1')
 		# 	x11_medx, y11_medx = np.nanmedian(x[b1][up_check[b1] == 0]), np.nanmedian(y[b1][up_check[b1] == 0])
 		# 	x12_medx, y12_medx = np.nanmedian(x[b2][up_check[b2] == 0]), np.nanmedian(y[b2][up_check[b2] == 0])
 		# 	x13_medx, y13_medx = np.nanmedian(x[b3][up_check[b3] == 0]), np.nanmedian(y[b3][up_check[b3] == 0])
 		# 	x14_medx, y14_medx = np.nanmedian(x[b4][up_check[b4] == 0]), np.nanmedian(y[b4][up_check[b4] == 0])
 		# 	x15_medx, y15_medx = np.nanmedian(x[b5][up_check[b5] == 0]), np.nanmedian(y[b5][up_check[b5] == 0])
 				
-
 
 		x1_medx, y1_medx = np.asarray([x11_medx,x12_medx,x13_medx,x14_medx,x15_medx]), np.asarray([y11_medx,y12_medx,y13_medx,y14_medx,y15_medx])
 
@@ -3063,7 +3092,7 @@ class Plotter_Letter2():
 		x15_25perx, y15_25perx = np.nanpercentile(x[b5], 25), np.nanpercentile(y[b5], 25)
 
 		# if X == 'FIR' or 'FIR' in Y:
-		# # if 'Lbol' in Y:
+		# # # if 'Lbol' in Y:
 		# 	x11_25perx, y11_25perx = np.nanpercentile(x[b1][up_check[b1] == 0], 25), np.nanpercentile(y[b1][up_check[b1] == 0], 25)
 		# 	x12_25perx, y12_25perx = np.nanpercentile(x[b2][up_check[b2] == 0], 25), np.nanpercentile(y[b2][up_check[b2] == 0], 25)
 		# 	x13_25perx, y13_25perx = np.nanpercentile(x[b3][up_check[b3] == 0], 25), np.nanpercentile(y[b3][up_check[b3] == 0], 25)
@@ -3080,7 +3109,7 @@ class Plotter_Letter2():
 		x15_75perx, y15_75perx = np.nanpercentile(x[b5], 75), np.nanpercentile(y[b5], 75)
 
 		# if X == 'FIR' or 'FIR' in Y:
-		# # if 'Lbol' in Y:
+		# # # if 'Lbol' in Y:
 		# 	x11_75perx, y11_75perx = np.nanpercentile(x[b1][up_check[b1] == 0], 75), np.nanpercentile(y[b1][up_check[b1] == 0], 75)
 		# 	x12_75perx, y12_75perx = np.nanpercentile(x[b2][up_check[b2] == 0], 75), np.nanpercentile(y[b2][up_check[b2] == 0], 75)
 		# 	x13_75perx, y13_75perx = np.nanpercentile(x[b3][up_check[b3] == 0], 75), np.nanpercentile(y[b3][up_check[b3] == 0], 75)
@@ -3194,11 +3223,11 @@ class Plotter_Letter2():
 			ax1.scatter(x15_medx, y15_medx, color=c5mx, marker='s', s=150, edgecolor='k', linewidth=2, alpha=0.75, rasterized=True)
 
 			ax1.errorbar(x1_med, y1_med, xerr=[x1_err_min, x1_err_max], yerr=[y1_err_min, y1_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
-			ax1.scatter(x11_med, y11_med, color=c1m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
-			ax1.scatter(x12_med, y12_med, color=c2m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
-			ax1.scatter(x13_med, y13_med, color=c3m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
-			ax1.scatter(x14_med, y14_med, color=c4m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
-			ax1.scatter(x15_med, y15_med, color=c5m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True)
+			ax1.scatter(x11_med, y11_med, color=c1m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True,alpha=0.75)
+			ax1.scatter(x12_med, y12_med, color=c2m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True,alpha=0.75)
+			ax1.scatter(x13_med, y13_med, color=c3m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True,alpha=0.75)
+			ax1.scatter(x14_med, y14_med, color=c4m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True,alpha=0.75)
+			ax1.scatter(x15_med, y15_med, color=c5m, marker='o', s=150, edgecolor='k', linewidth=2, rasterized=True,alpha=0.75)
 
 		elif Median == 'None':
 			ax1.plot([np.nan],[np.nan])

@@ -21,7 +21,7 @@ from mag_flux import magerr_to_fluxerr
 ti = time.perf_counter() # Start timer
 path = '/Users/connor_auge/Research/Disertation/catalogs/' # Path for photometry catalogs
 
-Lx_min = 43
+Lx_min = 42.5
 
 '''
 Read in data files for GOALS sources
@@ -404,12 +404,12 @@ IRx, IRy, IRagn = [], [], []
 #         # source.write_cigale_file(cigale_name,goals_filter_name)
 #         ulirg_field.append(5)
 
-
+print(np.shape(ricci_ID_match_Ned))
 for i in range(len(ricci_ID_match_Ned)):
-    if ricci_ID_match_Ned[i] == 'UGC 08058':
-        continue
-    elif len(Ned_goals_flux[i][Ned_goals_flux[i] > 0]) > 1:
-        print(ricci_ID_match_Ned[i], ricci_LIR_match_Ned[i])
+    # if ricci_ID_match_Ned[i] == 'UGC 08058':
+        # continue
+    # if len(Ned_goals_flux[i][Ned_goals_flux[i] > 0]) > 1:
+        print(i,ricci_ID_match_Ned[i], ricci_LIR_match_Ned[i])
         source = AGN(ricci_ID_match_Ned[i],ricci_z_match_Ned[i],goals_filter_name,Ned_goals_flux[i],Ned_goals_flux_err[i])
         source.MakeSED()
         med_flux.append(Ned_goals_flux[i])
@@ -451,7 +451,7 @@ for i in range(len(ricci_ID_match_Ned)):
         ulirg_Nh_out.append(ricci_Nh_match_Ned[i])
         ulirg_LIR_out.append(ricci_LIR_match_Ned[i])
         ulirg_z.append(ricci_z_match_Ned[i])
-
+        
         # plot = Plotter(Id, redshift, w, f, ricci_Lx_full_match_Ned[i],f1,up_check)
         # plot.PlotSED(point_x=100,point_y=f100/f1)
 
@@ -502,7 +502,7 @@ ulirg_plot = Plotter_Letter(ulirg_id,ulirg_z,ulirg_x,ulirg_y,ulirg_frac_err)
 plot = Plotter(ulirg_id, ulirg_z, ulirg_x, ulirg_y, ulirg_Lx_corr_out, norm_ulirg, ulirg_FIR_upper_lims)
 
 for i in range(len(ulirg_id)):
-    print(ulirg_id[i], ulirg_LIR_out[i],IRagn[i])
+    print(i,ulirg_id[i], ulirg_LIR_out[i],IRagn[i])
 
 med_flux = np.asarray(med_flux)
 med_flux_combine = np.nanmedian(med_flux,axis=0)
@@ -511,10 +511,10 @@ source_combine = AGN('Med_GOALS_obs', np.nanmedian(ricci_z_match_Ned), goals_fil
 source_combine.write_cigale_file(cigale_name, goals_filter_name)
 
 # ulirg_plot.multi_SED('ULIRG_n',ulirg_x,ulirg_y,ulirg_Lx_out,median_x_ulirg,median_y_ulirg,suptitle='SEDs of ULIRGs',norm=norm_ulirg,mark=ulirg_field,spec_z=ulirg_z,wfir=None,ffir=None,up_check=ulirg_up_check,med_x_fir=median_fir_x_ulirg,med_y_fir=median_fir_y_ulirg)
-plot.multi_SED('GOALS_figs/SEDs_obsLx',median_x=median_x_ulirg,median_y=median_y_ulirg,wfir=WFIR_ulirg,ffir=FFIR_ulirg,Median_line=False,FIR_upper='data only')
-plot.L_scatter_comp('GOALS_figs/Lx_comp',ulirg_Lx_out,ulirg_Lx_corr_out,color_array=ulirg_LIR_out,xlabel=r'Observed log L$_{\rm X}$ [erg/s]', ylabel=r'Intrinsic log L$_{\rm X}$ [erg/s]',colorbar_label=r'log L$_{\rm IR}$ [L$_\odot$]')
-plot.IR_colors('GOALS_figs/IR colors2',IRx,IRy,ulirg_LIR_out,colorbar=True,colorbar_label=r'log L$_{\rm IR}$ [L$_\odot$]',Lacy=True,agn=IRagn)
+# plot.multi_SED('GOALS_figs/SEDs_obsLx',median_x=median_x_ulirg,median_y=median_y_ulirg,wfir=WFIR_ulirg,ffir=FFIR_ulirg,Median_line=False,FIR_upper='data only')
+# plot.L_scatter_comp('GOALS_figs/Lx_comp',ulirg_Lx_out,ulirg_Lx_corr_out,color_array=ulirg_LIR_out,xlabel=r'Observed log L$_{\rm X}$ [erg/s]', ylabel=r'Intrinsic log L$_{\rm X}$ [erg/s]',colorbar_label=r'log L$_{\rm IR}$ [L$_\odot$]')
+# plot.IR_colors('GOALS_figs/IR colors2',IRx,IRy,ulirg_LIR_out,colorbar=True,colorbar_label=r'log L$_{\rm IR}$ [L$_\odot$]',Lacy=True,agn=IRagn)
 
-print(Lbol_ulirg_sub)
-print(ulirg_Lx_corr_out)
-print(ulirg_LIR_out)
+# print(Lbol_ulirg_sub)
+# print(ulirg_Lx_corr_out)
+# print(ulirg_LIR_out)

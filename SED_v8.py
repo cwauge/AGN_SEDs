@@ -142,11 +142,11 @@ class AGN():
 
         return slope
 
-    def SED_shape(self):
+    def SED_shape(self,Uv1=0.15,Uv2=1.0,Mir11=1.0,Mir12=6.5,Mir21=6.5,Mir22=10):
         '''Find the "shape" of the SED as defined by 1 of 5 predefined bins'''
-        uv_slope = self.Find_slope(0.15, 1.0)  # Find the slope of the SED in the UV range
-        mir_slope1 = self.Find_slope(1.0, 6.5) # Find the slope of the SED in the NIR-MIR range
-        mir_slope2 = self.Find_slope(6.5, 10) # Find the slope of the SED in the MIR range
+        uv_slope = self.Find_slope(Uv1, Uv2)  # Find the slope of the SED in the UV range
+        mir_slope1 = self.Find_slope(Mir11, Mir12) # Find the slope of the SED in the NIR-MIR range
+        mir_slope2 = self.Find_slope(Mir21, Mir22) # Find the slope of the SED in the MIR range
 
         # Pre-defined conditions. Check slope values to determine SED shape bin and return bin
         if (uv_slope < -0.3) & (mir_slope1 >= -0.2):
@@ -155,9 +155,9 @@ class AGN():
             bin = 2 
         elif (uv_slope > 0.2) & (mir_slope1 >= -0.2):
             bin = 3
-        elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0):
+        elif (uv_slope >= -0.8) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0):
             bin = 4
-        elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0):
+        elif (uv_slope >= -0.8) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0):
             bin = 5
         else:
             bin = 6
@@ -187,7 +187,7 @@ class AGN():
             # print('no: ', self.ID)
             return self.ID, self.z, self.rest_w_microns, norm_lambdaL_lambda, self.flux_jy_err/self.flux_jy
 
-    def Find_Lbol(self,xin=None,yin=None):
+    def Find_Lbol(self,xin=None,yin=None,xmax=None):
         if xin is None:
             x = self.rest_w_microns*1E-4
             y = self.nuL_nu
@@ -200,8 +200,12 @@ class AGN():
         sort = x.argsort()
         x,y = x[sort], y[sort]
 
+        if xmax != None:
+            y = y[x < xmax*1E-4]
+            x = x[x < xmax*1E-4]        
+
         x = np.log10(x[~np.isnan(y)])
-        y = np.log10(y[~np.isnan(y)])        
+        y = np.log10(y[~np.isnan(y)])
 
         self.Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
 
@@ -225,7 +229,7 @@ class AGN():
 
         return self.Lbol
 
-    def Find_Lbol_temp_sub(self,scale_L,Lnorm,temp_x,temp_y):
+    def Find_Lbol_temp_sub(self,scale_L,Lnorm,temp_x,temp_y,xmax=None):
         Lone_temp = temp_y[temp_x == 1.0050][0]
         if self.z <= 0.6:
             if Lnorm < scale_L[0]:
@@ -249,7 +253,10 @@ class AGN():
 
         y_sub = self.nuL_nu - y_interp
 
-        return self.Find_Lbol(xin=self.rest_w_microns[y_sub > 0], yin=y_sub[y_sub > 0])
+        if xmax is None:
+            return self.Find_Lbol(xin=self.rest_w_microns[y_sub > 0], yin=y_sub[y_sub > 0])
+        else:
+            return self.Find_Lbol(xin=self.rest_w_microns[y_sub > 0], yin=y_sub[y_sub > 0],xmax=xmax)
 
     def find_Lum_range(self,xmin,xmax):
         x = np.log10(self.rest_w_cgs[~np.isnan(self.lambdaL_lambda)])

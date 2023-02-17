@@ -56,13 +56,18 @@ class Plotter():
         ax.autoscale()
         return lc
 
-    def median_sed(self,x_in,y_in,Norm=True,connect_point=False,Bin=False,bin_in=None,color='k',lw=6, label=None):
+    def median_sed(self,x_in,y_in,Norm=True,connect_point=False,Bin=False,bin_in=None,color='k',lw=6, label=None,scale=False,scale_F=None):
         '''Function to generate the median line for array of SEDs to be plotted'''
         x_out = np.nanmedian(x_in, axis=0)
         y_out = 10**np.nanmedian(y_in,axis=0)
         if Norm:
             if Bin:
-                y_out /= np.nanmedian(self.norm[bin_in])
+                if scale:
+                    print('y 1: ', len(y_out))
+                    y_out /=np.nanmedian(self.norm[bin_in])/scale_F
+                    print('y 2: ',len(y_out))
+                else:
+                    y_out /= np.nanmedian(self.norm[bin_in])
             else:
                 y_out /= np.nanmedian(self.norm)
 
@@ -73,7 +78,7 @@ class Plotter():
         if connect_point:
             return x_out[-1], y_out[-1]
 
-    def median_FIR_sed(self,xfir,yfir,Norm=True,connect=[np.nan,np.nan],upper='upper lims',Bin=False,bin_in=None,color='k',lw=6,ls='-',line=True,ms=10):
+    def median_FIR_sed(self,xfir,yfir,Norm=True,connect=[np.nan,np.nan],upper='upper lims',Bin=False,bin_in=None,color='k',lw=6,ls='-',line=True,ms=10,scale=False,scale_F=None):
         '''Function to plot the median FIR SED'''
         if upper == 'upper lims':
             yfir = yfir # if upper is True, only used detections to determine median FIR. Default is to use detections + upperlimts
@@ -86,15 +91,17 @@ class Plotter():
             print('Specify if FIR upper limits should be included in median calc or only data. Options are: upper lims,    data only')
             return
         x_out = np.nanmean(xfir,axis=0)
-        y_out = np.nanmean(yfir,axis=0)
+        if scale:    
+            y_out = np.nanmean(yfir,axis=0)*scale_F
+        else:
+            y_out = np.nanmean(yfir, axis=0)
+
         if Norm: # If Norm is True, normalize FIR SED. Default is to normalize
             if Bin:
-                y_out /= np.nanmedian(self.norm[bin_in])
+                    y_out /= np.nanmedian(self.norm[bin_in])
             else:
                 y_out /= np.nanmedian(self.norm)
         if ~np.isnan(connect[0]):
-            # x_out = np.append(connect[0],x_out)
-            # y_out = np.append(connect[1], y_out)
             x_out[0] = connect[0]
             y_out[0] = connect[1]
         if line:
@@ -155,7 +162,7 @@ class Plotter():
             plt.fill_between(x_out, y_out_25, y_out_75, color=color, alpha=0.15)
    
     def PlotSED(self,point_x=np.nan,point_y=np.nan,save=False):
-        fig, ax = plt.subplots(figsize=(10,8))
+        fig, ax = plt.subplots(figsize=(12,8))
         ax.plot(self.wavelength,self.Lum)
         ax.plot(self.wavelength,self.Lum,'x',c='k')
         ax.plot(point_x,point_y,'x',c='r')
@@ -168,7 +175,10 @@ class Plotter():
         # ax.set_xlim(5E-5,7E2)
         # ax.set_ylim(1E-4,1E2)
         ax.set_title(self.ID)
-        ax.text(0.05,0.7,f'L = {np.log10(self.norm)}',transform=ax.transAxes)
+        ax.text(0.05,0.8,f'Lx = {np.log10(self.L)}',transform=ax.transAxes,fontsize=18)
+        ax.text(0.05,0.7,f'z = {self.z}',transform=ax.transAxes,fontsize=18)
+        plt.xlim(5E-5, 7E2)
+        plt.ylim(1E-4, 1E2)
         plt.grid()
         if save:
             plt.savefig(f'/Users/connor_auge/Desktop/{self.ID}_SED.pdf')
@@ -291,7 +301,7 @@ class Plotter():
         plt.savefig(f'/Users/connor_auge/Desktop/{savestring}.pdf')
         plt.show()
 
-    def multi_SED_bins(self, savestring, bin, field, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], opt_p=[np.nan, np.nan], Median_line=True, FIR_med=True, FIR_upper='upper lims'):
+    def multi_SED_bins(self, savestring, bin, field, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], opt_p=[np.nan, np.nan], Median_line=True, FIR_med=True, FIR_upper='upper lims',scale=False):
         '''Function to overplot all normalized SEDs with each line mapping to a colorbar and separated into three bins'''
 
         if bin == 'redshift':
@@ -342,8 +352,18 @@ class Plotter():
         wfir_seg = np.delete(wfir, 0 , 1)
         ffir_seg = np.delete(ffir_norm, 0, 1)
 
+        if scale:
+            b1_scale = np.nanmedian(self.norm[b1],axis=0)/np.nanmedian(self.norm[b2],axis=0)
+            b3_scale = np.nanmedian(self.norm[b3],axis=0)/np.nanmedian(self.norm[b2],axis=0)
+        else:
+            b1_scale = 1.0
+            b3_scale = 1.0
+
+        print('scale: ', b1_scale, b3_scale)
+
+
         x1, x2, x3 = x[b1], x[b2], x[b3]
-        y1, y2, y3 = y[b1], y[b2], y[b3] 
+        y1, y2, y3 = y[b1], y[b2], y[b3]
         L1, L2, L3 = L[b1], L[b2], L[b3]
         wfir1, wfir2, wfir3 = wfir[b1], wfir[b2], wfir[b3]
         ffir1, ffir2, ffir3 = ffir_norm[b1], ffir_norm[b2], ffir_norm[b3]
@@ -378,21 +398,21 @@ class Plotter():
         ax1.set_ylabel(r'Normalized $\lambda$ L$_\lambda$')
 
         # Plot data
-        upper_seg1 = np.stack((wfir1_seg,ffir1_seg), axis=2)
+        upper_seg1 = np.stack((wfir1_seg,ffir1_seg*b1_scale), axis=2)
         upper_all1 = LineCollection(upper_seg1, color='gray', alpha=0.3)
         ax1.add_collection(upper_all1)
-        lc1 = self.multilines(x1,y1,L1,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
+        lc1 = self.multilines(x1,y1*b1_scale,L1,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
         axcb1 = fig.colorbar(lc1)
         axcb1.mappable.set_clim(clim1, clim2)
         axcb1.remove()
         # Plot median line
         if Median_line:
-            ax1.plot(np.nanmedian(x1[:, :2], axis=0),np.nanmedian(y1[:, :2], axis=0), c='k', lw=3)
+            ax1.plot(np.nanmedian(x1[:, :2], axis=0),np.nanmedian(y1[:, :2], axis=0)*b1_scale, c='k', lw=3)
             if FIR_med:
-                x_connect, y_connect = self.median_sed(median_x1, median_y1, connect_point=True, Bin=True, bin_in=b1, lw=3)
-                self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b1, lw=3, ls='--')
+                x_connect, y_connect = self.median_sed(median_x1, median_y1, connect_point=True, Bin=True, bin_in=b1, lw=3, scale=True, scale_F=b1_scale)
+                self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b1, lw=3, ls='--',scale=True,scale_F=b1_scale)
             else:
-                self.median_sed(median_x1, median_y1,Bin=True, bin_in = b1, lw=3)
+                self.median_sed(median_x1, median_y1,Bin=True, bin_in = b1, lw=3, scale=True, scale_F=b1_scale)
         plt.ylim(5E-4, 5E2)
         plt.xlim(7E-5, 700)
 
@@ -439,27 +459,24 @@ class Plotter():
         ax3.grid()
         ax3.set_title(t3)
 
-        upper_seg3 = np.stack((wfir3_seg,ffir3_seg), axis=2)
+        upper_seg3 = np.stack((wfir3_seg,ffir3_seg*b3_scale), axis=2)
         upper_all3 = LineCollection(upper_seg3, color='gray', alpha=0.3)
         ax3.add_collection(upper_all3)
-        lc3 = self.multilines(x3,y3,L3,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
+        lc3 = self.multilines(x3,y3*b3_scale,L3,cmap=cmap,lw=1.5,alpha=0.7,rasterized=True)
         axcb3 = fig.colorbar(lc3)
         axcb3.mappable.set_clim(clim1, clim2)
         axcb3.remove()
         # Plot median line
         if Median_line:
-            ax3.plot(np.nanmedian(x3[:,:2],axis=0),np.nanmedian(y3[:,:2],axis=0),c='k',lw=3)
+            ax3.plot(np.nanmedian(x3[:,:2],axis=0),np.nanmedian(y3[:,:2],axis=0)*b3_scale,c='k',lw=3)
             if FIR_med:
-                if bin=='redshift':
-                    x_connect, y_connect = self.median_sed(median_x3, median_y3, connect_point=True, Bin=True, bin_in=b3,lw=3)
-                    self.median_FIR_sed(wfir3,ffir3,connect=[x_connect,y_connect],upper=FIR_upper, Norm=False,Bin=True, bin_in=b3,lw=3, ls='--')
+                if bin=='redshift' or 'Lx':
+                    x_connect, y_connect = self.median_sed(median_x3, median_y3, connect_point=True, Bin=True, bin_in=b3,lw=3,scale=True,scale_F=b3_scale)
+                    self.median_FIR_sed(wfir3,ffir3,connect=[x_connect,y_connect],upper=FIR_upper, Norm=False,Bin=True, bin_in=b3,lw=3, ls='--',scale=True,scale_F=b3_scale)
                 else:
-                    # wfir3 = np.delete(wfir3, 0, 1)
-                    # ffir3 = np.delete(ffir3, 0, 1)
-                    self.median_sed(median_x3, median_y3, Bin=True, bin_in=b3,lw=3)
-                    # self.median_FIR_sed(wfir3,ffir3,upper=FIR_upper, Norm=False,Bin=True, bin_in=b3,lw=3)
+                    self.median_sed(median_x3, median_y3, Bin=True, bin_in=b3,lw=3,scale=True,scale_F=b3_scale)
             else:
-                self.median_sed(median_x3,median_y3, Bin=True, bin_in=b3,lw=3)
+                self.median_sed(median_x3,median_y3, Bin=True, bin_in=b3,lw=3,scale=True,scale_F=b3_scale)
         plt.ylim(5E-4, 5E2)
         plt.xlim(7E-5, 700)
         
