@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import argparse
 from matplotlib.widgets import TextBox, CheckButtons, Slider
 
-plt.rcParams['font.size'] = 25
+plt.rcParams['font.size'] = 20
 plt.rcParams['axes.linewidth'] = 3.5
 plt.rcParams['xtick.major.size'] = 5
 plt.rcParams['xtick.major.width'] = 4
@@ -33,12 +33,13 @@ class IntPlot():
         self.L = np.asarray(L)
         self.norm = np.asarray(norm)
         self.up_check = np.asarray(up_check)
+        self.out_array = np.array([0, 0, 0, 0, 0, 0, 0])
 
     def Plot(self,point_x,point_y,save=False):
-        fig, ax = plt.subplots(figsize=(12, 8))
+        fig, ax = plt.subplots(figsize=(16, 12))
         ax.plot(self.wavelength,self.Lum)
         ax.plot(self.wavelength,self.Lum,'x',c='k')
-        ax.plot(point_x,point_y,'x',c='r')
+        ax.plot(point_x,point_y,'x',ms=10,c='r')
 
         ax.set_xlabel(r'Rest Wavelength [$\mu$ m]')
         ax.set_ylabel(r'$\lambda$L$_\lambda$')
@@ -51,39 +52,46 @@ class IntPlot():
         plt.ylim(1E-4, 1E2)
         plt.grid()
 
-        rax = plt.axes([1.0, 0.1, 0.25, 0.1])
+        rax = plt.axes([0.75, 0.0, 0.25, 0.35])
         labels = ['Bad SED', 'UV extrap', 'F1 extrap', 'MIR extrap', 'FIR extrap', 'GOOD FIR', 'Manual Check']
         visibility = [False, False, False, False, False, False, False]
         check = CheckButtons(rax, labels, visibility)
+        # check.label.set_fontsize(14)
         check.on_clicked(self.check_box)
 
+        rax2 = plt.axes([0.0,0.0,0.2,0.1])
+        labels2 = ['Save Output']
+        visibility2 = [False]
+        save_check = CheckButtons(rax2, labels2, visibility2)
+        # save_check.label.set_fontsize(14)
+        save_check.on_clicked(self.button_press)
+
         if save:
-            plt.savefig(f'/Users/connor_auge/Desktop/{self.ID}_SED.pdf')
+            plt.savefig(f'/Users/connor_auge/Desktop/sed_check_output/{self.ID}_SED.pdf')
         plt.show()
 
     def button_press(self, button):
-        if button == 'Save Info': self.save(self.fname, self.out_array)
+        if button == 'Save Output': self.save(self.fname, self.out_array)
 
-    def check_box(self, button):
-        self.out_array = np.array([0,0,0,0,0,0,0])
-        if button == 'Bad SED': self.out_array[0] = 1
-        if button == 'UV extrap': self.out_array[1] = 1 
-        if button == 'F1 extrap': self.out_array[2] = 1
-        if button == 'MIR extrap': self.out_array[3] = 1
-        if button == 'FIR extrap': self.out_array[4] = 1
-        if button == 'GOOD FIR': self.out_array[5] = 1
-        if button == 'Manual Check': self.out_array[6] = 1
+    def check_box(self, check_mark):
+        if check_mark == 'Bad SED': self.out_array[0] = 1
+        if check_mark == 'UV extrap': self.out_array[1] = 1 
+        if check_mark == 'F1 extrap': self.out_array[2] = 1
+        if check_mark == 'MIR extrap': self.out_array[3] = 1
+        if check_mark == 'FIR extrap': self.out_array[4] = 1
+        if check_mark == 'GOOD FIR': self.out_array[5] = 1
+        if check_mark == 'Manual Check': self.out_array[6] = 1
 
 
     def save(self, fname, out_array):
         try:
-            with open(f'/Users/connor_auge/Desktop/{fname}.txt','a') as my_file:
+            with open(f'/Users/connor_auge/Desktop/sed_check_output/{fname}.txt','a') as my_file:
                my_file.write('%s,%f,%f,%f,%f,%f,%f,%f\n' % (self.ID, out_array[0], out_array[1], out_array[2], out_array[3], out_array[4], out_array[5], out_array[6]))
         except FileNotFoundError:
             self.write_file(fname)
     
     def write_file(self,fname):
-        outf = open(f'/Users/connor_auge/Desktop/{fname}.txt','w')
+        outf = open(f'/Users/connor_auge/Desktop/sed_check_output/{fname}.txt','w')
         outf.writelines('ID,Bad_SED,UV_extrap,F1_extrap,MIR_extrap,FIR_extrap,GOOD_FIR,Manual_Check\n')
         outf.close()
 
