@@ -10,14 +10,15 @@ class SED_shape_Plotter(Plotter):
         super().__init__(ID, z, wavelength, Lum, L, norm, up_check)
         self.shape = shape
 
-    def shape_1bin_h(self, savestring, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], uv_slope=None, mir_slope1=None, mir_slope2=None, Median_line=True, FIR_med=True, FIR_upper='upper lims'):
-        '''Function to plot the 5 sed shapes in a single horizonal plot. This creates a 1 row x 5 column plot'''
-        plt.rcParams['font.size'] = 32
+        plt.rcParams['font.size'] = 24
         plt.rcParams['axes.linewidth'] = 3
         plt.rcParams['xtick.major.size'] = 5
         plt.rcParams['xtick.major.width'] = 4
         plt.rcParams['ytick.major.size'] = 5
         plt.rcParams['ytick.major.width'] = 4
+
+    def shape_1bin_h(self, savestring, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], uv_slope=None, mir_slope1=None, mir_slope2=None, Median_line=True, FIR_med=True, FIR_upper='upper lims'):
+        '''Function to plot the 5 sed shapes in a single horizonal plot. This creates a 1 row x 5 column plot'''
         
         b1 = self.shape == 1
         b2 = self.shape == 2
@@ -139,9 +140,9 @@ class SED_shape_Plotter(Plotter):
         ax3.set_yscale('log')
         ax3.set_xticks(xticks)
         ax3.set_yticks(yticks)
-        ax3.set_yticklabels(yticklabels)
+        ax3.set_yticklabels([])
         ax3.set_xticklabels(xticks_labels)
-        ax3.set_xlabel(r'Log Rest Wavelength [$\mu$m]')
+        ax3.set_xlabel(r'log ($\lambda_{\rm rest}/\mu$m)')
         # ax3.set_ylabel(r'Log $\lambda L_{\lambda}$ Normalized at 1$\mu$m')
         ax3.text(0.05, 0.8, f'n = {len(x3)}', transform=ax3.transAxes)
         ax3.grid()
@@ -201,7 +202,7 @@ class SED_shape_Plotter(Plotter):
         ax5.set_yticks(yticks)
         ax5.set_xticklabels(xticks_labels)
         ax5.text(0.05, 0.8, f'n = {len(x5)}', transform=ax5.transAxes)
-        ax5.set_ylabel(r'Normalized $\lambda$ L$_\lambda$')
+        ax5.set_ylabel(r'Normalized log ($\lambda$ L$_\lambda$)')
         ax5.grid()
 
         # Plot data
@@ -377,7 +378,7 @@ class SED_shape_Plotter(Plotter):
         ax3.set_yticks(yticks)
         ax3.set_yticklabels(yticklabels)
         ax3.set_xticklabels([])
-        ax3.set_ylabel(r'Normalized $\lambda$ L$_\lambda$')
+        ax3.set_ylabel(r'Normalized log ($\lambda$ L$_\lambda$)')
         ax3.text(0.05, 0.72, f'n = {len(x3)}', transform=ax3.transAxes)
         ax3.text(0.05, 0.835, '3', transform=ax3.transAxes, fontsize=40, weight='bold')
         ax3.text(0.73, 0.08, str((len(x3)/len(x))*100)[0:4]+'%', transform=ax3.transAxes, weight='bold')
@@ -440,7 +441,7 @@ class SED_shape_Plotter(Plotter):
         ax5.set_yticks(yticks)
         ax5.set_yticklabels(yticklabels)
         ax5.set_xticklabels(xticks_labels)
-        ax5.set_xlabel(r'Rest Wavelength [$\mu$m]')
+        ax5.set_xlabel(r'log ($\lambda_{\rm rest}/\mu$m)')
         ax5.text(0.05, 0.72, f'n = {len(x5)}', transform=ax5.transAxes)
         ax5.text(0.05, 0.835, '5', transform=ax5.transAxes, fontsize=40, weight='bold')
         ax5.text(0.73, 0.08, str((len(x5)/len(x))*100)[0:4]+'%', transform=ax5.transAxes, weight='bold')

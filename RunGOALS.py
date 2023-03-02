@@ -295,16 +295,16 @@ goals_filter_name = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', '
 
 ###############################################################################
 ############################## Start CIGALE File ##############################
-cigale_name = 'GOALS_med2.mag'
-inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
-header = np.asarray(['# id', 'redshift'])
-cigale_filters = Filters('filter_list.dat').pull_filter(goals_filter_name, 'xcigale name')
-for i in range(len(cigale_filters)):
-    header = np.append(header, cigale_filters[i])
-    header = np.append(header, cigale_filters[i]+'_err')
-np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
-print('header: ',np.shape(header))
-inf.close()
+# cigale_name = 'GOALS_med2.mag'
+# inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
+# header = np.asarray(['# id', 'redshift'])
+# cigale_filters = Filters('filter_list.dat').pull_filter(goals_filter_name, 'xcigale name')
+# for i in range(len(cigale_filters)):
+#     header = np.append(header, cigale_filters[i])
+#     header = np.append(header, cigale_filters[i]+'_err')
+# np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
+# print('header: ',np.shape(header))
+# inf.close()
 ###############################################################################
 
 
@@ -477,7 +477,7 @@ for i in range(len(ricci_ID_match_Ned)):
         goals_irac_ch3.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_3_FLUX'][0])
         goals_irac_ch4.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_4_FLUX'][0])
         
-        source.write_cigale_file(cigale_name, goals_filter_name, use_int_fx=False)
+        # source.write_cigale_file(cigale_name, goals_filter_name, use_int_fx=False)
         ulirg_field.append(5)
 
 
@@ -507,14 +507,19 @@ for i in range(len(ulirg_id)):
 med_flux = np.asarray(med_flux)
 med_flux_combine = np.nanmedian(med_flux,axis=0)
 
-source_combine = AGN('Med_GOALS_obs', np.nanmedian(ricci_z_match_Ned), goals_filter_name,med_flux_combine,med_flux_combine*0.3)
-source_combine.write_cigale_file(cigale_name, goals_filter_name)
+# source_combine = AGN('Med_GOALS_obs', np.nanmedian(ricci_z_match_Ned), goals_filter_name,med_flux_combine,med_flux_combine*0.3)
+# source_combine.write_cigale_file(cigale_name, goals_filter_name)
 
 # ulirg_plot.multi_SED('ULIRG_n',ulirg_x,ulirg_y,ulirg_Lx_out,median_x_ulirg,median_y_ulirg,suptitle='SEDs of ULIRGs',norm=norm_ulirg,mark=ulirg_field,spec_z=ulirg_z,wfir=None,ffir=None,up_check=ulirg_up_check,med_x_fir=median_fir_x_ulirg,med_y_fir=median_fir_y_ulirg)
 # plot.multi_SED('GOALS_figs/SEDs_obsLx',median_x=median_x_ulirg,median_y=median_y_ulirg,wfir=WFIR_ulirg,ffir=FFIR_ulirg,Median_line=False,FIR_upper='data only')
 # plot.L_scatter_comp('GOALS_figs/Lx_comp',ulirg_Lx_out,ulirg_Lx_corr_out,color_array=ulirg_LIR_out,xlabel=r'Observed log L$_{\rm X}$ [erg/s]', ylabel=r'Intrinsic log L$_{\rm X}$ [erg/s]',colorbar_label=r'log L$_{\rm IR}$ [L$_\odot$]')
 # plot.IR_colors('GOALS_figs/IR colors2',IRx,IRy,ulirg_LIR_out,colorbar=True,colorbar_label=r'log L$_{\rm IR}$ [L$_\odot$]',Lacy=True,agn=IRagn)
-
 # print(Lbol_ulirg_sub)
 # print(ulirg_Lx_corr_out)
-# print(ulirg_LIR_out)
+# print(ulirg_LIR_out) 
+
+# for i in range(len(ulirg_Lx_out)):
+#     print(ulirg_Lx_out[i],ulirg_Lx_corr_out[i],ulirg_Lx_out[i]/ulirg_Lx_corr_out[i])
+
+# print(ulirg_Lx_out/ulirg_Lx_corr_out)
+# print(np.nanmedian(ulirg_Lx_out/ulirg_Lx_corr_out))

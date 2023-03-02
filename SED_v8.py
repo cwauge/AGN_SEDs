@@ -50,7 +50,7 @@ class AGN():
         self.flux_jy[self.flux_jy <= 0] = np.nan # replace negative or zero flux values with nan
         self.flux_jy_err[self.flux_jy_err <= 0] = np.nan # replace negative or zero error values with nan
         self.flux_jy[np.isnan(self.flux_jy_err)] = np.nan # replace flux values with no errors with nan
-        self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove flux values with frac error > 50%
+        # self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove flux values with frac error > 50%
 
         # convert flux from frequency space to wavelength
         self.Fnu = self.flux_jy*1E-23 # convert flux from Jy to cgs: erg s^-1 cm^-2 Hz^-1
@@ -155,9 +155,9 @@ class AGN():
             bin = 2 
         elif (uv_slope > 0.2) & (mir_slope1 >= -0.2):
             bin = 3
-        elif (uv_slope >= -0.8) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0):
+        elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0):
             bin = 4
-        elif (uv_slope >= -0.8) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0):
+        elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0):
             bin = 5
         else:
             bin = 6
@@ -338,6 +338,7 @@ class AGN():
         elif ~np.isnan(self.fir_flux_jy[0]) and ~np.isnan(self.fir_flux_jy[1]):
             if value_data > value_upper:
                 yfir_out = yfir_upper
+                # yfir_out = yfir_data
                 self.L_FIR_value_out = value_upper
                 self.upper_check = 1
             else:
@@ -543,37 +544,49 @@ class AGN():
 
             tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
 
-    def write_cigale_file(self,fname,filtername,int_fx=[np.nan,np.nan],use_int_fx=True,):
+    def write_cigale_file(self,fname,int_fx=[np.nan,np.nan],use_int_fx=True,use_upper=False):
         upper_lims = Filters('filter_list.dat').pull_filter(self.filter_name,'upper limit')/1E3
+        region = Filters('filter_list.dat').pull_filter(self.filter_name,'wavelength range')
         header = np.asarray(['# id','redshift'])
 
+        f = self.flux_jy*1E6
+        ferr = self.flux_jy_err*1E6
+
         data = np.asarray([str(self.ID),self.z]) 
-        for i in range(len(filtername)):
-            if filtername[i] == 'nan':
+        for i in range(len(self.filter_name)):
+            if self.filter_name[i] == 'nan':
                 continue
-            elif filtername[i] == 'Fx_hard':
+            elif self.filter_name[i] == 'Fx_hard':
                 if use_int_fx:
                     data = np.append(data,int_fx[0])
-                    data = np.append(data,self.obs_f_err[i]/1E3)
+                    data = np.append(data,ferr[i]/1E3)
                 else:
-                    data = np.append(data,self.obs_f[i]/1E3)
-                    data = np.append(data,self.obs_f_err[i]/1E3)
-            elif filtername[i] == 'Fx_soft':
+                    data = np.append(data,f[i]/1E3)
+                    data = np.append(data,ferr[i]/1E3)
+            elif self.filter_name[i] == 'Fx_soft':
                 if use_int_fx:
                     data = np.append(data,int_fx[1])
-                    data = np.append(data,self.obs_f_err[i]/1E3)
+                    data = np.append(data,ferr[i]/1E3)
                 else:
-                    data = np.append(data,self.obs_f[i]/1E3)
-                    data = np.append(data,self.obs_f_err[i]/1E3)
-            elif self.obs_f[i] > 0:
-                data = np.append(data,self.obs_f[i]/1E3)
-                data = np.append(data,self.obs_f_err[i]/1E3)
-            elif self.obs_f[i] <= 1E-20:
+                    data = np.append(data,f[i]/1E3)
+                    data = np.append(data,ferr[i]/1E3)
+            elif f[i] > 0:
+                data = np.append(data,f[i]/1E3)
+                data = np.append(data,ferr[i]/1E3)
+            elif f[i] <= 1E-20:
                 data = np.append(data,upper_lims[i])
                 data = np.append(data,-9000.)
-            elif np.isnan(self.obs_f[i]) == True:
-                data = np.append(data,-9999.)
-                data = np.append(data,-9999.)
+            elif np.isnan(f[i]) == True:
+                if region[i] == 'FIR':
+                    if use_upper:
+                        data = np.append(data,upper_lims[i])
+                        data = np.append(data,-9000)
+                    else:
+                        data = np.append(data, -9999.)
+                        data = np.append(data, -9999.)
+                else:
+                    data = np.append(data,-9999.)
+                    data = np.append(data,-9999.)
 
         with open(f'../xcigale/data_input/{fname}','ab') as f:
             f.write(b'\n')

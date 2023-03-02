@@ -78,7 +78,7 @@ class Plotter():
         if connect_point:
             return x_out[-1], y_out[-1]
 
-    def median_FIR_sed(self,xfir,yfir,Norm=True,connect=[np.nan,np.nan],upper='upper lims',Bin=False,bin_in=None,color='k',lw=6,ls='-',line=True,ms=10,scale=False,scale_F=None):
+    def median_FIR_sed(self,xfir,yfir,Norm=True,connect=[np.nan,np.nan],upper='upper lims',Bin=False,bin_in=None,color='k',lw=6,ls='--',line=True,ms=10,scale=False,scale_F=None):
         '''Function to plot the median FIR SED'''
         if upper == 'upper lims':
             yfir = yfir # if upper is True, only used detections to determine median FIR. Default is to use detections + upperlimts
@@ -161,12 +161,15 @@ class Plotter():
         if fill:
             plt.fill_between(x_out, y_out_25, y_out_75, color=color, alpha=0.15)
    
-    def PlotSED(self,point_x=np.nan,point_y=np.nan,save=False):
+    def PlotSED(self,point_x=np.nan,point_y=np.nan,fir_x=[np.nan],fir_y=[np.nan],save=False):
         fig, ax = plt.subplots(figsize=(12,8))
         ax.plot(self.wavelength,self.Lum)
         ax.plot(self.wavelength,self.Lum,'x',c='k')
         ax.plot(point_x,point_y,'x',c='r')
         # ax.plot(self.wfir,self.ffir,c='gray',lw=4)
+        if any(fir_y) != np.nan:
+            ax.plot(fir_x, fir_y/self.norm, color='gray',lw=4)
+            ax.plot(fir_x, fir_y, 'o',color='b')
 
         ax.set_xlabel(r'Rest Wavelength [$\mu$ m]')
         ax.set_ylabel(r'$\lambda$L$_\lambda$')
@@ -226,12 +229,12 @@ class Plotter():
         # ax.set_ylim(1E-3,200)
         # ax.set_xlim(1E-10,1E5)
         # ax.set_xticks([1E-4,1E-3,1E-2,1E-1,1E0,1E1,1E2,1E3,1E4])
-        # ax.text(0.15, 0.85, f'n = {len(L)}', transform=ax.transAxes)
+        ax.text(0.15, 0.85, f'n = {len(L)}', transform=ax.transAxes)
         
         # Plot the FIR upper limit segments 
         upper_seg = np.stack((wfir_seg, ffir_seg), axis=2)
         upper_all = LineCollection(upper_seg,color='gray',alpha=0.3)
-        # ax.add_collection(upper_all)
+        ax.add_collection(upper_all)
 
         # use multilines function to plot all SEDs mapped to colorbar based on L
         lc = self.multilines(x, y, L, lw=2.5, cmap=cmap, alpha=0.75, rasterized=True) 
@@ -243,7 +246,6 @@ class Plotter():
         # ax.plot(x, y, 'x', color='k')
         if ~np.isnan(opt_p[0]):
             ax.plot(opt_p[0],opt_p[1]/self.norm,'x',color='r')
-
 
         # Plot median line
         if Median_line:
@@ -258,19 +260,6 @@ class Plotter():
             x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x, median_y,connect_point=True,fill=True)
             self.percentile_lines_FIR(wfir,ffir, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, fill=True)
             self.percentile_lines(x[:,:2],np.log10(y[:,:2]),Norm=False,fill=True)
-
-        # x, y = np.append(median_x,wfir), np.append(median_y,ffir)
-
-        # f_interp = interpolate.interp1d(np.log10(x),y,kind='linear',fill_value='extrapolate') 
-
-        # x_interp = np.arange(1E-1,350,0.5)
-        # y_interp = f_interp(np.log10(x_interp))
-
-        # plt.plot(x_interp,y_interp,color='r')
-        # print(x_interp)
-        # print(y_interp)
-        # print(x)
-        # print(y)
 
         # plt.axvline(0.11,color='b',lw=3)
         # plt.axvline(0.5,color='b',lw=3)
@@ -289,16 +278,13 @@ class Plotter():
         # plt.fill_between([30, 450],[1E-2,1E-2],[1E2,1E2], color='red', alpha=0.3)
         # ax.text(0.69, 0.85, f'Cold', transform=ax.transAxes,fontsize=30, weight='bold')
         # ax.text(0.69, 0.8, f'Dust', transform=ax.transAxes,fontsize=30, weight='bold')
- 
 
-        plt.ylim(5E-4,5E2)
+        plt.ylim(5E-4,2E2)
         plt.xlim(7E-5,700)
-        # plt.ylim(1E-1, 40)
-        # plt.xlim(7E-2,500)
         plt.grid()
         plt.tight_layout()
         
-        plt.savefig(f'/Users/connor_auge/Desktop/{savestring}.pdf')
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
 
     def multi_SED_bins(self, savestring, bin, field, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], opt_p=[np.nan, np.nan], Median_line=True, FIR_med=True, FIR_upper='upper lims',scale=False):
@@ -1621,7 +1607,8 @@ class Plotter():
         if 'FIR' in X:
             # ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray',marker=8,s=45,edgecolors=None, alpha=1,rasterized=True)
             # ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray', marker=1,s=45, alpha=1)
-            ax3.plot(x3[self.up_check == 1], y3[self.up_check == 1],'<',markerfacecolor='None',markeredgecolor='k',alpha=0.7,ms=8)
+            ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=8,color='k',alpha=0.7,s=25)
+            ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=1,color='k',alpha=0.7,s=25)
             ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='gray', marker='x', s=35, rasterized=True)
         else:
             ax3.scatter(x, y3, color='gray', marker='+', s=30,rasterized=True)
@@ -1764,8 +1751,6 @@ class Plotter():
         y1std4 = np.std(y[bx4])
         y1std5 = np.std(y[bx5])
 
-        print(min(y),max(y))
-
         # xmed = np.array([xmed1,xmed2,xmed3,xmed4,xmed5])
         if X == 'Lbol':
             xmed = np.array([44.25, 44.75, 45.25, 45.75, 46.25])
@@ -1782,9 +1767,6 @@ class Plotter():
         durras_Lx = Lit_functions.Durras_Lbol(np.arange(42,48),typ='Lbol')
         ranalli = Lit_functions.Ranalli(np.arange(42,48))
         torres = Lit_functions.Torres(np.arange(42,48))
-
-        print(ranalli)
-        print(torres)
 
         fig = plt.figure(figsize=(10, 10))
         ax1 = plt.subplot(111, aspect='equal', adjustable='box')
@@ -1823,7 +1805,8 @@ class Plotter():
         #75bbfb
         plt.figure(figsize=(9, 9))
         # ax1 = plt.subplot(111, aspect='equal', adjustable='box')
-        n = plt.hist(x,bins=np.arange(bins[0],bins[1],bins[2]),color='#75bbfb',zorder=0)
+        n = plt.hist(x, bins=np.arange(
+            bins[0], bins[1], bins[2]), color='#75bbfb', zorder=0)
         if median:
             plt.axvline(np.nanmedian(x),color='k',ls='--',lw=3)
             if std:
@@ -1840,7 +1823,7 @@ class Plotter():
         print('mean: ', np.nanmean(x))
         print('std: ', np.std(x))
 
-    def L_hist_zbins(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],bins=[np.nan,np.nan,np.nan],median=True,std=False,bin_type='shape'):
+    def L_hist_zbins(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],bins=[np.nan,np.nan,np.nan],median=True,std=False,bin_type='z'):
         if bin_type == 'z':
             b1 = self.z < 0.6
             b2 = (self.z > 0.6) & (self.z < 0.9)

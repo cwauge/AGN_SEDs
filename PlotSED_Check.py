@@ -48,12 +48,13 @@ class IntPlot():
         ax.set_title(self.ID)
         ax.text(0.05,0.8,f'Lx = {np.log10(self.L)}',transform=ax.transAxes,fontsize=18)
         ax.text(0.05,0.7,f'z = {self.z}',transform=ax.transAxes,fontsize=18)
+        ax.text(0.05,0.6,f'FIR upper: {self.up_check}',transform=ax.transAxes,fontsize=18)
         plt.xlim(5E-5, 7E2)
         plt.ylim(1E-4, 1E2)
         plt.grid()
 
         rax = plt.axes([0.75, 0.0, 0.25, 0.35])
-        labels = ['Bad SED', 'UV extrap', 'F1 extrap', 'MIR extrap', 'FIR extrap', 'GOOD FIR', 'Manual Check']
+        labels = ['Bad SED', 'UV extrap', 'F1 extrap', 'MIR extrap', 'FIR extrap', 'Bad FIR', 'Manual Check']
         visibility = [False, False, False, False, False, False, False]
         check = CheckButtons(rax, labels, visibility)
         # check.label.set_fontsize(14)
@@ -79,7 +80,7 @@ class IntPlot():
         if check_mark == 'F1 extrap': self.out_array[2] = 1
         if check_mark == 'MIR extrap': self.out_array[3] = 1
         if check_mark == 'FIR extrap': self.out_array[4] = 1
-        if check_mark == 'GOOD FIR': self.out_array[5] = 1
+        if check_mark == 'Bad FIR': self.out_array[5] = 1
         if check_mark == 'Manual Check': self.out_array[6] = 1
 
 
@@ -92,7 +93,7 @@ class IntPlot():
     
     def write_file(self,fname):
         outf = open(f'/Users/connor_auge/Desktop/sed_check_output/{fname}.txt','w')
-        outf.writelines('ID,Bad_SED,UV_extrap,F1_extrap,MIR_extrap,FIR_extrap,GOOD_FIR,Manual_Check\n')
+        outf.writelines('ID,Bad_SED,UV_extrap,F1_extrap,MIR_extrap,FIR_extrap,Bad_FIR,Manual_Check\n')
         outf.close()
 
 if __name__=='__main__':
