@@ -1461,7 +1461,7 @@ class Plotter_Letter2():
 		plt.savefig(f'/Users/connor_auge/Desktop/New_plots3/{savestring}.pdf')
 		plt.show()
 
-	def Upanels_ratio_plots(self, savestring, X, Y, Median, Nh, Lx, L, L1, L2, L3, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check, shape=None, Nh_upper=[np.nan]):
+	def Upanels_ratio_plots(self, savestring, X, Y, Median, Nh, Lx, L, L1, L2, L3, f1, f2, f3, f4, F1, field, spec_z, uv_slope, mir_slope1, mir_slope2, up_check, shape=None, Nh_upper=[np.nan],compare=False,comp_L=None,comp_UV=None,comp_MIR=None,comp_FIR=None):
 			plt.rcParams['font.size'] = 20
 			plt.rcParams['axes.linewidth'] = 2
 			plt.rcParams['xtick.major.size'] = 4
@@ -1816,6 +1816,8 @@ class Plotter_Letter2():
 				ax1.scatter(x_13, y_13, color=c3, marker='+', rasterized=True, alpha=0.6, label='Panel 3',zorder=0)
 				ax1.scatter(x_14, y_14, color=c4, marker='+', rasterized=True, alpha=0.6, label='Panel 4',zorder=0)
 				ax1.scatter(x_15, y_15, color=c5, marker='+', rasterized=True, alpha=0.6, label='Panel 5',zorder=0)
+				if compare:
+					ax1.scatter(comp_L, comp_UV-comp_L, color='gray',edgecolor='k',s=125, marker='*', rasterized=True, label='GOALS')
 
 			if Median != 'None':
 				ax1.errorbar(x1_med, y1_med, xerr=[x1_err_min, x1_err_max], yerr=[y1_err_min, y1_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -1865,6 +1867,9 @@ class Plotter_Letter2():
 				ax2.scatter(x_23, y_23, color=c3, marker='+', rasterized=True, alpha=0.6, label='Panel 3',zorder=0)
 				ax2.scatter(x_24, y_24, color=c4, marker='+', rasterized=True, alpha=0.6, label='Panel 4',zorder=0)
 				ax2.scatter(x_25, y_25, color=c5, marker='+', rasterized=True, alpha=0.6, label='Panel 5',zorder=0)
+				if compare:
+					ax2.scatter(comp_L, comp_MIR-comp_L, color='gray',edgecolor='k',s=125, marker='*', rasterized=True, label='GOALS')
+
 
 			if Median != 'None':
 				ax2.errorbar(x2_med, y2_med, xerr=[x2_err_min, x2_err_max], yerr=[y2_err_min, y2_err_max], mfc=c1m, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
@@ -1904,6 +1909,9 @@ class Plotter_Letter2():
 				ax3.scatter(x_33[up_check_33 == 0], y_33[up_check_33 == 0], color=c3, marker='+', rasterized=True, alpha=0.6, label='Panel 3',zorder=0)
 				ax3.scatter(x_34[up_check_34 == 0], y_34[up_check_34 == 0], color=c4, marker='+', rasterized=True, alpha=0.6, label='Panel 4',zorder=0)
 				ax3.scatter(x_35[up_check_35 == 0], y_35[up_check_35 == 0], color=c5, marker='+', rasterized=True, alpha=0.6, label='Panel 5',zorder=0)				
+				if compare:
+					ax3.scatter(comp_L, comp_FIR-comp_L, color='gray',edgecolor='k',s=125, marker='*', rasterized=True, label='GOALS')
+
 			
 			elif X == 'Nh' and any(Nh_upper) != np.nan:
 				ax3.scatter(x_31[Nh_upper1 != 0], y_31[Nh_upper1 != 0],marker=8,color='gray',rasterized=True, alpha=0.5, zorder=0)
@@ -3006,6 +3014,15 @@ class Plotter_Letter2():
 		y_15 = y[B5]
 		up_check_15 = up_check[B5]
 
+		z_FIR_fit_all = np.polyfit(x,y,1)
+		# z_FIR_fit_detect = np.polyfit(x[up_check == 0],y[up_check == 0],1)
+		# z_FIR_fit_upper = np.polyfit(x[up_check == 1],y[up_check == 1],1)
+
+		p_FIR_fit_all = np.poly1d(z_FIR_fit_all)
+		# p_FIR_fit_detect = np.poly1d(z_FIR_fit_detect)
+		# p_FIR_fit_upper = np.poly1d(z_FIR_fit_upper)
+		x_range_fit = np.linspace(42,47,1000)
+
 		# if Median == 'Bins':
 		c1m = c1
 		c2m = c2
@@ -3212,36 +3229,46 @@ class Plotter_Letter2():
 		# 	ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
 
 		elif 'FIR' in Y:
+			# ax1.plot(np.linspace(42, 47), np.linspace(2, -3), color='k', alpha=0.75, lw=2, zorder=0)
 			# ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], facecolor='none', edgecolors=c1, rasterized=True, alpha=0.8,zorder=0)
 			# ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], facecolor='none', edgecolors=c2, rasterized=True, alpha=0.8,zorder=0)
 			# ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], facecolor='none', edgecolors=c3, rasterized=True, alpha=0.8,zorder=0)
 			# ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], facecolor='none', edgecolors=c4, rasterized=True, alpha=0.8,zorder=0)
 			# ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], facecolor='none', edgecolors=c5, rasterized=True, alpha=0.8,zorder=0)
 
-			ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], marker=11, color='gray', rasterized=True, alpha=0.5,zorder=0)
-			ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], marker=11, color='gray', rasterized=True, alpha=0.5,zorder=0)
-			ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], marker=11, color='gray', rasterized=True, alpha=0.5,zorder=0)
-			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], marker=11, color='gray', rasterized=True, alpha=0.5,zorder=0)
-			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], marker=11, color='gray', rasterized=True, alpha=0.5,zorder=0)
+			ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], marker=11, color='gray', rasterized=True, alpha=0.5)
+			ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], marker=11, color='gray', rasterized=True, alpha=0.5)
+			ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], marker=11, color='gray', rasterized=True, alpha=0.5)
+			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], marker=11, color='gray', rasterized=True, alpha=0.5)
+			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], marker=11, color='gray', rasterized=True, alpha=0.5)
 
-			ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], marker=2, color='gray', rasterized=True, alpha=0.5,zorder=0)
-			ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], marker=2, color='gray', rasterized=True, alpha=0.5,zorder=0)
-			ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], marker=2, color='gray', rasterized=True, alpha=0.5,zorder=0)
-			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], marker=2, color='gray', rasterized=True, alpha=0.5,zorder=0)
-			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], marker=2, color='gray', rasterized=True, alpha=0.5,zorder=0)
+			ax1.scatter(x_11[up_check_11 == 1], y_11[up_check_11 == 1], marker=2, color='gray', rasterized=True, alpha=0.5)
+			ax1.scatter(x_12[up_check_12 == 1], y_12[up_check_12 == 1], marker=2, color='gray', rasterized=True, alpha=0.5)
+			ax1.scatter(x_13[up_check_13 == 1], y_13[up_check_13 == 1], marker=2, color='gray', rasterized=True, alpha=0.5)
+			ax1.scatter(x_14[up_check_14 == 1], y_14[up_check_14 == 1], marker=2, color='gray', rasterized=True, alpha=0.5)
+			ax1.scatter(x_15[up_check_15 == 1], y_15[up_check_15 == 1], marker=2, color='gray', rasterized=True, alpha=0.5)
 
-			ax1.scatter(x_11[up_check_11 == 0], y_11[up_check_11 == 0], color=c1, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 1',zorder=0)
-			ax1.scatter(x_12[up_check_12 == 0], y_12[up_check_12 == 0], color=c2, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 2',zorder=0)
-			ax1.scatter(x_13[up_check_13 == 0], y_13[up_check_13 == 0], color=c3, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 3',zorder=0)
-			ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 4',zorder=0)
-			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 5',zorder=0)
+			ax1.scatter(x_11[up_check_11 == 0], y_11[up_check_11 == 0], color=c1, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 1')
+			ax1.scatter(x_12[up_check_12 == 0], y_12[up_check_12 == 0], color=c2, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 2')
+			ax1.scatter(x_13[up_check_13 == 0], y_13[up_check_13 == 0], color=c3, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 3')
+			ax1.scatter(x_14[up_check_14 == 0], y_14[up_check_14 == 0], color=c4, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 4')
+			ax1.scatter(x_15[up_check_15 == 0], y_15[up_check_15 == 0], color=c5, marker='P', lw=0, rasterized=True, s=55, alpha=0.85, label='Panel 5')
+
+			# ax1.plot(x_range_fit,p_FIR_fit_all(x_range_fit),'-.',color='k')
+			# ax1.plot(x_range_fit,p_FIR_fit_detect(x_range_fit),color='b',lw=2)
+			# ax1.plot(x_range_fit,p_FIR_fit_upper(x_range_fit),color='r',lw=2)
+			
+
+			# yang = Lit_functions.Yang_FIR_Lx(np.linspace(42,48))
+			# ax1.plot(yang,np.linspace(42,48)/yang,'--',color='k',label='Yang et al. 2019')
+			
 
 		else:
-			ax1.scatter(x_11, y_11, color=c1, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 1',zorder=0)
-			ax1.scatter(x_12, y_12, color=c2, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 2',zorder=0)
-			ax1.scatter(x_13, y_13, color=c3, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 3',zorder=0)
-			ax1.scatter(x_14, y_14, color=c4, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 4',zorder=0)
-			ax1.scatter(x_15, y_15, color=c5, marker='P', lw=0, rasterized=True, alpha=0.8, label='Panel 5',zorder=0)
+			ax1.scatter(x_11, y_11, color=c1, marker='P', lw=0, rasterized=True, s=45, alpha=0.85, label='Panel 1',zorder=0)
+			ax1.scatter(x_12, y_12, color=c2, marker='P', lw=0, rasterized=True, s=45, alpha=0.85, label='Panel 2',zorder=0)
+			ax1.scatter(x_13, y_13, color=c3, marker='P', lw=0, rasterized=True, s=45, alpha=0.85, label='Panel 3',zorder=0)
+			ax1.scatter(x_14, y_14, color=c4, marker='P', lw=0, rasterized=True, s=45, alpha=0.85, label='Panel 4',zorder=0)
+			ax1.scatter(x_15, y_15, color=c5, marker='P', lw=0, rasterized=True, s=45, alpha=0.85, label='Panel 5',zorder=0)
 
 		# if Median != 'None':
 		if Median == 'Bins':

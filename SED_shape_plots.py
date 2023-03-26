@@ -10,12 +10,18 @@ class SED_shape_Plotter(Plotter):
         super().__init__(ID, z, wavelength, Lum, L, norm, up_check)
         self.shape = shape
 
-        plt.rcParams['font.size'] = 24
+        plt.rcParams['font.size'] = 20
         plt.rcParams['axes.linewidth'] = 3
         plt.rcParams['xtick.major.size'] = 5
         plt.rcParams['xtick.major.width'] = 4
         plt.rcParams['ytick.major.size'] = 5
         plt.rcParams['ytick.major.width'] = 4
+
+    def solar_log(self, x):
+        return x - np.log10(3.8E33)
+
+    def ergs_log(self, x):
+        return x + np.log10(3.8E33)
 
     def shape_1bin_h(self, savestring, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]], uv_slope=None, mir_slope1=None, mir_slope2=None, Median_line=True, FIR_med=True, FIR_upper='upper lims'):
         '''Function to plot the 5 sed shapes in a single horizonal plot. This creates a 1 row x 5 column plot'''
@@ -335,6 +341,9 @@ class SED_shape_Plotter(Plotter):
             if FIR_med:
                 x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=True, connect_point=True, Bin=True, bin_in=b1, lw=3)
                 self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b1, lw=3,ls='--')
+                
+                # x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=True,connect_point=True,lw=4)
+                # self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,lw=4,ls='--')
             else:
                 self.median_sed(median_x1, median_y1,Bin=True, bin_in = b1, lw=3)
         plt.ylim(1E-3, 75)
@@ -588,8 +597,8 @@ class SED_shape_Plotter(Plotter):
         x4 = x[b4]
         x5 = x[b5]
 
-        fig = plt.figure(figsize=(14,18))
-        gs = fig.add_gridspec(nrows=5, ncols=2, left=0.2, right=0.75, hspace=0.05,wspace=-0.05,width_ratios=[3,0.25])
+        fig = plt.figure(figsize=(15,15))
+        gs = fig.add_gridspec(nrows=5, ncols=1, left=0.2, right=0.75, hspace=0.1,wspace=-0.05)
 
         ax1 = fig.add_subplot(gs[0, 0])
         n1 = ax1.hist(x1, bins=np.arange(hist_bins[0],hist_bins[1],hist_bins[2]),color=c1,lw=4,alpha=0.8,label=bin1_name)
@@ -615,6 +624,19 @@ class SED_shape_Plotter(Plotter):
         n = np.append(n, n3[0])
         n = np.append(n, n4[0])
         n = np.append(n, n5[0])
+        
+        y_lim = np.linspace(0,max(n)+8,4)
+        y_lim = np.asarray(y_lim, dtype=int)
+        if xlabel == r'log N$_{\rm H}$':
+            x_lim = np.arange(xlim[0],xlim[1],1)
+        else:
+            x_lim = np.arange(xlim[0],xlim[1],0.5)
+
+        ax1.set_yticks(y_lim)
+        ax2.set_yticks(y_lim)
+        ax3.set_yticks(y_lim)
+        ax4.set_yticks(y_lim)
+        ax5.set_yticks(y_lim)
 
         ax1.text(hist_bins[1]-1, max(n)-max(n)*0.1, 'Panel 1')
         ax2.text(hist_bins[1]-1, max(n)-max(n)*0.1, 'Panel 2')
@@ -622,29 +644,61 @@ class SED_shape_Plotter(Plotter):
         ax4.text(hist_bins[1]-1, max(n)-max(n)*0.1, 'Panel 4')
         ax5.text(hist_bins[1]-1, max(n)-max(n)*0.1, 'Panel 5')
 
+        if xlabel == r'log L$_{\rm X}$' or xlabel == r'log L$_{\rm bol}$':
+            secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+            secax1.set_xticks([9,10,11,12])
+            secax1.set_xlabel(xlabel+r' [L$_{\odot}$]')
+
+        elif xlabel == r'log L (1$\mu \rm m)$':
+            secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+            secax1.set_xticks([9, 10, 11, 12])
+            secax1.set_xlabel(xlabel+r' [L$_{\odot}$]')
+
+
         if median:
-            ax1.axvline(np.nanmean(x1[np.isfinite(x1)]), color='k', ls='--', lw=3.5)
-            ax2.axvline(np.nanmean(x2[np.isfinite(x2)]), color='k', ls='--', lw=3.5)
-            ax3.axvline(np.nanmean(x3[np.isfinite(x3)]), color='k', ls='--', lw=3.5)
-            ax4.axvline(np.nanmean(x4[np.isfinite(x4)]), color='k', ls='--', lw=3.5)
-            ax5.axvline(np.nanmean(x5[np.isfinite(x5)]), color='k', ls='--', lw=3.5)
+            ax1.axvline(np.nanmedian(x1[np.isfinite(x1)]), color='k', ls='--', lw=3.5)
+            ax2.axvline(np.nanmedian(x2[np.isfinite(x2)]), color='k', ls='--', lw=3.5)
+            ax3.axvline(np.nanmedian(x3[np.isfinite(x3)]), color='k', ls='--', lw=3.5)
+            ax4.axvline(np.nanmedian(x4[np.isfinite(x4)]), color='k', ls='--', lw=3.5)
+            ax5.axvline(np.nanmedian(x5[np.isfinite(x5)]), color='k', ls='--', lw=3.5)
 
         ax1.set_xticklabels([])
         ax2.set_xticklabels([])
         ax3.set_xticklabels([])
         ax4.set_xticklabels([])
+        ax1.set_xticks(x_lim)
+        ax2.set_xticks(x_lim)
+        ax3.set_xticks(x_lim)
+        ax4.set_xticks(x_lim)
+        ax5.set_xticks(x_lim)
         ax1.grid()
         ax2.grid()
         ax3.grid()
         ax4.grid()
         ax5.grid()
 
-        ax5.set_xlabel(xlabel,fontsize=35)
+        if xlabel != r'log N$_{\rm H}$':
+            ax5.set_xlabel(xlabel+' [erg/s]')
+        elif xlabel == r'log N$_{\rm H}$':
+            ax5.set_xlabel(xlabel+r' [cm$^{-2}$]')
+        else:
+            ax5.set_xlabel(xlabel)
+
         ax1.set_ylim(0, max(n)+max(n)*0.1)
         ax2.set_ylim(0, max(n)+max(n)*0.1)
         ax3.set_ylim(0, max(n)+max(n)*0.1)
         ax4.set_ylim(0, max(n)+max(n)*0.1)
         ax5.set_ylim(0, max(n)+max(n)*0.1)
+
+        s = x1.sort()
+        print(x1[s])
+
+        print('        Median,     max,     min,    mean')
+        print('panel 1: ',np.nanmedian(x1[np.isfinite(x1)]),max(x1[np.isfinite(x1)]),min(x1[np.isfinite(x1)]),np.nanmean(x1[np.isfinite(x1)]))
+        print('panel 2: ',np.nanmedian(x2[np.isfinite(x2)]),max(x2[np.isfinite(x2)]),min(x2[np.isfinite(x2)]),np.nanmean(x2[np.isfinite(x2)]))
+        print('panel 3: ',np.nanmedian(x3[np.isfinite(x3)]),max(x3[np.isfinite(x3)]),min(x3[np.isfinite(x3)]),np.nanmean(x3[np.isfinite(x3)]))
+        print('panel 4: ',np.nanmedian(x4[np.isfinite(x4)]),max(x4[np.isfinite(x4)]),min(x4[np.isfinite(x4)]),np.nanmean(x4[np.isfinite(x4)]))
+        print('panel 5: ',np.nanmedian(x5[np.isfinite(x5)]),max(x5[np.isfinite(x5)]),min(x5[np.isfinite(x5)]),np.nanmean(x5[np.isfinite(x5)]))
 
         plt.tight_layout()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')

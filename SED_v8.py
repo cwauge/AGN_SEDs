@@ -50,7 +50,7 @@ class AGN():
         self.flux_jy[self.flux_jy <= 0] = np.nan # replace negative or zero flux values with nan
         self.flux_jy_err[self.flux_jy_err <= 0] = np.nan # replace negative or zero error values with nan
         self.flux_jy[np.isnan(self.flux_jy_err)] = np.nan # replace flux values with no errors with nan
-        # self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove flux values with frac error > 50%
+        self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove flux values with frac error > 50%
 
         # convert flux from frequency space to wavelength
         self.Fnu = self.flux_jy*1E-23 # convert flux from Jy to cgs: erg s^-1 cm^-2 Hz^-1
@@ -321,7 +321,7 @@ class AGN():
         xmin = min(self.filt_rest_w_mircons)
         xmax = max(self.filt_rest_w_mircons)
         if discreet:
-            xfir_out = np.linspace(xmin, xmax, 12)
+            xfir_out = np.linspace(xmin, xmax, 13)
         else:
             xfir_out = self.filt_rest_w_mircons
 
@@ -338,7 +338,7 @@ class AGN():
         elif ~np.isnan(self.fir_flux_jy[0]) and ~np.isnan(self.fir_flux_jy[1]):
             if value_data > value_upper:
                 yfir_out = yfir_upper
-                # yfir_out = yfir_data
+                yfir_out = yfir_data
                 self.L_FIR_value_out = value_upper
                 self.upper_check = 1
             else:
@@ -351,7 +351,9 @@ class AGN():
             self.upper_check = 1
 
         yfir_out = yfir_upper
-        self.L_FIR_value_out = value_upper
+        # self.L_FIR_value_out = value_upper
+        self.L_FIR_value_out = value_data
+
         
         self.FIR_lambdaL_lambda, self.FIR_wave = yfir_out, xfir_out
         if np.isnan(Find_value):
@@ -437,6 +439,26 @@ class AGN():
         L = F*4*np.pi*dl_cgs**2
 
         return L
+
+    def mix_loc(self,xrange,yrange):
+        fi_x = self.Find_value(xrange[0])
+        ff_x = self.Find_value(xrange[1])
+
+        fi_y = self.Find_value(yrange[0])
+        ff_y = self.Find_value(yrange[1])
+
+        # print(xrange[0],xrange[1])
+
+        # print(np.log10(fi_x),np.log10(ff_x))
+
+        slope_x = (np.log10(ff_x) - np.log10(fi_x))/(xrange[1] - xrange[0])
+        slope_y = (np.log10(ff_y) - np.log10(fi_y))/(yrange[1] - yrange[0])
+
+        x = self.Find_slope(xrange[0],xrange[1])
+        y = self.Find_slope(yrange[0],yrange[1])
+
+        # return slope_x, slope_y
+        return x*-1, y*-1
 
     def output_properties(self,field,xid,ra,dec,Lx,Nh):
         '''

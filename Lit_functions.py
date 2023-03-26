@@ -97,6 +97,28 @@ def Torres(L_FIR):
     return Lhx
 
 
+def Yang_FIR_Lx(L_FIR):
+    Lsun = 3.8E33
+
+    SFR = 1.09E-10*10**(L_FIR - np.log10(Lsun))
+    log_SFR = np.log10(SFR)
+
+    BHAR = 0.92*log_SFR-2.47
+
+    Lbol = (1E46*10**BHAR)/1.58
+
+    Lx = Durras_Lbol(np.log10(Lbol), typ='Lbol')
+
+    print('Lx',Lx+np.log10(Lsun))
+
+    return Lx+np.log10(Lsun)
+
+
+# def Hao_gal_frac(fg):
+    
+#     nuLnu_gal = 
+#     nuLnu_agn = 
+#     nuLnu_mix = fg*nuLnu_gal+(1-fg)*nuLnu_agn
     
 
 
