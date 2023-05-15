@@ -11,6 +11,8 @@ from astropy.table import Table
 from scipy import interpolate
 from scipy import integrate
 from filters import Filters
+from bootstrap_err import BootStrap
+import error_prop
 
 def main(ID,z,filter_name,obs_flux,obs_flux_err):
     source = AGN(ID,z,filter_name,obs_flux,obs_flux_err)
@@ -32,7 +34,7 @@ class AGN():
 
         self.obs_w = Filters('filter_list.dat').pull_filter(self.filter_name,'central wavelength')
 
-    def MakeSED(self):
+    def MakeSED(self,data_replace_filt='None'):
         '''Function to make the SED in the restframe'''
         self.c = const.c.to('cm/s').value #speed of light in cgs
 
@@ -51,23 +53,38 @@ class AGN():
         self.flux_jy_err[self.flux_jy_err <= 0] = np.nan # replace negative or zero error values with nan
         self.flux_jy[np.isnan(self.flux_jy_err)] = np.nan # replace flux values with no errors with nan
         self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove flux values with frac error > 50%
+        
+        if data_replace_filt != 'None':
+            value_replace = self.data_replace([data_replace_filt])
+            self.flux_jy[self.filter_name == data_replace_filt] =  value_replace
 
         # convert flux from frequency space to wavelength
         self.Fnu = self.flux_jy*1E-23 # convert flux from Jy to cgs: erg s^-1 cm^-2 Hz^-1
+        self.Fnu_err = self.flux_jy_err*1E-23
         self.Flambda = self.Fnu*(self.c/self.obs_w_cgs**2) 
+        self.Flambda_err = self.Fnu_err*(self.c/self.obs_w_cgs**2)
 
         self.lambdaF_lambda = self.obs_w_cgs*self.Flambda # convert units to erg s^-1 cm^-2
+        self.lambdaF_lambda_err = self.obs_w_cgs*self.Flambda
         self.lambdaL_lambda = self.Flux_to_Lum(self.lambdaF_lambda,self.z) # convert flux to luminosity [erg s^-1]
+        self.lambdaL_lambda_err = self.Flux_to_Lum(self.lambdaF_lambda_err,self.z)
         self.nuF_nu = self.obs_freq*self.Fnu
+        self.nuF_nu_err = self.obs_freq*self.Fnu
         self.nuL_nu = self.Flux_to_Lum(self.nuF_nu,self.z)
-        # print(self.nuL_nu)
-        
+        self.nuL_nu_err = self.Flux_to_Lum(self.nuF_nu_err,self.z)
+
         # Remove data points that do not have a valid y value and interpolate
         # x = np.log10(self.rest_w_microns[~np.isnan(self.lambdaL_lambda)])
         # y = np.log10(self.lambdaL_lambda[~np.isnan(self.lambdaL_lambda)])
         x = np.log10(self.rest_w_microns[~np.isnan(self.nuL_nu)])
         y = np.log10(self.nuL_nu[~np.isnan(self.nuL_nu)])
+        yerr = error_prop.log_err(self.nuL_nu[~np.isnan(self.nuL_nu)],self.nuL_nu_err[~np.isnan(self.nuL_nu)])
         self.f_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate') 
+        self.boot = BootStrap(x,y,None,yerr,1000)
+
+    def Lum_filter(self,nfilter):
+        outL = self.lambdaL_lambda[self.filter_name == nfilter]
+        return outL
 
     def Int_SED(self,xmin=1E-1,xmax=1E1):
         '''Function to determine the interpolated SED''' 
@@ -75,7 +92,7 @@ class AGN():
         y_out = self.f_interp(np.log10(x_out))
         return x_out, y_out
 
-    def Find_value(self,wave,limit_factor=2):
+    def Find_value(self,wave,limit_factor=2,boot=False):
         '''
         Function to find the value of the SED at a given wavelength (wave in microns)
         limit_factor is a scale factor to look for nearby data in Check_nearest functin. 
@@ -84,18 +101,28 @@ class AGN():
         '''
         limit = wave*limit_factor
         if wave > 12:
+            # wfir, ffir, value = self.Int_SED_FIR(Find_value=wave,discreet=True,boot=boot)
             value = self.L_FIR_value_out
+            if boot:
+                # wfir, ffir, value, value_boot = self.Int_SED_FIR(Find_value=wave,discreet=True,boot=boot)
+                value = self.L_FIR_value_out_boot
+
         else:
             # if self.Check_nearest(wave,limit):
                 try:
                     value = 10**self.f_interp(np.log10(wave)) # Use interpolation function defined in self.MakeSED() to find value
+                    if boot:
+                        value_boot = self.boot.iterate_interp(wave,1000,log=True)
                 except AttributeError: # Return warning and NaN value if interpolation fails
                     value = np.nan
                     # print(f'Object {self.ID} does not have enought valid flux values to find Luminosity at {wave} through SED interpolation.')
             # else:
                 # value = np.nan
-                # print(f'Object {self.ID} does not have enought valid flux values to find Luminosity at {wave} through SED interpolation.')
-        return value
+                # print(f'Object {self.ID} does not ha ve enought valid flux values to find Luminosity at {wave} through SED interpolation.')
+        if boot:
+            return value, value_boot
+        else:
+            return value
 
     def Find_nearest(self,wave):
         '''Function to find the nearest data points to specified wavelength'''
@@ -275,7 +302,122 @@ class AGN():
 
         return L_region
 
-    def FIR_extrap(self,filtername):
+    def stack_check(self):
+        F250 = self.flux_jy[self.filter_name == 'FLUX_250_s82x']
+        L22 = self.Lum_filter('W4')
+
+        bin1 = (np.isnan(F250)) & (self.z <= 0.45) & (np.log10(L22[0]) <= 44.1)
+        bin2 = (np.isnan(F250)) & (self.z <= 0.45) & (np.logical_and(np.log10(L22[0]) <= 47.0, np.log10(L22[0]) > 44.1))
+        bin3 = (np.isnan(F250)) & (np.logical_and(self.z > 0.45, self.z <= 0.7)) & (np.log10(L22[0]) <= 44.7)
+        bin4 = (np.isnan(F250)) & (np.logical_and(self.z > 0.45, self.z <= 0.7)) & (np.logical_and(np.log10(L22[0]) <= 47.0, np.log10(L22[0]) > 44.7))
+        bin5 = (np.isnan(F250)) & (np.logical_and(self.z > 0.7, self.z <= 1.25)) & (np.log10(L22[0]) <= 45.3)
+        bin6 = (np.isnan(F250)) & (np.logical_and(self.z > 0.7, self.z <= 1.25)) & (np.logical_and(np.log10(L22[0]) <= 47.0, np.log10(L22[0]) > 45.3))
+
+        bin_out = np.asarray([bin1,bin2,bin3,bin4,bin5,bin6])
+        loc = np.where(bin_out)[0]
+
+        if len(loc) > 0:
+            return loc[0]
+        else:
+            return 7
+ 
+    def flux_ratio_lower(self):
+        flux_1 = self.flux_jy[self.filter_name == 'JVHS']
+        flux_100 = flux_1*15
+        w_100 = 100*1E-4
+        freq_100 = self.c/w_100
+        fnu_100 = flux_100*1E-23
+        nufnu_100 = fnu_100*freq_100
+
+        nuLnu_100 = self.Flux_to_Lum(nufnu_100,self.z)
+        return nuLnu_100
+
+    def stack_FIR_set(self,fname):
+        flux_upper = Filters('filter_list.dat').pull_filter(fname,'upper limit')*1E-6 # 3 sigma upper limits from the Filters read file
+
+        stack_bin1_ID = np.asarray([2667,   2700,   2731,   2803,   2846,   2873,   2960,   3015,   3029,   3092,
+                                    3131,   3171,   3318,   3335,   3398,   3485,   3504,   3739,   3783,   3840,
+                                    3851,   3854,   3939,   3976,   4007,   4034,   4053,   4214,   4222,   4290,
+                                    4295,   4387,   4414,   4592,   4596,   4739,   4898,   4964,   4991,   5062,
+                                    5089,   5135,   5143,   5172,    434,    514,    520,    521,  57494,  89316,
+                                    129885, 180988])
+        stack_bin2_ID = np.asarray([2387,   2446,   2471,   2522,   2635,   2673,   2675,   2693,   2716,   2728,
+                                    2782,   2811,   2831,   2886,   2906,   2935,   2940,   3053,   3106,   3232,
+                                    3241,   3246,   3264,   3312,   3327,   3354,   3427,   3488,   3540,   3547,
+                                    3626,   3647,   3708,   3763,   3810,   3831,   3846,   3861,   3872,   3921,
+                                    3979,   3982,   4010,   4021,   4028,   4029,   4051,   4073,   4087,   4139,
+                                    4179,   4194,   4236,   4272,   4278,   4407,   4418,   4422,   4424,   4437,
+                                    4512,   4558,   4747,   4758,   4853,   4867,   4877,   4913,   5087,   5151,
+                                    399,    418,    425,  15292,  15296,  57498, 129802, 129884, 180997])
+        stack_bin3_ID = np.asarray([2363,   2388,   2420,   2442,   2482,   2609,   2702,   2711,   2845,   2925,
+                                    2948,   2949,   3037,   3116,   3179,   3305,   3339,   3408,   3501,   3557,
+                                    3868,   3912,   3929,   3934,   3949,   3975,   3983,   4019,   4060,   4158,
+                                    4174,   4287,   4306,   4321,   4510,   4557,   4591,   4624,   4630,   4661,
+                                    4766,   4781,   4799,   4845,   4881,   4902,   4930,   4939,   5025,   5064,
+                                    5068,   5078,   5213,    411,    488,    491,  15306, 107987])
+        stack_bin4_ID = np.asarray([2379,   2407,   2413,   2524,   2587,   2741,   2871,   2971,   3005,   3147,
+                                    3194,   3209,   3211,   3219,   3316,   3603,   3636,   3652,   3654,   3719,
+                                    3808,   3903,   4001,   4054,   4096,   4134,   4136,   4220,   4235,   4329,
+                                    4398,   4495,   4544,   4625,   4626,   4645,   4666,   4771,   4920,   5043,
+                                    5076,   5093,   5094,   5163,  15297,  50021, 129821])
+        stack_bin5_ID = np.asarray([2517,   2814,   2893,  2901,   2914,   3027,   3274,   3306,   3361,   3381,
+                                    3482,   3492,   3511,  3711,   3816,   3835,   3837,   3853,   3880,   4020,
+                                    4211,   4212,   4231,  4258,   4284,   4303,   4365,   4420,   4446,   4746,
+                                    4825,   4832,   4870,  4884,   5158, 129814])
+        stack_bin6_ID = np.asarray([2368,   2445,   2470,   2476,   2545,   2570,   2606,   2637,   2707,   3076,
+                                    3099,   3249,   3268,   3487,   3517,   3552,   3726,   3766,   3822,   3862,
+                                    3865,   3937,   3967,   4111,   4147,   4241,   4676,   4704,   4735,   4784,
+                                    4793,   4865,   4980,   5106,   5211, 108045])
+        if self.ID in stack_bin1_ID:
+            F250_upper_out = 10.59/1000
+            # print('yes 1')
+        elif self.ID in stack_bin2_ID:
+            F250_upper_out = 9.31/1000
+            # print('yes 2')
+        elif self.ID in stack_bin3_ID:
+            F250_upper_out = 8.38/1000
+            # print('yes 3')        
+        elif self.ID in stack_bin4_ID:
+            F250_upper_out = 8.10/1000
+            # print('yes 4')
+        elif self.ID in stack_bin5_ID:
+            F250_upper_out = 7.18/1000
+            # print('yes 5')
+        elif self.ID in stack_bin6_ID:
+            F250_upper_out = 13.93/1000
+            # print('yes 6')
+        else:
+            F250_upper_out = flux_upper
+
+        return F250_upper_out
+
+    def data_replace(self,filtername):
+        flux_upper = Filters('filter_list.dat').pull_filter(filtername,'upper limit')*1E-6 # 3 sigma upper limits from the Filters read file
+        # flux_upper /= 3 # 1 sigma upper limit
+
+        ind = np.where(self.filter_name == filtername)[0]
+        ind_use = np.array([ind-1,ind,ind+1])
+        check = []
+        for i in range(len(ind_use)):
+            check.append(self.flux_jy[ind_use[i][0]])
+        check = np.asarray(check) 
+        if any(~np.isnan(check)):
+            value = self.flux_jy[self.filter_name == filtername]
+        else:
+            value = flux_upper
+
+        # if np.isnan(self.flux_jy[self.filter_name == filtername]):
+        #     value = flux_upper
+
+        # elif self.flux_jy[self.filter_name == filtername] <= 0:
+        #     value = flux_upper
+        
+        # else:
+        #     value = self.flux_jy[self.filter_name == filtername]
+
+        return value
+
+    def FIR_extrap(self,filtername,stack=False):
         '''
         Function to find the FIR SED either based on data or the upper limits
         Input: list of observational filter names over which to construct SED
@@ -284,7 +426,16 @@ class AGN():
         self.FIR_filt = filtername
         regime = Filters('filter_list.dat').pull_filter(self.filter_name,'wavelength range') # Pull the specified wavelength regime from the Filters read file
         flux_upper = Filters('filter_list.dat').pull_filter(filtername,'upper limit')*1E-6 # 3 sigma upper limits from the Filters read file
+        
+        if stack:
+            f250_upper = self.stack_FIR_set(['FLUX_250_s82x'])
+            # print(flux_upper[-3])
+            flux_upper[-3] = f250_upper
+            # print(flux_upper[-3])
+
+
         flux_upper /= 3 # 1 sigma upper limits
+        # flux_upper = (flux_upper/3)*2 # 2 sigma upper limits
 
         self.filt_rest_w_mircons = np.asarray([self.rest_w_microns[self.filter_name == i][0] for i in filtername]) # make array of the rest wavelength in microns for spcified input filters
         filt_rest_w_cgs = np.asarray([self.rest_w_cgs[self.filter_name == i][0] for i in filtername])
@@ -317,7 +468,7 @@ class AGN():
         y = np.log10(nuL_nu[~np.isnan(nuL_nu)])
         self.upper_f_interp = interpolate.interp1d(x, y, kind='linear', fill_value='extrapolate')
         
-    def Int_SED_FIR(self,Find_value=np.nan,discreet=False):
+    def Int_SED_FIR(self,Find_value=np.nan,discreet=False,boot=False):
         xmin = min(self.filt_rest_w_mircons)
         xmax = max(self.filt_rest_w_mircons)
         if discreet:
@@ -340,7 +491,7 @@ class AGN():
                 yfir_out = yfir_upper
                 yfir_out = yfir_data
                 self.L_FIR_value_out = value_upper
-                self.upper_check = 1
+                self.upper_check = 0
             else:
                 yfir_out = yfir_data
                 self.L_FIR_value_out = value_data
@@ -351,22 +502,26 @@ class AGN():
             self.upper_check = 1
 
         yfir_out = yfir_upper
-        # self.L_FIR_value_out = value_upper
-        self.L_FIR_value_out = value_data
-
+        self.L_FIR_value_out = value_upper
+        # self.L_FIR_value_out = value_data
+        if boot:
+            self.L_FIR_value_out_boot = self.boot.iterate_interp(Find_value, 1000, log=True)
         
         self.FIR_lambdaL_lambda, self.FIR_wave = yfir_out, xfir_out
         if np.isnan(Find_value):
             return self.FIR_wave, self.FIR_lambdaL_lambda
         else:
-            return self.FIR_wave, self.FIR_lambdaL_lambda, self.L_FIR_value_out
+            if boot:
+                return self.FIR_wave, self.FIR_lambdaL_lambda, self.L_FIR_value_out, self.L_FIR_value_out_boot
+            else:
+                return self.FIR_wave, self.FIR_lambdaL_lambda, self.L_FIR_value_out
 
     def check_SED(self,check_w,check_span=None):
         # Check for an observational data popint within check_span microns of a desired wavelength value (check_w)
         # If check span is not specified use 2 microns
-        max_w = check_w + 15 # 15 microns
+        max_w = check_w + 2 # 15 microns
         if check_span is None:
-            min_w = check_w - 2 # 2 microns
+            min_w = check_w - 3 # 2 microns
         else:
             min_w = check_w - check_span
 
@@ -614,6 +769,19 @@ class AGN():
             f.write(b'\n')
             np.savetxt(f,data,fmt='%s',delimiter='    ',newline=' ')
 
+def Flux_to_Lum(F, z, d=np.nan, distance=False):
+    '''Function to convert flux to luminosity'''
+    cosmo = FlatLambdaCDM(H0=70, Om0=0.29, Tcmb0=2.725)
+
+    dl = cosmo.luminosity_distance(z).value  # Distance in Mpc
+    if distance:
+        dl = d/1E6
+    dl_cgs = dl*(3.0856E24)  # Distance from Mpc to cm
+
+    # convert flux to luminosity
+    L = F*4*np.pi*dl_cgs**2
+
+    return L
 
 
 if __name__ == '__main__':
