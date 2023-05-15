@@ -2,6 +2,7 @@ from ast import arg
 from stringprep import map_table_b2
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 import matplotlib.gridspec as gridspec
 import argparse
 import Lit_functions
@@ -19,14 +20,14 @@ class Plotter():
 
     def __init__(self,ID,z,wavelength,Lum,L,norm,up_check):
         self.ID = np.asarray(ID)
-        self.z = np.asarray(z)
+        self.z = np.around(z,2)
         self.wavelength = np.asarray(wavelength)
         self.Lum = np.asarray(Lum)
         self.L = np.asarray(L)
         self.norm = np.asarray(norm)
         self.up_check = np.asarray(up_check)
 
-        plt.rcParams['font.size'] = 25
+        plt.rcParams['font.size'] = 18
         plt.rcParams['axes.linewidth'] = 3.5
         plt.rcParams['xtick.major.size'] = 5
         plt.rcParams['xtick.major.width'] = 4
@@ -36,6 +37,7 @@ class Plotter():
         plt.rcParams['xtick.minor.width'] = 2.
         plt.rcParams['ytick.minor.size'] = 3.
         plt.rcParams['ytick.minor.width'] = 2.
+        plt.rcParams['hatch.linewidth'] = 2.5
 
     def solar_log(self,x):
         return x - np.log10(3.8E33)
@@ -167,25 +169,27 @@ class Plotter():
    
     def PlotSED(self,point_x=np.nan,point_y=np.nan,fir_x=[np.nan],fir_y=[np.nan],save=False):
         fig, ax = plt.subplots(figsize=(12,8))
-        ax.plot(self.wavelength,self.Lum)
-        ax.plot(self.wavelength,self.Lum,'x',c='k')
+        ax.plot(self.wavelength,self.Lum,color='b',lw=2.5)
+
+        ax.plot(self.wavelength,self.Lum,'o',c='k',ms=5)
         ax.plot(point_x,point_y,'x',c='r')
         # ax.plot(self.wfir,self.ffir,c='gray',lw=4)
         if any(fir_y) != np.nan:
             ax.plot(fir_x, fir_y/self.norm, color='gray',lw=4)
             ax.plot(fir_x, fir_y, 'o',color='b')
 
-        ax.set_xlabel(r'Rest Wavelength [$\mu$ m]')
-        ax.set_ylabel(r'$\lambda$L$_\lambda$')
+        ax.set_xlabel(r'Rest Wavelength [$\mu$m]',fontsize=22)
+        ax.set_ylabel(r'$\lambda$L$_\lambda$',fontsize=22)
         ax.set_xscale('log')
         ax.set_yscale('log')
         # ax.set_xlim(5E-5,7E2)
-        # ax.set_ylim(1E-4,1E2)
-        ax.set_title(self.ID)
-        ax.text(0.05,0.8,f'Lx = {np.log10(self.L)}',transform=ax.transAxes,fontsize=18)
-        ax.text(0.05,0.7,f'z = {self.z}',transform=ax.transAxes,fontsize=18)
+        ax.set_ylim(1E-4,1E2)
+        # ax.set_title(self.ID)
+        ax.text(0.05,0.8,r'log $L_{\rm X}$ = '+str(round(np.log10(self.L),2)),transform=ax.transAxes,fontsize=20)
+        ax.text(0.05,0.7,f'z = {self.z}',transform=ax.transAxes,fontsize=20)
         plt.xlim(5E-5, 7E2)
-        plt.ylim(1E-4, 1E2)
+        # plt.ylim(1E-4, 1E2)
+        # plt.ylim(1E42,1E46)
         plt.grid()
         if save:
             plt.savefig(f'/Users/connor_auge/Desktop/{self.ID}_SED.pdf')
@@ -195,11 +199,17 @@ class Plotter():
         self.wfir = wfir
         self.ffir = ffir
 
-    def multi_SED(self, savestring, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]],opt_p=[np.nan,np.nan],Median_line=True,FIR_med=True,FIR_upper='upper lims',percent=False):
+    def multi_SED(self, savestring, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]],opt_p=[np.nan,np.nan],Median_line=True,FIR_med=True,FIR_upper='upper lims',percent=False,GOALS=False,wave_labels=False,temp_comp=False,temp_comp_x=[np.nan],temp_comp_y=[np.nan]):
         '''Function to overplot all normalized SEDs with each line mapping to a colorbar'''
         # Set colorbar limits
-        clim1 = 42.8
-        clim2 = 44.25
+        if GOALS:
+            clim1 = 42.8
+            clim2 = 44.25
+            fir_ls = '-'
+        else:
+            clim1 = 43
+            clim2 = 45.5
+            fir_ls = '--'
         cmap = 'rainbow_r' # set colormap
 
         x = self.wavelength[self.L >= clim1-0.1] # remove sources with L outside colorbar range
@@ -230,15 +240,24 @@ class Plotter():
         ax.set_ylabel(r'Normalized $\lambda$ L$_\lambda$')
         ax.set_xscale('log')
         ax.set_yscale('log')
-        # ax.set_ylim(1E-3,200)
-        # ax.set_xlim(1E-10,1E5)
-        # ax.set_xticks([1E-4,1E-3,1E-2,1E-1,1E0,1E1,1E2,1E3,1E4])
+        ax.set_xticklabels([r'10$^{-4}$',r'10$^{-3}$','0.01','0.1','1.0','10','100'])
+        ax.set_xticks([1E-4,1E-3,1E-2,1E-1,1E0,1E1,1E2])
         ax.text(0.15, 0.85, f'n = {len(L)}', transform=ax.transAxes)
+
+        if wave_labels:
+            font = matplotlib.font_manager.FontProperties()
+            font.set_weight('bold')
+            ax.text(1.2E-4, 2.3E2, 'X-ray', fontproperties=font)
+            ax.text(0.065,2.3E2,'UV', fontproperties=font)
+            ax.text(0.2,2.3E2,'Optical', fontproperties=font)
+            ax.text(3.5,2.3E2,'MIR', fontproperties=font)
+            ax.text(65, 2.3E2, 'FIR', fontproperties=font)
         
         # Plot the FIR upper limit segments 
         upper_seg = np.stack((wfir_seg, ffir_seg), axis=2)
-        upper_all = LineCollection(upper_seg,color='gray',alpha=0.3)
-        # ax.add_collection(upper_all)
+        upper_all = LineCollection(upper_seg,color='gray',alpha=0.3) 
+        if ~GOALS:
+            ax.add_collection(upper_all)
 
         # use multilines function to plot all SEDs mapped to colorbar based on L
         lc = self.multilines(x, y, L, lw=2.5, cmap=cmap, alpha=0.75, rasterized=True) 
@@ -257,13 +276,16 @@ class Plotter():
             self.median_sed(x[:,:2],np.log10(y[:,:2]),Norm=False)
             if FIR_med:
                 x_connect, y_connect = self.median_sed(median_x,median_y,connect_point=True)
-                self.median_FIR_sed(wfir,ffir,connect=[x_connect,y_connect],upper=FIR_upper)
+                self.median_FIR_sed(wfir,ffir,connect=[x_connect,y_connect],upper=FIR_upper,ls=fir_ls)
             else:
                 self.median_sed(median_x,median_y)
         if percent:
             x_connect_p, y_connect_p1, y_connect_p2 = self.percentile_lines(median_x, median_y,connect_point=True,fill=True)
             self.percentile_lines_FIR(wfir,ffir, connect=[x_connect_p,y_connect_p1, y_connect_p2], upper=FIR_upper, fill=True)
             self.percentile_lines(x[:,:2],np.log10(y[:,:2]),Norm=False,fill=True)
+
+        if temp_comp:
+            ax.plot(temp_comp_x,temp_comp_y,'--',color='r',lw=6)
 
         # plt.axvline(0.11,color='b',lw=3)
         # plt.axvline(0.5,color='b',lw=3)
@@ -283,6 +305,7 @@ class Plotter():
         # ax.text(0.69, 0.85, f'Cold', transform=ax.transAxes,fontsize=30, weight='bold')
         # ax.text(0.69, 0.8, f'Dust', transform=ax.transAxes,fontsize=30, weight='bold')
 
+        # plt.axvline(6.0,color='k')
         plt.ylim(5E-4,2E2)
         plt.xlim(7E-5,700)
         plt.grid()
@@ -316,7 +339,7 @@ class Plotter():
             b3 = self.L > 44.5
             t1 = r'43 < log L$_{\rm X}$ < 43.75'
             t2 = r'43.75 < log L$_{\rm X}$ < 44.5'
-            t3 = r'44.5 < log L$_{\rm X}$'
+            t3 = r'log L$_{\rm X}$ < 44.5'
 
         else:
             print('Specify bins. Options are: redshift,    field,    Lx')
@@ -720,7 +743,7 @@ class Plotter():
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
 
-    def median_SED_1panel(self, savestring, median_x, median_y, wfir, ffir, shape, FIR_upper='upper lims',ls='-',bins='shape',compare=False,comp_med_x=None,comp_med_y=None,comp_wfir=None,comp_ffir=None):
+    def median_SED_1panel(self, savestring, median_x, median_y, wfir, ffir, shape, FIR_upper='upper lims',ls='-',bins='shape',compare=False,comp_med_x=None,comp_med_y=None,comp_wfir=None,comp_ffir=None,plot_temp=False,temp_x=[np.nan],temp_y=[np.nan]):
         '''Function to plot the median SED of SEDs separated by defined SED shape and bined into three z bins'''
         plt.rcParams['font.size'] = 35
         plt.rcParams['axes.linewidth'] = 4.5
@@ -821,23 +844,23 @@ class Plotter():
         ffir4 = ffir[b4]
         ffir5 = ffir[b5]
 
-        x1 = x[b1]
-        x2 = x[b2]
-        x3 = x[b3]
-        x4 = x[b4]
-        x5 = x[b5]
+        # x1 = x[b1]
+        # x2 = x[b2]
+        # x3 = x[b3]
+        # x4 = x[b4]
+        # x5 = x[b5]
 
-        y1 = y[b1]
-        y2 = y[b2]
-        y3 = y[b3]
-        y4 = y[b4]
-        y5 = y[b5]
+        # y1 = y[b1]
+        # y2 = y[b2]
+        # y3 = y[b3]
+        # y4 = y[b4]
+        # y5 = y[b5]
 
-        norm1 = self.norm[b1]
-        norm2 = self.norm[b2]
-        norm3 = self.norm[b3]
-        norm4 = self.norm[b4]
-        norm5 = self.norm[b5] 
+        # norm1 = self.norm[b1]
+        # norm2 = self.norm[b2]
+        # norm3 = self.norm[b3]
+        # norm4 = self.norm[b4]
+        # norm5 = self.norm[b5] 
 
         yticks = [42, 43, 44, 45, 46]
         # xticks = [1E-4, 1E-3, 1E-2, 1E-1, 1E0, 1E1, 1E2]
@@ -854,6 +877,10 @@ class Plotter():
         # median_y1[-1] = median_y1[-1]*0.9
 
         ax1 = plt.subplot(gs[0], aspect='equal', adjustable='box')
+
+        if plot_temp:
+            print(temp_y)
+            ax1.plot(temp_x,temp_y,color='gray',alpha=0.7,lw=5,label='Quasar Template')
 
         if bins == 'Lx_3':
             x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=False,connect_point=True,color=c3,lw=4,label=bin1_name)
@@ -900,7 +927,7 @@ class Plotter():
         secax1.set_yticks([9, 10, 11, 12, 13])
         secax1.set_ylabel(r'$\lambda$ L$_\lambda$ [L$_{\odot}$]')
         ax1.grid()
-        ax1.legend(fontsize=16)
+        ax1.legend(loc='lower right',fontsize=24)
 
         # plt.tight_layout()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
@@ -1220,7 +1247,7 @@ class Plotter():
         plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
         plt.show()
 
-    def L_ratio_1panel(self,savestring,X,Y,median,F1,uv,mir,fir,shape,L=None,compare=False,comp_x=None,comp_y=None):
+    def L_ratio_1panel(self,savestring,X,Y,median,F1,uv,mir,fir,shape,L=None,compare=False,comp_x=None,comp_y=None,sample=False,spec_type=[np.nan]):
         '''Function to plot the ratio of two luminosites as a function of the denominator'''
         bs1 = shape == 1
         bs2 = shape == 2
@@ -1244,8 +1271,8 @@ class Plotter():
  
         elif X == 'Lbol':
             x = L
-            xlabel = r'log L$_{\mathrm{bol}}$'
-            xunits = ' [erg/s]'
+            xlabel = r'log L$_{\mathrm{bol - gal,e}}$'
+            xunits = r'/$(\rm{erg \; s^{-1}})$'
             xvar = r'L$_{\mathrm{bol}}$'
             xticks = [44.5,45.5,46.5]
             xlim = [43.75,46.75]
@@ -1294,7 +1321,7 @@ class Plotter():
         elif Y == 'Lbol/Lx':
             # y = L - (self.L+np.log10(0.611))
             y = L - self.L
-            ylabel = r'log L$_{\mathrm{bol}}$/L$_{\mathrm{X}}$' 
+            ylabel = r'log L$_{\mathrm{bol-gal,e}}$/L$_{\mathrm{X}}$' 
             yticks = [0, 1, 2, 3]   
             ylim = [0, 2, 3] 
 
@@ -1355,23 +1382,28 @@ class Plotter():
         ax1.plot(np.arange(42,48,0.25),np.log10(durras_K),color='r',label='Duras+2020')
         ax1.plot(np.arange(42,48,0.25),np.log10(hopkins_K),color='b',label='Hopkins+2007')
         # ax1.plot(L,np.log10(check),'.',color='b')
-        ax1.scatter(x,y,color='gray',marker='+',s=30,rasterized=True)
+        if sample:
+            ax1.scatter(x[spec_type==1],y[spec_type==1],color='orange',marker='+',s=30,rasterized=True,label='Type 1')
+            ax1.scatter(x[spec_type==2],y[spec_type==2],color='green',marker='+',s=30,rasterized=True,label='Type 2') 
+        else:
+            ax1.scatter(x,y,color='gray',marker='+',s=30,rasterized=True)
         if median == 'X-axis' or median == 'Both':
-            ax1.plot(xmed, ymed, marker='s', color='k',ms=10)
-            ax1.errorbar(xmed,ymed,xerr=xstd,yerr=y1std,color='k')
+            ax1.plot(xmed, ymed, marker='s', color='k', ms=12, linestyle='')
+            ax1.errorbar(xmed, ymed, xerr=xstd, yerr=y1std, color='k', linestyle='')
+            # plot_fit(xmed,ymed,2,44,46.5)
 
         if compare:
             ax1.scatter(comp_x,comp_y,marker='X',color='r',s=100,label='GOALS')
         secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
         secax1.set_xticks([9,10,11,12,13])
-        secax1.set_xlabel(xlabel+r' [L$_{\odot}$]')
+        secax1.set_xlabel(xlabel+r'/L$_{\odot}$')
         ax1.legend(fontsize=15)
 
         # plt.tight_layout()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
         plt.show()
 
-    def L_scatter_3panels(self,savestring,X,Y,median,F1,uv,mir,fir,shape,L=None,compare=False,comp_L=None,comp_uv=None,comp_mir=None,comp_fir=None):
+    def L_scatter_3panels(self, savestring, X, Y, median, F1, uv, mir, fir, shape, L=None, uv_err=None, mir_err=None, fir_err=None, error=False, compare=False, comp_L=None, comp_uv=None, comp_mir=None, comp_fir=None, stack_color=False, stack_bins=None, F100_ratio=None, field=None, fir_field=False):
         if X == 'Lx':
             x = self.L
             x1 = self.L
@@ -1383,14 +1415,16 @@ class Plotter():
             xlabel3 = r' '
             xunits = ' [erg/s]'
             xvar = r'L$_{\mathrm{X}}$'
-            xticks = [42.5, 43.5, 44.5, 45.5]
-            xlim = [42.5, 46]
+            xticks = [43,43.5,44,44.5,45,45.5]
+            # xlim = [42.5, 46]
+            xlim = [42.5,46.25]
 
             b1x1 = (x1 > 43) & (x1 < 43.5)
             b1x2 = (x1 > 43.5) & (x1 < 44)
             b1x3 = (x1 > 44) & (x1 < 44.5)
             b1x4 = (x1 > 44.5) & (x1 < 45)
             b1x5 = (x1 > 45)
+            b1x6 = (x1 > 100)
 
             b2x1 = (x2 > 43) & (x2 < 43.5)
             b2x2 = (x2 > 43.5) & (x2 < 44)
@@ -1427,6 +1461,10 @@ class Plotter():
             x1 = np.log10(uv)
             x2 = np.log10(mir)
             x3 = np.log10(fir)
+            x1err = uv_err
+            x2err = mir_err
+            x3err = fir_err
+            xF1 = np.log10(F100_ratio)
 
             xlabel1 = (r'log L (0.25$\mu$m)')
             xlabel2 = (r'log L (6$\mu$m)')
@@ -1443,7 +1481,7 @@ class Plotter():
             b1x3 = (x1 > 43.5) & (x1 < 44)
             b1x4 = (x1 > 44) & (x1 < 44.5)
             b1x5 = (x1 > 44.5) & (x1 < 45)
-            b1x6 = (x1 > 45) & (x1 <45.5 )
+            b1x6 = (x1 > 45) & (x1 <45.5)
 
             b2x1 = (x2 > 43) & (x2 < 43.5)
             b2x2 = (x2 > 43.5) & (x2 < 44)
@@ -1479,6 +1517,9 @@ class Plotter():
             y1 = np.log10(uv)
             y2 = np.log10(mir)
             y3 = np.log10(fir)
+            y1err = uv_err
+            y2err = mir_err
+            y3err = fir_err
 
             ylabel1 = (r'log L (0.25$\mu$m)')
             ylabel2 = (r'log L (6$\mu$m)')
@@ -1488,8 +1529,405 @@ class Plotter():
             yvar1 = r'L (0.25$\mu$m)'
             yvar2 = r'L (6$\mu$m)'
             yvar3 = r'L (100$\mu$m)'
-            yticks = [43, 44, 45]
+            yticks = [42,43,44,45,46,47]
+            # ylim = [42.25, 45.75]
+            ylim = [41,47]
+
+        # Set median points for X-axis bins
+        y1med1, y2med1, y3med1 = np.nanmedian(y1[b1x1]), np.nanmedian(y2[b2x1]), np.nanmedian(y3[b3x1])
+        y1med2, y2med2, y3med2 = np.nanmedian(y1[b1x2]), np.nanmedian(y2[b2x2]), np.nanmedian(y3[b3x2])
+        y1med3, y2med3, y3med3 = np.nanmedian(y1[b1x3]), np.nanmedian(y2[b2x3]), np.nanmedian(y3[b3x3])
+        y1med4, y2med4, y3med4 = np.nanmedian(y1[b1x4]), np.nanmedian(y2[b2x4]), np.nanmedian(y3[b3x4])
+        y1med5, y2med5, y3med5 = np.nanmedian(y1[b1x5]), np.nanmedian(y2[b2x5]), np.nanmedian(y3[b3x5])
+        y1med6 = np.nanmedian(y1[b1x6])
+
+
+        # y1med1, y2med1, y3med1 = np.nanmedian(y1[b1x1][y1[b1x1] > 42]), np.nanmedian(y2[b2x1][y2[b2x1] > 42]), np.nanmedian(y3[b3x1][y3[b3x1] > 43])
+        # y1med2, y2med2, y3med2 = np.nanmedian(y1[b1x2][y1[b1x2] > 43]), np.nanmedian(y2[b2x2][y2[b2x2] > 43]), np.nanmedian(y3[b3x2][y3[b3x2] > 43])
+        # y1med3, y2med3, y3med3 = np.nanmedian(y1[b1x3][y1[b1x3] > 43]), np.nanmedian(y2[b2x3][y2[b2x3] > 43]), np.nanmedian(y3[b3x3][y3[b3x3] > 43])
+        # y1med4, y2med4, y3med4 = np.nanmedian(y1[b1x4][y1[b1x4] > 43]), np.nanmedian(y2[b2x4][y2[b2x4] > 43]), np.nanmedian(y3[b3x4][y3[b3x4] > 43])
+        # y1med5, y2med5, y3med5 = np.nanmedian(y1[b1x5][y1[b1x5] > 43]), np.nanmedian(y2[b2x5][y2[b2x5] > 43]), np.nanmedian(y3[b3x5][y3[b3x5] > 43])
+        # y1med6 = np.nanmedian(y1[b1x6])
+
+        # y1std1, y2std1, y3std1 = np.std(y1[b1x1]), np.std(y2[b2x1]), np.std(y3[b3x1]) 
+        # y1std2, y2std2, y3std2 = np.std(y1[b1x2]), np.std(y2[b2x2]), np.std(y3[b3x2]) 
+        # y1std3, y2std3, y3std3 = np.std(y1[b1x3]), np.std(y2[b2x3]), np.std(y3[b3x3]) 
+        # y1std4, y2std4, y3std4 = np.std(y1[b1x4]), np.std(y2[b2x4]), np.std(y3[b3x4]) 
+        # y1std5, y2std5, y3std5 = np.std(y1[b1x5]), np.std(y2[b2x5]), np.std(y3[b3x5]) 
+        # y1std6 = np.std(y1[b1x6])
+
+        y1per25_1, y2per25_1, y3per25_1 = y1med1 - np.nanpercentile(y1[b1x1],25), y2med1 - np.nanpercentile(y2[b2x1],25), y3med1 - np.nanpercentile(y3[b3x1],25) 
+        y1per25_2, y2per25_2, y3per25_2 = y1med2 - np.nanpercentile(y1[b1x2],25), y2med2 - np.nanpercentile(y2[b2x2],25), y3med2 - np.nanpercentile(y3[b3x2],25) 
+        y1per25_3, y2per25_3, y3per25_3 = y1med3 - np.nanpercentile(y1[b1x3],25), y2med3 - np.nanpercentile(y2[b2x3],25), y3med3 - np.nanpercentile(y3[b3x3],25) 
+        y1per25_4, y2per25_4, y3per25_4 = y1med4 - np.nanpercentile(y1[b1x4],25), y2med4 - np.nanpercentile(y2[b2x4],25), y3med4 - np.nanpercentile(y3[b3x4],25) 
+        y1per25_5, y2per25_5, y3per25_5 = y1med5 - np.nanpercentile(y1[b1x5],25), y2med5 - np.nanpercentile(y2[b2x5],25), y3med5 - np.nanpercentile(y3[b3x5],25) 
+        y1per25_6 = np.nanpercentile(y1[b1x6],25)
+
+        y1per75_1, y2per75_1, y3per75_1 = np.nanpercentile(y1[b1x1],75) - y1med1, np.nanpercentile(y2[b2x1],75) - y2med1, np.nanpercentile(y3[b3x1],75) - y3med1 
+        y1per75_2, y2per75_2, y3per75_2 = np.nanpercentile(y1[b1x2],75) - y1med2, np.nanpercentile(y2[b2x2],75) - y2med2, np.nanpercentile(y3[b3x2],75) - y3med2 
+        y1per75_3, y2per75_3, y3per75_3 = np.nanpercentile(y1[b1x3],75) - y1med3, np.nanpercentile(y2[b2x3],75) - y2med3, np.nanpercentile(y3[b3x3],75) - y3med3 
+        y1per75_4, y2per75_4, y3per75_4 = np.nanpercentile(y1[b1x4],75) - y1med4, np.nanpercentile(y2[b2x4],75) - y2med4, np.nanpercentile(y3[b3x4],75) - y3med4 
+        y1per75_5, y2per75_5, y3per75_5 = np.nanpercentile(y1[b1x5],75) - y1med5, np.nanpercentile(y2[b2x5],75) - y2med5, np.nanpercentile(y3[b3x5],75) - y3med5 
+        y1per75_6 = np.nanpercentile(y1[b1x6],75)
+
+        x1_good, y1_good = remove_outliers(x1,y1,[43,47])
+        x2_good, y2_good = remove_outliers(x2,y2,[43,46])
+        x3_good, y3_good = remove_outliers(x3,y3,[43,46])
+
+
+        # xmed = np.array([xmed1,xmed2,xmed3,xmed4,xmed5])
+        if X == 'Lbol':
+            xmed = np.array([44.25, 44.75, 45.25, 45.75, 46.25])
+        elif X == 'Lx':
+            x1med = np.array([43.25, 43.75, 44.25, 44.75, 45.25, np.nan])
+            x2med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+            x3med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+        elif X == 'UV-MIR-FIR':
+            x1med = np.array([42.75, 43.25, 43.75, 44.25, 44.75, 45.25])
+            # x2med = np.array([42.75, 43.25, 43.75, 44.25, 44.75])
+            x2med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+            x3med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+
+        y1med = np.array([y1med1, y1med2, y1med3, y1med4, y1med5, y1med6])
+        y2med = np.array([y2med1, y2med2, y2med3, y2med4, y2med5])
+        y3med = np.array([y3med1, y3med2, y3med3, y3med4, y3med5])
+
+        xstd = np.array([0.25, 0.25, 0.25, 0.25, 0.25])
+        x1std = np.array([0.25, 0.25, 0.25, 0.25, 0.25, 0.25])
+        # y1std = np.array([y1std1, y1std2, y1std3, y1std4, y1std5, y1std6])
+        # y2std = np.array([y2std1, y2std2, y2std3, y2std4, y2std5])
+        # y3std = np.array([y3std1, y3std2, y3std3, y3std4, y3std5])
+
+        y1std = np.array([[y1per25_1,y1per75_1], [y1per25_2,y1per75_2], [y1per25_3,y1per75_3], [y1per25_4,y1per75_4], [y1per25_5,y1per75_5], [y1per25_6,y1per75_6]]).T
+        y2std = np.array([[y2per25_1,y2per75_1], [y2per25_2,y2per75_2], [y2per25_3,y2per75_3], [y2per25_4,y2per75_4], [y2per25_5,y2per75_5]]).T
+        y3std = np.array([[y3per25_1,y3per75_1], [y3per25_2,y3per75_2], [y3per25_3,y3per75_3], [y3per25_4,y3per75_4], [y3per25_5,y3per75_5]]).T
+
+        stern_Lx = Lit_functions.Stern_MIR(np.arange(42, 48, 0.25))
+        just_Lx = Lit_functions.Just_alpha_ox(np.arange(42, 48, 0.25))
+
+        fig = plt.figure(figsize=(21, 8))
+        gs = fig.add_gridspec(ncols=3,nrows=1,left=0.06,right=0.95,top=0.86,bottom=0.14,wspace=0.0)
+        ax1 = plt.subplot(gs[0])#, aspect='equal', adjustable='box')
+        ax1.set_xlim(xlim[0], xlim[1])
+        ax1.set_ylim(ylim[0], ylim[1])
+        ax1.set_ylabel(ylabel+yunits)
+        if X != 'Lx':
+            ax1.set_xlabel(xlabel1+xunits)
+        ax1.set_yticks(yticks) 
+        ax1.set_xticks(xticks)
+        ax1.grid()
+        if X == 'UV-MIR-FIR':
+            ax1.plot(np.arange(42,48,0.25),just_Lx,color='b',label='Just 2007')
+        elif Y == 'UV-MIR-FIR':
+            ax1.plot(just_Lx,np.arange(42,48,0.25),color='b',label='Just 2007')
+        ax1.scatter(x1,y1,color='k',marker='.',s=35,alpha=0.5,rasterized=True)
+        if error:
+            ax1.errorbar(x1,y1,xerr=x1err,color='k',lw=1,linestyle='')
+        if median == 'X-axis' or median == 'Both':
+            ax1.plot(x1med, y1med, marker='s', color='k',ms=10, markeredgecolor='white',linestyle='')
+            ax1.errorbar(x1med,y1med,xerr=x1std,yerr=y1std,color='k',markeredgecolor='white',linestyle='')
+        if X != 'Lx':
+            secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+            secax1.set_xticks([9,10,11,12,13])
+            secax1.set_xlabel(xlabel1+r' [L$_{\odot}$]')
+        # if Y != 'Nh':
+        #     secax1 = ax1.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
+        #     secax1.set_yticks([9,10,11,12,13])
+        #     secax1.set_ylabel(ylabel+r' [L$_{\odot}$]')
+        plot_fit(x1med,y1med,2,43,45.5,'k')
+        # plot_fit(x1[x1 < 44],y1[x1 < 44],1,42.5,44,'r')
+        # plot_fit(x1[x1 > 44], y1[x1 > 44],1,44,47,'purple')
+        # ax1.plot(x1_good,y1_good,'.',color='purple')
+        # plot_fit(x1_good, y1_good, 2, 43, 46, 'orange')
+        if compare:
+            ax1.scatter(np.log10(comp_uv),comp_L,marker='X',c='r',s=100)
+
+        plt.legend(fontsize=15)
+
+        ax2 = plt.subplot(gs[1])#, aspect='equal', adjustable='box')
+        ax2.set_xlim(xlim[0], xlim[1])
+        ax2.set_ylim(ylim[0], ylim[1])
+        # ax2.set_ylabel(ylabel+yunits)
+        ax2.set_yticklabels([])
+        ax2.set_xlabel(xlabel2+xunits)
+        ax2.set_yticks(yticks)
+        ax2.set_xticks(xticks)
+        ax2.grid()
+
+        if X == 'UV-MIR-FIR':
+            ax2.plot(np.arange(42,48,0.25),stern_Lx,color='r',label='Stern 2015')
+        elif Y == 'UV-MIR-FIR':
+            ax2.plot(stern_Lx, np.arange(42, 48, 0.25),color='r', label='Stern 2015')
+        ax2.scatter(x2,y2,color='k',marker='.',alpha=0.5,s=35,rasterized=True)
+        if error:
+            ax2.errorbar(x2,y2,xerr=x2err,color='k',lw=1,linestyle='')
+        if median == 'X-axis' or median == 'Both':
+            ax2.plot(x2med, y2med, marker='s', color='k',ms=10, markeredgecolor='white',linestyle='')
+            ax2.errorbar(x2med,y2med,xerr=xstd,yerr=y2std,color='k',markeredgecolor='white',linestyle='')
+        if X != 'Lx':
+            secax2 = ax2.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+            secax2.set_xticks([9,10,11,12,13])
+            secax2.set_xlabel(xlabel2+r' [L$_{\odot}$]')
+
+        # ax2.scatter(x2_good,y2_good,color='b',marker='.',alpha=0.75,s=35,rasterized=True)
+        # plot_fit(x2_good, y2_good, 2, 43, 46, 'orange')
+        # plot_fit(x2,y2,1,43,46,'purple')
+
+        # if Y != 'Nh':
+        #     secax2 = ax2.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
+        #     secax2.set_yticks([9,10,11,12,13])
+        #     secax2.set_ylabel(ylabel+r' [L$_{\odot}$]')
+
+        plot_fit(x2med, y2med, 2, 43, 45.5, 'k')
+        # ytest1 = 0.54824163*(np.arange(43, 45.5))+19.62959268
+        # ytest2 = 1.0*np.arange(43, 45.5)
+        # ax2.plot(np.arange(43,45.5),ytest1,color='b')
+        # ax2.plot(np.arange(43,45.5),ytest2,color='orange')
+        # plot_fit(x2med, y2med, 1, 42, 47, 'r')
+        # plot_fit(x2, y2, 1, 42, 47, 'b')
+
+        if compare:
+            ax2.scatter(np.log10(comp_mir),comp_L,marker='X',c='r',s=100)
+        # plot_fit(10**x2_good,10**y2_good,1,40,48,'orange')
+        ax2.legend(fontsize=15)
+
+        ax3 = plt.subplot(gs[2])#, aspect='equal', adjustable='box')
+        ax3.set_xlim(xlim[0], xlim[1])
+        ax3.set_ylim(ylim[0], ylim[1])
+        # ax3.set_ylabel(ylabel+yunits)
+        ax3.set_yticklabels([]) 
+        if X != 'Lx':
+            ax3.set_xlabel(xlabel3+xunits)
+        ax3.set_yticks(yticks)
+        ax3.set_xticks(xticks)
+        ax3.grid()
+
+        # z3 = np.polyfit(x3[self.up_check == 0],y3[self.up_check == 0], 1)
+        # p3 = np.poly1d(z3)
+        # xrange3 = np.linspace(43.5,47,5)
+        # yang = Lit_functions.Yang_FIR_Lx(xrange3)
+
+
+        if 'FIR' in X:
+
+            stack_x = np.asarray([43.46,43.72,44.068,44.18,44.545,44.95])- np.log10(3)
+            stack_y = np.asarray([43.5,43.71,43.857,44.11,44.31,44.569])
+            # print('Bin 1: ',len(stack_bins[stack_bins == 0]))
+            # print('Bin 2: ',len(stack_bins[stack_bins == 1]))
+            # print('Bin 3: ',len(stack_bins[stack_bins == 2]))
+            # print('Bin 4: ',len(stack_bins[stack_bins == 3]))
+            # print('Bin 5: ',len(stack_bins[stack_bins == 4]))
+            # print('Bin 6: ',len(stack_bins[stack_bins == 5]))
+            # print('Total: ',len(stack_bins[stack_bins == 0])+len(stack_bins[stack_bins == 1])+len(stack_bins[stack_bins == 2])+len(stack_bins[stack_bins == 3])+len(stack_bins[stack_bins == 4])+len(stack_bins[stack_bins == 5]))
+
+            # ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray',marker=8,s=45,edgecolors=None, alpha=1,rasterized=True)
+            # ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray', marker=1,s=45, alpha=1)
+            if fir_field:
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] != 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] != 'S82X'],marker=8,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] != 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] != 'S82X'],marker=1,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] == 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] == 'S82X'],marker='x',color='k',alpha=0.75,s=25)
+                ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='k', marker='.', alpha=0.65,s=40, rasterized=True)
+            else:
+                ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=8,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=1,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='k', marker='.', alpha=0.65,s=40, rasterized=True)
+        
+        if 'FIR' in Y:
+            if fir_field:
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] != 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] != 'S82X'],marker=11,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] != 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] != 'S82X'],marker=2,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] == 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] == 'S82X'],marker='x',color='k',alpha=0.75,s=25)
+                ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='k', marker='.', alpha=0.65,s=40, rasterized=True)
+            else:
+                ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=8,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=1,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='k', marker='.', alpha=0.65,s=40, rasterized=True)
+        
+
+            plot_fit(x3med,y3med,2,43,45.5,'k',lw=3)
+
+            # ax3.scatter(xF1[self.up_check == 1],y3[self.up_check == 1],color='gray',marker='|',alpha=0.5)
+
+            # print('check: ',len(np.where(xF1[self.up_check == 1] > x3[self.up_check == 1])[0]))
+
+            # for i in range(len(x3[self.up_check == 1])):
+                # print([xF1[self.up_check == 1][i], x3[self.up_check == 1][i]])
+                # ax3.plot([xF1[self.up_check == 1][i],x3[self.up_check == 1][i]],[y3[self.up_check == 1][i],y3[self.up_check == 1][i]],color='gray',alpha=0.45,zorder=0)
+                # ax3.plot(xF1[i],y3[self.up_check == 1][i],'.',color='b')
+
+
+            # if stack_color:
+            #     ax3.scatter(x3[stack_bins == 0],y3[stack_bins == 0],marker='s',color='purple')
+            #     ax3.scatter(x3[stack_bins == 1],y3[stack_bins == 1],marker='s',color='yellow')
+            #     ax3.scatter(x3[stack_bins == 2],y3[stack_bins == 2],marker='s',color='blue')
+            #     ax3.scatter(x3[stack_bins == 3],y3[stack_bins == 3],marker='s',color='skyblue')
+            #     ax3.scatter(x3[stack_bins == 4],y3[stack_bins == 4],marker='s',color='green')
+            #     ax3.scatter(x3[stack_bins == 5],y3[stack_bins == 5],marker='s',color='orange')
+
+            # plt.scatter(stack_x, stack_y, marker='P', color='r')
+
+            if compare:
+                ax3.scatter(np.log10(comp_fir),comp_L,marker='X',c='r',s=100)
+            # plot_fit(x3_good,y3_good,1,43,45,'orange')
+            # plot_fit(x3[x3 < 44.5],y3[x3 < 44.5],1,42.5,44.5,'r')
+            # plot_fit(x3[x3 > 44.5], y3[x3 > 44.5],1,44.5,46.5,'purple')
+            # ax3.plot(xrange3,yang,color='orange',lw=2)
+        else:
+            ax3.scatter(x, y3, color='gray', marker='+', s=30,rasterized=True)
+        if error:
+            ax3.errorbar(x3,y3,xerr=x3err,color='k',lw=1,linestyle='')
+        if median == 'X-axis' or median == 'Both':
+            ax3.plot(x3med, y3med, marker='s', color='k',ms=10, markeredgecolor='white',linestyle='')
+            ax3.errorbar(x3med, y3med, xerr=xstd, yerr=y3std,
+                         color='k', markeredgecolor='white', linestyle='')
+        if X != 'Lx':
+            secax3 = ax3.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+            secax3.set_xticks([9,10,11,12,13])
+            secax3.set_xlabel(xlabel3+r' [L$_{\odot}$]')
+        if Y == 'UV-MIR-FIR':
+            secax3 = ax3.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
+            secax3.set_yticks([9,10,11,12,13])
+            secax3.set_ylabel(ylabel+r' [L$_{\odot}$]')
+
+        if Y == 'UV-MIR-FIR':
+            ax1.text(45.22,42.3,'a = 0.25')
+            ax2.text(45.22,42.3,'a = 6')
+            ax3.text(45.22,42.3,'a = 100')
+
+        # check = (x3[self.up_check == 0] > 45) & (y3[self.up_check == 0] < 43.5)
+        # print('Large scatter: ',self.ID[self.up_check == 0][check])
+
+        # plt.tight_layout()
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
+        plt.show()
+
+    def L_scatter_3panels_vert(self, savestring, X, Y, median, F1, uv, mir, fir, shape, L=None, uv_err=None, mir_err=None, fir_err=None, error=False, compare=False, comp_L=None, comp_uv=None, comp_mir=None, comp_fir=None, stack_color=False, stack_bins=None, F100_ratio=None, field=None, fir_field=False):
+        if X == 'Lx':
+            x = self.L
+            x1 = self.L
+            x2 = self.L
+            x3 = self.L
+
+            xlabel1 = r' '
+            xlabel2 = r'log L$_{\mathrm{X}}$'
+            xlabel3 = r' '
+            xunits = ' [erg/s]'
+            xvar = r'L$_{\mathrm{X}}$'
+            xticks = [43,43.5,44,44.5,45,45.5,46]
+            xlim = [42.5, 46]
+
+            b1x1 = (x1 > 43) & (x1 < 43.5)
+            b1x2 = (x1 > 43.5) & (x1 < 44)
+            b1x3 = (x1 > 44) & (x1 < 44.5)
+            b1x4 = (x1 > 44.5) & (x1 < 45)
+            b1x5 = (x1 > 45)
+            b1x6 = (x1 > 100)
+
+            b2x1 = (x2 > 43) & (x2 < 43.5)
+            b2x2 = (x2 > 43.5) & (x2 < 44)
+            b2x3 = (x2 > 44) & (x2 < 44.5)
+            b2x4 = (x2 > 44.5) & (x2 < 45)
+            b2x5 = (x2 > 45)
+
+            b3x1 = (x3 > 43) & (x3 < 43.5)
+            b3x2 = (x3 > 43.5) & (x3 < 44)
+            b3x3 = (x3 > 44) & (x3 < 44.5)
+            b3x4 = (x3 > 44.5) & (x3 < 45)
+            b3x5 = (x3 > 45)
+
+        elif X == 'Lbol':
+            L = np.log10(L)
+            x = L
+            x1 = L
+            x2 = L
+            x3 = L
+
+            xlabel = r'log L$_{\mathrm{bol}}$'
+            xunits = ' [erg/s]'
+            xvar = r'L$_{\mathrm{bol}}$'
+            xticks = [44.5, 45.5, 46.5]
+            xlim = [43.75, 46.75]
+
+            bx1 = (x > 43) & (x < 43.5)
+            bx2 = (x > 43.5) & (x < 44)
+            bx3 = (x > 44) & (x < 44.5)
+            bx4 = (x > 44.5) & (x < 45)
+            bx5 = (x > 45)
+
+        elif X == 'UV-MIR-FIR':
+            x1 = np.log10(uv)
+            x2 = np.log10(mir)
+            x3 = np.log10(fir)
+            x1err = uv_err
+            x2err = mir_err
+            x3err = fir_err
+            xF1 = np.log10(F100_ratio)
+
+            xlabel1 = (r'log L (0.25$\mu$m)')
+            xlabel2 = (r'log L (6$\mu$m)')
+            xlabel3 = (r'log L (100$\mu$m)')
+            xunits = ' [erg/s]'
+            xvar1 = r'L (0.25$\mu$m)'
+            xvar2 = r'L (6$\mu$m)'
+            xvar3 = r'L (100$\mu$m)'
+            xticks = [43,44,45]
+            xlim = [42.25 ,45.75]
+
+            b1x1 = (x1 > 42.5) & (x1 < 43)
+            b1x2 = (x1 > 43) & (x1 < 43.5)
+            b1x3 = (x1 > 43.5) & (x1 < 44)
+            b1x4 = (x1 > 44) & (x1 < 44.5)
+            b1x5 = (x1 > 44.5) & (x1 < 45)
+            b1x6 = (x1 > 45) & (x1 <45.5)
+
+            b2x1 = (x2 > 43) & (x2 < 43.5)
+            b2x2 = (x2 > 43.5) & (x2 < 44)
+            b2x3 = (x2 > 44) & (x2 < 44.5)
+            b2x4 = (x2 > 44.5) & (x2 < 45)
+            b2x5 = (x2 > 45) & (x2 < 45.5)
+
+            # b2x1 = (x2 > 42.5) & (x2 < 43)
+            # b2x2 = (x1 > 43) & (x2 < 43.5)
+            # b2x3 = (x2 > 43.5) & (x2 < 44)
+            # b2x4 = (x2 > 44) & (x2 < 44.5)
+            # b2x5 = (x2 > 44.5) & (x2 < 45)
+
+            b3x1 = (x3 > 43) & (x3 < 43.5)
+            b3x2 = (x3 > 43.5) & (x3 < 44)
+            b3x3 = (x3 > 44) & (x3 < 44.5)
+            b3x4 = (x3 > 44.5) & (x3 < 45)
+            b3x5 = (x3 > 45) & (x3 < 45.5)
+
+        if Y == 'Lx':
+            y = self.L
+            y1 = self.L
+            y2 = self.L
+            y3 = self.L
+
+            ylabel = r'log L$_{\mathrm{X}}$'
+            yunits = ' [erg/s]'
+            yvar = r'L$_{\mathrm{X}}$'
+            yticks = [42.5 ,43.5, 44.5, 45.5]
             ylim = [42.25, 45.75]
+
+        elif Y == 'UV-MIR-FIR':
+            y1 = np.log10(uv)
+            y2 = np.log10(mir)
+            y3 = np.log10(fir)
+            y1err = uv_err
+            y2err = mir_err
+            y3err = fir_err
+
+            ylabel1 = (r'log L (0.25$\mu$m)')
+            ylabel2 = (r'log L (6$\mu$m)')
+            ylabel3 = (r'log L (100$\mu$m)')
+            ylabel = (r'log L (a $\mu$m)')
+            yunits = ' [erg/s]'
+            yvar1 = r'L (0.25$\mu$m)'
+            yvar2 = r'L (6$\mu$m)'
+            yvar3 = r'L (100$\mu$m)'
+            yticks = [42,43,44,45,46,47] 
+            ylim = [41, 47]
 
         # Set median points for X-axis bins
         y1med1, y2med1, y3med1 = np.nanmean(y1[b1x1]), np.nanmean(y2[b2x1]), np.nanmean(y3[b3x1])
@@ -1515,7 +1953,7 @@ class Plotter():
         if X == 'Lbol':
             xmed = np.array([44.25, 44.75, 45.25, 45.75, 46.25])
         elif X == 'Lx':
-            x1med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
+            x1med = np.array([43.25, 43.75, 44.25, 44.75, 45.25, np.nan])
             x2med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
             x3med = np.array([43.25, 43.75, 44.25, 44.75, 45.25])
         elif X == 'UV-MIR-FIR':
@@ -1534,61 +1972,78 @@ class Plotter():
         y2std = np.array([y2std1, y2std2, y2std3, y2std4, y2std5])
         y3std = np.array([y3std1, y3std2, y3std3, y3std4, y3std5])
 
-
         stern_Lx = Lit_functions.Stern_MIR(np.arange(42, 48, 0.25))
         just_Lx = Lit_functions.Just_alpha_ox(np.arange(42, 48, 0.25))
 
-        fig = plt.figure(figsize=(21, 8))
-        gs = fig.add_gridspec(ncols=3,nrows=1,left=0.06,right=0.95,top=0.86,bottom=0.14,wspace=0.0)
-        ax1 = plt.subplot(gs[0], aspect='equal', adjustable='box')
+        fig = plt.figure(figsize=(10, 21))
+        gs = fig.add_gridspec(ncols=1,nrows=3,left=0.1,right=0.85,top=0.95,bottom=0.05,wspace=0.0,hspace=0.1)
+        ax1 = plt.subplot(gs[0])#, aspect='equal', adjustable='box')
         ax1.set_xlim(xlim[0], xlim[1])
         ax1.set_ylim(ylim[0], ylim[1])
-        ax1.set_ylabel(ylabel+yunits)
-        ax1.set_xlabel(xlabel1+xunits)
-        ax1.set_yticks(yticks) 
+        ax1.set_ylabel(r'log L (0.25 $\mu$m) [erg s$^{-1}$]')
+        ax1.set_yticks(yticks)
         ax1.set_xticks(xticks)
+        ax1.set_xticklabels([])
         ax1.grid()
-        ax1.plot(np.arange(42,48,0.25),just_Lx,color='b',label='Just 2007')
+        if X == 'UV-MIR-FIR':
+            ax1.plot(np.arange(42,48,0.25),just_Lx,color='b',label='Just 2007')
+        # elif Y == 'UV-MIR-FIR':
+        ax1.plot(just_Lx,np.arange(42,48,0.25),color='b',label='Just 2007')
         ax1.scatter(x1,y1,color='k',marker='.',s=35,alpha=0.5,rasterized=True)
+        if error:
+            ax1.errorbar(x1,y1,xerr=x1err,color='k',lw=1,linestyle='')
         if median == 'X-axis' or median == 'Both':
             ax1.plot(x1med, y1med, marker='s', color='k',ms=10, markeredgecolor='white',linestyle='')
             ax1.errorbar(x1med,y1med,xerr=x1std,yerr=y1std,color='k',markeredgecolor='white',linestyle='')
-        secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
-        secax1.set_xticks([9,10,11,12,13])
-        secax1.set_xlabel(xlabel1+r' [L$_{\odot}$]')
+        if X != 'Lx':
+            secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+            secax1.set_xticks([9,10,11,12,13])
+            secax1.set_xlabel(xlabel1+r' [L$_{\odot}$]')
+        if Y == 'UV-MIR-FIR':
+            secax1 = ax1.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
+            secax1.set_yticks([9,10,11,12,13])
+            secax1.set_ylabel(r'log L (0.25 $\mu$m) [L$_{\odot}$]')
         # if Y != 'Nh':
         #     secax1 = ax1.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
         #     secax1.set_yticks([9,10,11,12,13])
         #     secax1.set_ylabel(ylabel+r' [L$_{\odot}$]')
-        plot_fit(x1med,y1med,2,42.5,45.5,'k')
+        plot_fit(x1med,y1med,2,43,45.5,'k')
         # plot_fit(x1[x1 < 44],y1[x1 < 44],1,42.5,44,'r')
         # plot_fit(x1[x1 > 44], y1[x1 > 44],1,44,47,'purple')
         # plot_fit(x1_good, y1_good, 2, 43, 45, 'orange')
         if compare:
             ax1.scatter(np.log10(comp_uv),comp_L,marker='X',c='r',s=100)
 
-        plt.legend(fontsize=15)
+        # plt.legend(fontsize=15)
 
-
-
-        ax2 = plt.subplot(gs[1], aspect='equal', adjustable='box')
+        ax2 = plt.subplot(gs[1])#, aspect='equal', adjustable='box')
         ax2.set_xlim(xlim[0], xlim[1])
         ax2.set_ylim(ylim[0], ylim[1])
-        # ax2.set_ylabel(ylabel+yunits)
-        ax2.set_yticklabels([])
-        ax2.set_xlabel(xlabel2+xunits)
+        ax2.set_ylabel(r'log L (6 $\mu$m) [erg s$^{-1}$]')
+        # ax2.set_yticklabels([])
         ax2.set_yticks(yticks)
         ax2.set_xticks(xticks)
+        ax2.set_xticklabels([])
         ax2.grid()
 
-        ax2.plot(np.arange(42,48,0.25),stern_Lx,color='r',label='Stern 2015')
+        if X == 'UV-MIR-FIR':
+            ax2.plot(np.arange(42,48,0.25),stern_Lx,color='r',label='Stern 2015')
+        # elif Y == 'UV-MIR-FIR':
+        ax2.plot(stern_Lx, np.arange(42, 48, 0.25),color='r', label='Stern 2015')
         ax2.scatter(x2,y2,color='k',marker='.',alpha=0.5,s=35,rasterized=True)
+        if error:
+            ax2.errorbar(x2,y2,xerr=x2err,color='k',lw=1,linestyle='')
         if median == 'X-axis' or median == 'Both':
             ax2.plot(x2med, y2med, marker='s', color='k',ms=10, markeredgecolor='white',linestyle='')
             ax2.errorbar(x2med,y2med,xerr=xstd,yerr=y2std,color='k',markeredgecolor='white',linestyle='')
-        secax2 = ax2.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
-        secax2.set_xticks([9,10,11,12,13])
-        secax2.set_xlabel(xlabel2+r' [L$_{\odot}$]')
+        if X != 'Lx':
+            secax2 = ax2.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+            secax2.set_xticks([9,10,11,12,13])
+            secax2.set_xlabel(xlabel2+r' [L$_{\odot}$]')
+        if Y == 'UV-MIR-FIR':
+            secax2 = ax2.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
+            secax2.set_yticks([9, 10, 11, 12, 13])
+            secax2.set_ylabel(r'log L (6 $\mu$m) [L$_{\odot}$]')
 
         # ax2.scatter(x2_good,y2_good,color='b',marker='.',alpha=0.75,s=35,rasterized=True)
  
@@ -1598,18 +2053,26 @@ class Plotter():
         #     secax2.set_ylabel(ylabel+r' [L$_{\odot}$]')
 
         plot_fit(x2med, y2med, 2, 43, 45.5, 'k')
+        # ytest1 = 0.54824163*(np.arange(43, 45.5))+19.62959268
+        # ytest2 = 1.0*np.arange(43, 45.5)
+        # ax2.plot(np.arange(43,45.5),ytest1,color='b')
+        # ax2.plot(np.arange(43,45.5),ytest2,color='orange')
+        # plot_fit(x2med, y2med, 1, 42, 47, 'r')
+        # plot_fit(x2, y2, 1, 42, 47, 'b')
 
         if compare:
             ax2.scatter(np.log10(comp_mir),comp_L,marker='X',c='r',s=100)
-        # plot_fit(x2_good,y2_good,2,43,45,'orange')
-        ax2.legend(fontsize=15)
+        # plot_fit(10**x2_good,10**y2_good,1,40,48,'orange')
+        # ax2.legend(fontsize=15)
 
-        ax3 = plt.subplot(gs[2], aspect='equal', adjustable='box')
+        ax3 = plt.subplot(gs[2])#, aspect='equal', adjustable='box')
         ax3.set_xlim(xlim[0], xlim[1])
         ax3.set_ylim(ylim[0], ylim[1])
-        # ax3.set_ylabel(ylabel+yunits)
-        ax3.set_yticklabels([]) 
+        ax3.set_ylabel(ylabel+yunits)
+        ax3.set_ylabel(r'log L (100 $\mu$m) [erg s$^{-1}$]')
+        # ax3.set_yticklabels([]) 
         ax3.set_xlabel(xlabel3+xunits)
+        ax3.set_xlabel(r'log L$_{\rm X}$ [erg s$^{-1}$]')
         ax3.set_yticks(yticks)
         ax3.set_xticks(xticks)
         ax3.grid()
@@ -1621,12 +2084,62 @@ class Plotter():
 
 
         if 'FIR' in X:
+
+            stack_x = np.asarray([43.46,43.72,44.068,44.18,44.545,44.95])- np.log10(3)
+            stack_y = np.asarray([43.5,43.71,43.857,44.11,44.31,44.569])
+            # print('Bin 1: ',len(stack_bins[stack_bins == 0]))
+            # print('Bin 2: ',len(stack_bins[stack_bins == 1]))
+            # print('Bin 3: ',len(stack_bins[stack_bins == 2]))
+            # print('Bin 4: ',len(stack_bins[stack_bins == 3]))
+            # print('Bin 5: ',len(stack_bins[stack_bins == 4]))
+            # print('Bin 6: ',len(stack_bins[stack_bins == 5]))
+            # print('Total: ',len(stack_bins[stack_bins == 0])+len(stack_bins[stack_bins == 1])+len(stack_bins[stack_bins == 2])+len(stack_bins[stack_bins == 3])+len(stack_bins[stack_bins == 4])+len(stack_bins[stack_bins == 5]))
+
             # ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray',marker=8,s=45,edgecolors=None, alpha=1,rasterized=True)
             # ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1], color='gray', marker=1,s=45, alpha=1)
-            ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=8,color='gray',alpha=0.8,s=25)
-            ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=1,color='gray',alpha=0.8,s=25)
-            ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='k', marker='.', alpha=0.5,s=35, rasterized=True)
-            plot_fit(x3med,y3med,2,43,45.5,'k')
+            if fir_field:
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] != 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] != 'S82X'],marker=8,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] != 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] != 'S82X'],marker=1,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] == 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] == 'S82X'],marker='x',color='k',alpha=0.75,s=25)
+                ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='k', marker='.', alpha=0.65,s=40, rasterized=True)
+            else:
+                ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=8,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=1,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='k', marker='.', alpha=0.65,s=40, rasterized=True)
+        
+        if 'FIR' in Y:
+            if fir_field:
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] != 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] != 'S82X'],marker=11,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] != 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] != 'S82X'],marker=2,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1][field[self.up_check == 1] == 'S82X'], y3[self.up_check == 1][field[self.up_check == 1] == 'S82X'],marker='x',color='k',alpha=0.75,s=25)
+                ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='k', marker='.', alpha=0.65,s=40, rasterized=True)
+            else:
+                ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=8,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 1], y3[self.up_check == 1],marker=1,color='gray',alpha=0.8,s=45)
+                ax3.scatter(x3[self.up_check == 0], y3[self.up_check == 0], color='k', marker='.', alpha=0.65,s=40, rasterized=True)
+        
+
+            plot_fit(x3med,y3med,2,43,45.5,'k',lw=3)
+
+            # ax3.scatter(xF1[self.up_check == 1],y3[self.up_check == 1],color='gray',marker='|',alpha=0.5)
+
+            # print('check: ',len(np.where(xF1[self.up_check == 1] > x3[self.up_check == 1])[0]))
+
+            # for i in range(len(x3[self.up_check == 1])):
+                # print([xF1[self.up_check == 1][i], x3[self.up_check == 1][i]])
+                # ax3.plot([xF1[self.up_check == 1][i],x3[self.up_check == 1][i]],[y3[self.up_check == 1][i],y3[self.up_check == 1][i]],color='gray',alpha=0.45,zorder=0)
+                # ax3.plot(xF1[i],y3[self.up_check == 1][i],'.',color='b')
+
+
+            # if stack_color:
+            #     ax3.scatter(x3[stack_bins == 0],y3[stack_bins == 0],marker='s',color='purple')
+            #     ax3.scatter(x3[stack_bins == 1],y3[stack_bins == 1],marker='s',color='yellow')
+            #     ax3.scatter(x3[stack_bins == 2],y3[stack_bins == 2],marker='s',color='blue')
+            #     ax3.scatter(x3[stack_bins == 3],y3[stack_bins == 3],marker='s',color='skyblue')
+            #     ax3.scatter(x3[stack_bins == 4],y3[stack_bins == 4],marker='s',color='green')
+            #     ax3.scatter(x3[stack_bins == 5],y3[stack_bins == 5],marker='s',color='orange')
+
+            # plt.scatter(stack_x, stack_y, marker='P', color='r')
 
             if compare:
                 ax3.scatter(np.log10(comp_fir),comp_L,marker='X',c='r',s=100)
@@ -1636,17 +2149,19 @@ class Plotter():
             # ax3.plot(xrange3,yang,color='orange',lw=2)
         else:
             ax3.scatter(x, y3, color='gray', marker='+', s=30,rasterized=True)
+        if error:
+            ax3.errorbar(x3,y3,xerr=x3err,color='k',lw=1,linestyle='')
         if median == 'X-axis' or median == 'Both':
             ax3.plot(x3med, y3med, marker='s', color='k',ms=10, markeredgecolor='white',linestyle='')
-            ax3.errorbar(x3med, y3med, xerr=xstd, yerr=y3std,
-                         color='k', markeredgecolor='white', linestyle='')
-        secax3 = ax3.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
-        secax3.set_xticks([9,10,11,12,13])
-        secax3.set_xlabel(xlabel3+r' [L$_{\odot}$]')
-        if Y != 'Nh':
+            ax3.errorbar(x3med, y3med, xerr=xstd, yerr=y3std,color='k', markeredgecolor='white', linestyle='')
+        if X != 'Lx':
+            secax3 = ax3.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+            secax3.set_xticks([9,10,11,12,13])
+            secax3.set_xlabel(xlabel3+r' [L$_{\odot}$]')
+        if Y == 'UV-MIR-FIR':
             secax3 = ax3.secondary_yaxis('right', functions=(self.solar_log, self.ergs_log))
             secax3.set_yticks([9,10,11,12,13])
-            secax3.set_ylabel(ylabel+r' [L$_{\odot}$]')
+            secax3.set_ylabel(r'log L (100 $\mu$m) [L$_{\odot}$]')
 
         # check = (x3[self.up_check == 0] > 45) & (y3[self.up_check == 0] < 43.5)
         # print('Large scatter: ',self.ID[self.up_check == 0][check])
@@ -1760,8 +2275,6 @@ class Plotter():
             yticks = [38, 39, 40, 41, 42]
             ylim = [38, 42]
 
-        
-
         else:
             print('Provide valid Y option. Options are:    UV,    MIR,    FIR,    Lbol,    Lbol/Lx,    Lx')
 
@@ -1829,18 +2342,267 @@ class Plotter():
         plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
         plt.show()
 
-    def L_hist(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],bins=[np.nan,np.nan,np.nan],median=True,std=False):
-        #75bbfb
+    def L_ratio_multi_panel(self,savestring,X,Y,median,F1,uv,mir,fir,Nh,L,shape,up_check,F100_ratio=None,field=None):
+        B1 = (shape == 1)
+        B2 = (shape == 2)
+        B3 = (shape == 3)
+        B4 = (shape == 4)
+        B5 = (shape == 5)
+
+        if X == 'MIR6':
+            x = mir
+            xlabel = r'log L (6$\mu$m)'
+            xunits1 = r'/(erg s$^{-1}$)'
+            xlim1 = 42.5
+            xlim2 = 46.5
+            xticks = [42,43,44,45,46]
+
+        elif X == 'Lx':
+            x = self.L
+            xlabel = r'log $L_{\rm X}$'
+            xunits1 = r'/(erg s$^{-1}$)'
+            xlim1 = 42.5
+            xlim2 = 46
+            xticks = [43,44,45,46]
+
+        elif X == 'Lbol':
+            x = L
+            xlabel = r'log $L_{\rm bol}$'
+            xunits1 = r'/(erg s$^{-1}$)'
+            xlim1 = 43.75
+            xlim2 = 46.75
+            xticks = [44.5,45.5,46.5]
+
+        y_uv = uv - self.L
+        ylabel_uv = r'log L (0.25$\mu$m)/ $L_{\mathrm{X}}$'
+        ylim1_uv = -1.5
+        ylim2_uv = 2
+        yticks_uv = [-1,0,1,2]
+
+        y_mir = mir - self.L
+        ylabel_mir = r'log L (6$\mu$m)/ $L_{\mathrm{X}}$'
+        ylim1_mir = -1.5
+        ylim2_mir = 2
+        yticks_mir = [-1,0,1,2]
+
+        y_fir = fir - self.L
+        ylabel_fir = r'log L (100$\mu$m)/ $L_{\mathrm{X}}$'
+        ylim1_fir = -1.5
+        ylim2_fir = 2
+        yticks_fir = [-1,0,1,2]
+
+        yF1 = np.log10(F100_ratio) - self.L
+
+        c1 = '#377eb8'
+        c2 = '#984ea3'
+        c3 = '#4daf4a'
+        c4 = '#ff7f00'
+        c5 = '#e41a1c'
+
+        x1 = x[B1]
+        x2 = x[B2]
+        x3 = x[B3]
+        x4 = x[B4]
+        x5 = x[B5]
+        y_uv1 = y_uv[B1]
+        y_uv2 = y_uv[B2]
+        y_uv3 = y_uv[B3]
+        y_uv4 = y_uv[B4]
+        y_uv5 = y_uv[B5]
+
+        y_mir1 = y_mir[B1]
+        y_mir2 = y_mir[B2]
+        y_mir3 = y_mir[B3]
+        y_mir4 = y_mir[B4]
+        y_mir5 = y_mir[B5]
+
+        y_fir1 = y_fir[B1]
+        y_fir2 = y_fir[B2]
+        y_fir3 = y_fir[B3]
+        y_fir4 = y_fir[B4]
+        y_fir5 = y_fir[B5]
+
+        yF1_1 = yF1[B1]
+        yF1_2 = yF1[B2]
+        yF1_3 = yF1[B3]
+        yF1_4 = yF1[B4]
+        yF1_5 = yF1[B5]
+
+        up_check1 = up_check[B1]
+        up_check2 = up_check[B2]
+        up_check3 = up_check[B3]
+        up_check4 = up_check[B4]
+        up_check5 = up_check[B5]
+
+        field1 = field[B1]
+        field2 = field[B2]
+        field3 = field[B3]
+        field4 = field[B4]
+        field5 = field[B5]
+
+        # Medians
+        y1_uv_med, y1_mir_med, y1_fir_med, x1_med = np.nanmedian(y_uv1), np.nanmedian(y_mir1), np.nanmedian(y_fir1), np.nanmedian(x1)
+        y2_uv_med, y2_mir_med, y2_fir_med, x2_med = np.nanmedian(y_uv2), np.nanmedian(y_mir2), np.nanmedian(y_fir2), np.nanmedian(x2)
+        y3_uv_med, y3_mir_med, y3_fir_med, x3_med = np.nanmedian(y_uv3), np.nanmedian(y_mir3), np.nanmedian(y_fir3), np.nanmedian(x3)
+        y4_uv_med, y4_mir_med, y4_fir_med, x4_med = np.nanmedian(y_uv4), np.nanmedian(y_mir4), np.nanmedian(y_fir4), np.nanmedian(x4)
+        y5_uv_med, y5_mir_med, y5_fir_med, x5_med = np.nanmedian(y_uv5), np.nanmedian(y_mir5), np.nanmedian(y_fir5), np.nanmedian(x5)
+
+        # Dispersion
+        y1_uv_25per, y1_mir_25per, y1_fir_25per, x1_25per = np.nanpercentile(y_uv1,25), np.nanpercentile(y_mir1, 25), np.nanpercentile(y_fir1, 25), np.nanpercentile(x1,25)
+        y2_uv_25per, y2_mir_25per, y2_fir_25per, x2_25per = np.nanpercentile(y_uv2,25), np.nanpercentile(y_mir2, 25), np.nanpercentile(y_fir2, 25), np.nanpercentile(x2,25)
+        y3_uv_25per, y3_mir_25per, y3_fir_25per, x3_25per = np.nanpercentile(y_uv3,25), np.nanpercentile(y_mir3, 25), np.nanpercentile(y_fir3, 25), np.nanpercentile(x3,25)
+        y4_uv_25per, y4_mir_25per, y4_fir_25per, x4_25per = np.nanpercentile(y_uv4,25), np.nanpercentile(y_mir4, 25), np.nanpercentile(y_fir4, 25), np.nanpercentile(x4,25)
+        y5_uv_25per, y5_mir_25per, y5_fir_25per, x5_25per = np.nanpercentile(y_uv5,25), np.nanpercentile(y_mir5, 25), np.nanpercentile(y_fir5, 25), np.nanpercentile(x5,25)
+        
+        y1_uv_75per, y1_mir_75per, y1_fir_75per, x1_75per = np.nanpercentile(y_uv1,75), np.nanpercentile(y_mir1, 75), np.nanpercentile(y_fir1, 75), np.nanpercentile(x1,75)
+        y2_uv_75per, y2_mir_75per, y2_fir_75per, x2_75per = np.nanpercentile(y_uv2,75), np.nanpercentile(y_mir2, 75), np.nanpercentile(y_fir2, 75), np.nanpercentile(x2,75)
+        y3_uv_75per, y3_mir_75per, y3_fir_75per, x3_75per = np.nanpercentile(y_uv3,75), np.nanpercentile(y_mir3, 75), np.nanpercentile(y_fir3, 75), np.nanpercentile(x3,75)
+        y4_uv_75per, y4_mir_75per, y4_fir_75per, x4_75per = np.nanpercentile(y_uv4,75), np.nanpercentile(y_mir4, 75), np.nanpercentile(y_fir4, 75), np.nanpercentile(x4,75)
+        y5_uv_75per, y5_mir_75per, y5_fir_75per, x5_75per = np.nanpercentile(y_uv5,75), np.nanpercentile(y_mir5, 75), np.nanpercentile(y_fir5, 75), np.nanpercentile(x5,75)
+
+        xmed = np.array([x1_med,x2_med,x3_med,x4_med,x5_med])
+        xerr1, xerr2 = xmed - np.array([x1_25per,x2_25per,x3_25per,x4_25per,x5_25per]),np.array([x1_75per,x2_75per,x3_75per,x4_75per,x5_75per]) - xmed
+        y_uv_med = np.array([y1_uv_med,y2_uv_med,y3_uv_med,y4_uv_med,y5_uv_med])
+        y_uv_err1, y_uv_err2 = y_uv_med - np.array([y1_uv_25per,y2_uv_25per,y3_uv_25per, y4_uv_25per,y5_uv_25per]),np.array([y1_uv_75per,y2_uv_75per,y3_uv_75per,y4_uv_75per,y5_uv_75per]) - y_uv_med
+        y_mir_med = np.array([y1_mir_med,y2_mir_med,y3_mir_med,y4_mir_med,y5_mir_med])
+        y_mir_err1, y_mir_err2 = y_mir_med - np.array([y1_mir_25per,y2_mir_25per,y3_mir_25per, y4_mir_25per,y5_mir_25per]),np.array([y1_mir_75per,y2_mir_75per,y3_mir_75per,y4_mir_75per,y5_mir_75per]) - y_mir_med
+        y_fir_med = np.array([y1_fir_med,y2_fir_med,y3_fir_med,y4_fir_med,y5_fir_med]) 
+        y_fir_err1, y_fir_err2 = y_fir_med - np.array([y1_fir_25per,y2_fir_25per,y3_fir_25per, y4_fir_25per,y5_fir_25per]),np.array([y1_fir_75per,y2_fir_75per,y3_fir_75per,y4_fir_75per,y5_fir_75per]) - y_fir_med
+
+        fig = plt.figure(figsize=(10, 21))
+        gs = fig.add_gridspec(ncols=1,nrows=3)#,left=0.06,right=0.95,top=0.86,bottom=0.14,wspace=0.0)
+        ax1 = plt.subplot(gs[0], aspect='equal', adjustable='box')
+        ax1.scatter(x1,y_uv1,c=c1,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 1')
+        ax1.scatter(x2,y_uv2,c=c2,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 2')
+        ax1.scatter(x3,y_uv3,c=c3,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 3')
+        ax1.scatter(x4,y_uv4,c=c4,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 4')
+        ax1.scatter(x5,y_uv5,c=c5,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 5')
+
+        ax1.errorbar(xmed, y_uv_med, xerr=[xerr1, xerr2], yerr=[y_uv_err1, y_uv_err2], mfc=c1, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+        ax1.scatter(x1_med, y1_uv_med, color=c1, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax1.scatter(x2_med, y2_uv_med, color=c2, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax1.scatter(x3_med, y3_uv_med, color=c3, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax1.scatter(x4_med, y4_uv_med, color=c4, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax1.scatter(x5_med, y5_uv_med, color=c5, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+
+        ax2 = plt.subplot(gs[1], aspect='equal', adjustable='box')
+        ax2.scatter(x1,y_mir1,c=c1,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+        ax2.scatter(x2,y_mir2,c=c2,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+        ax2.scatter(x3,y_mir3,c=c3,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+        ax2.scatter(x4,y_mir4,c=c4,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+        ax2.scatter(x5,y_mir5,c=c5,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+
+        ax2.errorbar(xmed, y_mir_med, xerr=[xerr1, xerr2], yerr=[y_mir_err1, y_mir_err2], mfc=c1, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+        ax2.scatter(x1_med, y1_mir_med, color=c1, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax2.scatter(x2_med, y2_mir_med, color=c2, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax2.scatter(x3_med, y3_mir_med, color=c3, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax2.scatter(x4_med, y4_mir_med, color=c4, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax2.scatter(x5_med, y5_mir_med, color=c5, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+
+        ax3 = plt.subplot(gs[2], aspect='equal', adjustable='box')
+        ax3.scatter(x1[up_check1 == 1][field1[up_check1 == 1] == 'S82X'],y_fir1[up_check1 == 1][field1[up_check1 == 1] == 'S82X'],c=c1,marker='x',rasterized=True,s=55,alpha=0.75)
+        ax3.scatter(x2[up_check2 == 1][field2[up_check2 == 1] == 'S82X'],y_fir2[up_check2 == 1][field2[up_check2 == 1] == 'S82X'],c=c2,marker='x',rasterized=True,s=55,alpha=0.75)
+        ax3.scatter(x3[up_check3 == 1][field3[up_check3 == 1] == 'S82X'],y_fir3[up_check3 == 1][field3[up_check3 == 1] == 'S82X'],c=c3,marker='x',rasterized=True,s=55,alpha=0.75)
+        ax3.scatter(x4[up_check4 == 1][field4[up_check4 == 1] == 'S82X'],y_fir4[up_check4 == 1][field4[up_check4 == 1] == 'S82X'],c=c4,marker='x',rasterized=True,s=55,alpha=0.75)
+        ax3.scatter(x5[up_check5 == 1][field5[up_check5 == 1] == 'S82X'],y_fir5[up_check5 == 1][field5[up_check5 == 1] == 'S82X'],c=c5,marker='x',rasterized=True,s=55,alpha=0.75)
+
+        ax3.scatter(x1[up_check1 == 1][field1[up_check1 == 1] != 'S82X'],y_fir1[up_check1 == 1][field1[up_check1 == 1] != 'S82X'],c='gray',marker=11,rasterized=True,s=55,alpha=0.5)
+        ax3.scatter(x2[up_check2 == 1][field2[up_check2 == 1] != 'S82X'],y_fir2[up_check2 == 1][field2[up_check2 == 1] != 'S82X'],c='gray',marker=11,rasterized=True,s=55,alpha=0.5)
+        ax3.scatter(x3[up_check3 == 1][field3[up_check3 == 1] != 'S82X'],y_fir3[up_check3 == 1][field3[up_check3 == 1] != 'S82X'],c='gray',marker=11,rasterized=True,s=55,alpha=0.5)
+        ax3.scatter(x4[up_check4 == 1][field4[up_check4 == 1] != 'S82X'],y_fir4[up_check4 == 1][field4[up_check4 == 1] != 'S82X'],c='gray',marker=11,rasterized=True,s=55,alpha=0.5)
+        ax3.scatter(x5[up_check5 == 1][field5[up_check5 == 1] != 'S82X'],y_fir5[up_check5 == 1][field5[up_check5 == 1] != 'S82X'],c='gray',marker=11,rasterized=True,s=55,alpha=0.5)
+
+        ax3.scatter(x1[up_check1 == 1][field1[up_check1 == 1] != 'S82X'],y_fir1[up_check1 == 1][field1[up_check1 == 1] != 'S82X'],c='gray',marker=2,rasterized=True,s=55,alpha=0.5)
+        ax3.scatter(x2[up_check2 == 1][field2[up_check2 == 1] != 'S82X'],y_fir2[up_check2 == 1][field2[up_check2 == 1] != 'S82X'],c='gray',marker=2,rasterized=True,s=55,alpha=0.5)
+        ax3.scatter(x3[up_check3 == 1][field3[up_check3 == 1] != 'S82X'],y_fir3[up_check3 == 1][field3[up_check3 == 1] != 'S82X'],c='gray',marker=2,rasterized=True,s=55,alpha=0.5)
+        ax3.scatter(x4[up_check4 == 1][field4[up_check4 == 1] != 'S82X'],y_fir4[up_check4 == 1][field4[up_check4 == 1] != 'S82X'],c='gray',marker=2,rasterized=True,s=55,alpha=0.5)
+        ax3.scatter(x5[up_check5 == 1][field5[up_check5 == 1] != 'S82X'],y_fir5[up_check5 == 1][field5[up_check5 == 1] != 'S82X'],c='gray',marker=2,rasterized=True,s=55,alpha=0.5)
+
+
+        # ax3.scatter(x1[up_check1 == 1],yF1_1[up_check1 == 1],c='gray',marker='_',alpha=0.75)
+        # ax3.scatter(x2[up_check2 == 1],yF1_2[up_check2 == 1],c='gray',marker='_',alpha=0.75)
+        # ax3.scatter(x3[up_check3 == 1],yF1_3[up_check3 == 1],c='gray',marker='_',alpha=0.75)
+        # ax3.scatter(x4[up_check4 == 1],yF1_4[up_check4 == 1],c='gray',marker='_',alpha=0.75)
+        # ax3.scatter(x5[up_check5 == 1],yF1_5[up_check5 == 1],c='gray',marker='_',alpha=0.75)
+
+        # for i in range(len(x1[up_check1 == 1])):
+        #     ax3.plot([x1[up_check1 == 1][i],x1[up_check1 == 1][i]],[y_fir1[up_check1 == 1][i],yF1_1[up_check1 == 1][i]],c='gray',alpha=0.65,zorder=0,rasterized=True)
+        # for i in range(len(x2[up_check2 == 1])):
+        #     ax3.plot([x2[up_check2 == 1][i],x2[up_check2 == 1][i]],[y_fir2[up_check2 == 1][i],yF1_2[up_check2 == 1][i]],c='gray',alpha=0.65,zorder=0,rasterized=True)
+        # for i in range(len(x3[up_check3 == 1])):
+        #     ax3.plot([x3[up_check3 == 1][i],x3[up_check3 == 1][i]],[y_fir3[up_check3 == 1][i],yF1_3[up_check3 == 1][i]],c='gray',alpha=0.65,zorder=0,rasterized=True)
+        # for i in range(len(x4[up_check4 == 1])):
+        #     ax3.plot([x4[up_check4 == 1][i],x4[up_check4 == 1][i]],[y_fir4[up_check4 == 1][i],yF1_4[up_check4 == 1][i]],c='gray',alpha=0.65,zorder=0,rasterized=True)
+        # for i in range(len(x5[up_check5 == 1])):
+        #     ax3.plot([x5[up_check5 == 1][i],x5[up_check5 == 1][i]],[y_fir5[up_check5 == 1][i],yF1_5[up_check5 == 1][i]],c='gray',alpha=0.65,zorder=0,rasterized=True)
+
+        ax3.scatter(x1[up_check1 == 0],y_fir1[up_check1 == 0],c=c1,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+        ax3.scatter(x2[up_check2 == 0],y_fir2[up_check2 == 0],c=c2,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+        ax3.scatter(x3[up_check3 == 0],y_fir3[up_check3 == 0],c=c3,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+        ax3.scatter(x4[up_check4 == 0],y_fir4[up_check4 == 0],c=c4,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+        ax3.scatter(x5[up_check5 == 0],y_fir5[up_check5 == 0],c=c5,marker='P',lw=0,rasterized=True,s=55,alpha=0.8)
+
+        ax3.errorbar(xmed, y_fir_med, xerr=[xerr1, xerr2], yerr=[y_fir_err1, y_fir_err2], mfc=c1, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+        ax3.scatter(x1_med, y1_fir_med, color=c1, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax3.scatter(x2_med, y2_fir_med, color=c2, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax3.scatter(x3_med, y3_fir_med, color=c3, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax3.scatter(x4_med, y4_fir_med, color=c4, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax3.scatter(x5_med, y5_fir_med, color=c5, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        plot_fit(x,y_fir,1,43,45.5,'k')
+        # plot_fit(x[up_check == 0],y_fir[up_check == 0],1,43,45.5,'r')
+        # ax3.plot([42,43,44,45,46],[2,1,0,-1,-2],color='k',alpha=0.8,zorder=0)
+
+        ax1.set_ylabel(ylabel_uv)
+        ax2.set_ylabel(ylabel_mir)
+        ax3.set_ylabel(ylabel_fir)
+        ax3.set_xlabel(xlabel+xunits1)
+        ax1.grid()
+        ax2.grid()
+        ax3.grid()
+        ax1.set_xlim(xlim1,xlim2)
+        ax2.set_xlim(xlim1,xlim2)
+        ax3.set_xlim(xlim1,xlim2)
+        ax1.set_ylim(ylim1_uv,ylim2_uv)
+        ax2.set_ylim(ylim1_mir,ylim2_mir)
+        ax3.set_ylim(ylim1_fir,ylim2_fir)
+        ax1.set_yticks(yticks_uv)
+        ax2.set_yticks(yticks_mir)
+        ax3.set_yticks(yticks_fir)
+        ax1.set_xticks(xticks)
+        ax2.set_xticks(xticks)
+        ax3.set_xticks(xticks)
+        ax1.set_xticklabels([])
+        ax2.set_xticklabels([])
+        ax1.legend()
+        plt.tight_layout()
+
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
+        print('done')
+        plt.show()
+
+    def L_hist(self,savestring,x,xlabel=None,xlim=[np.nan,np.nan],bins=[np.nan,np.nan,np.nan],median=True,std=False,split=False,split_param=None,top_label=False,xlabel2=None):
+        hist1 = (split_param != 0)
+        hist2 = (split_param == 0)
+        
+        # c = 'gray'
+        c = '#75bbfb'
         plt.figure(figsize=(9, 9))
-        # ax1 = plt.subplot(111, aspect='equal', adjustable='box')
-        n = plt.hist(x, bins=np.arange(
-            bins[0], bins[1], bins[2]), color='#75bbfb', zorder=0)
+        ax1 = plt.subplot(111)
+        n = plt.hist(x, bins=np.arange(bins[0], bins[1], bins[2]), color=c, zorder=0)
+        if split:
+            # plt.hist(x[hist2], bins=np.arange(bins[0], bins[1], bins[2]), color='gray', alpha=0.5)
+            plt.hist(x[hist2], bins=np.arange(bins[0], bins[1], bins[2]), histtype='step',color=c,edgecolor='k',lw=2,hatch='/',fill=True)
         if median:
             plt.axvline(np.nanmedian(x),color='k',ls='--',lw=3)
             if std:
                 plt.axvline(np.std(x)+np.nanmean(x),color='k',lw=1)
                 plt.axvline(np.nanmean(x)-np.std(x),color='k',lw=1)
                 plt.fill_between([np.nanmean(x)-np.std(x), np.std(x)+np.nanmean(x)],[0,0],[max(n[0])+max(n[0])*0.1,max(n[0])+max(n[0])*0.1],color='gray',alpha=0.4)
+        if top_label:
+            secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+            secax1.set_xticks([9,10,11,12,13])
+            secax1.set_xlabel(xlabel2)
+
         plt.xlabel(xlabel)
         plt.grid()
         plt.ylim(0,max(n[0])+max(n[0])*0.1)
@@ -1915,12 +2677,13 @@ class Plotter():
         x1 = min(L1) - 0.5
         x2 = max(L1) + 1
 
-        fig = plt.figure(figsize=(9,9))
+        fig = plt.figure(figsize=(10,8))
         ax1 = plt.subplot(111, aspect='equal', adjustable='box')
         if cbar:
             pts = plt.scatter(L1, L2, c=color_array, edgecolor='k', s=100)
             axcb = fig.colorbar(pts)  # make colorbar
-            axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits
+            # axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits Lir
+            axcb.mappable.set_clim(21, 25)  # initialize colorbar limits Nh
             axcb.set_label(label=colorbar_label)
         else:
             plt.plot(L1,L2,'.',ms=15,color='gray')
@@ -1946,7 +2709,7 @@ class Plotter():
         arp220 = (self.ID == 'UGC 09913')
         mrk231 = (self.ID == 'UGC 08058')
 
-        fig = plt.figure(figsize=(15,15))
+        fig = plt.figure(figsize=(15,13))
         ax = plt.subplot(111, aspect='equal', adjustable='box')
         if colorbar:
             pts = plt.scatter(x[~agn],y[~agn],c=L[~agn],edgecolor='k',s=175)
@@ -2397,6 +3160,210 @@ class Plotter():
         plt.grid()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
+
+    def Upanels_ratio(self,savestring,X,Y,Median,x,uv,mir,fir,norm,shape,up_check):
+        b1 = (shape == 1)
+        b2 = (shape == 2)
+        b3 = (shape == 3)
+        b4 = (shape == 4)
+        b5 = (shape == 5)
+
+        if X == 'Lbol':
+            xlabel = r'log $L_{\rm bol-gal,e}$'
+            xunits = r'/(erg s$^{-1}$)'
+
+        if Y == 'UV-MIR-FIR':
+            ylabel1 = r'log L (UV)/$L_{\rm bol-gal,e}$'
+            ylabel2 = r'log L (MIR)/$L_{\rm bol-gal,e}$'
+            ylabel3 = r'log L (FIR)/$L_{\rm bol-gal,e}$'
+
+        if X == 'Lbol' and Y == 'UV-MIR-FIR':
+            y1 = uv - x 
+            y2 = mir - x
+            y3 = fir - x
+
+        x1 = x[b1]
+        x2 = x[b2]
+        x3 = x[b3]
+        x4 = x[b4]
+        x5 = x[b5]
+
+        y11 = y1[b1]
+        y12 = y1[b2]
+        y13 = y1[b3]
+        y14 = y1[b4]
+        y15 = y1[b5]
+
+        y21 = y2[b1]
+        y22 = y2[b2]
+        y23 = y2[b3]
+        y24 = y2[b4]
+        y25 = y2[b5]
+
+        y31 = y3[b1]
+        y32 = y3[b2]
+        y33 = y3[b3]
+        y34 = y3[b4]
+        y35 = y3[b5]
+
+        up_check1 = up_check[b1]
+        up_check2 = up_check[b2]
+        up_check3 = up_check[b3]
+        up_check4 = up_check[b4]
+        up_check5 = up_check[b5]
+
+        x1med = np.nanmedian(x1)
+        x2med = np.nanmedian(x2)
+        x3med = np.nanmedian(x3)
+        x4med = np.nanmedian(x4)
+        x5med = np.nanmedian(x5)
+
+        y11med = np.nanmedian(y11)
+        y12med = np.nanmedian(y12)
+        y13med = np.nanmedian(y13)
+        y14med = np.nanmedian(y14)
+        y15med = np.nanmedian(y15)
+
+        y21med = np.nanmedian(y21)
+        y22med = np.nanmedian(y22)
+        y23med = np.nanmedian(y23)
+        y24med = np.nanmedian(y24)
+        y25med = np.nanmedian(y25)
+
+        y31med = np.nanmedian(y31)
+        y32med = np.nanmedian(y32)
+        y33med = np.nanmedian(y33)
+        y34med = np.nanmedian(y34)
+        y35med = np.nanmedian(y35)
+
+        # Dispersion
+        y11_25per, y21_25per, y31_25per, x1_25per = np.nanpercentile(y11,25), np.nanpercentile(y21, 25), np.nanpercentile(y31, 25), np.nanpercentile(x1,25)
+        y12_25per, y22_25per, y32_25per, x2_25per = np.nanpercentile(y12,25), np.nanpercentile(y22, 25), np.nanpercentile(y32, 25), np.nanpercentile(x2,25)
+        y13_25per, y23_25per, y33_25per, x3_25per = np.nanpercentile(y13,25), np.nanpercentile(y23, 25), np.nanpercentile(y33, 25), np.nanpercentile(x3,25)
+        y14_25per, y24_25per, y34_25per, x4_25per = np.nanpercentile(y14,25), np.nanpercentile(y24, 25), np.nanpercentile(y34, 25), np.nanpercentile(x4,25)
+        y15_25per, y25_25per, y35_25per, x5_25per = np.nanpercentile(y15,25), np.nanpercentile(y25, 25), np.nanpercentile(y35, 25), np.nanpercentile(x5,25)
+        
+        y11_75per, y21_75per, y31_75per, x1_75per = np.nanpercentile(y11,75), np.nanpercentile(y21, 75), np.nanpercentile(y31, 75), np.nanpercentile(x1,75)
+        y12_75per, y22_75per, y32_75per, x2_75per = np.nanpercentile(y12,75), np.nanpercentile(y22, 75), np.nanpercentile(y32, 75), np.nanpercentile(x2,75)
+        y13_75per, y23_75per, y33_75per, x3_75per = np.nanpercentile(y13,75), np.nanpercentile(y23, 75), np.nanpercentile(y33, 75), np.nanpercentile(x3,75)
+        y14_75per, y24_75per, y34_75per, x4_75per = np.nanpercentile(y14,75), np.nanpercentile(y24, 75), np.nanpercentile(y34, 75), np.nanpercentile(x4,75)
+        y15_75per, y25_75per, y35_75per, x5_75per = np.nanpercentile(y15,75), np.nanpercentile(y25, 75), np.nanpercentile(y35, 75), np.nanpercentile(x5,75)
+
+        xmed = np.array([x1med,x2med,x3med,x4med,x5med])
+        xerr1, xerr2 = xmed - np.array([x1_25per,x2_25per,x3_25per,x4_25per,x5_25per]),np.array([x1_75per,x2_75per,x3_75per,x4_75per,x5_75per]) - xmed
+        y_uv_med = np.array([y11med,y12med,y13med,y14med,y15med])
+        y_uv_err1, y_uv_err2 = y_uv_med - np.array([y11_25per,y12_25per,y13_25per, y14_25per,y15_25per]),np.array([y11_75per,y12_75per,y13_75per,y14_75per,y15_75per]) - y_uv_med
+        y_mir_med = np.array([y21med,y22med,y23med,y24med,y25med])
+        y_mir_err1, y_mir_err2 = y_mir_med - np.array([y21_25per,y22_25per,y23_25per, y24_25per,y25_25per]),np.array([y21_75per,y22_75per,y23_75per,y24_75per,y25_75per]) - y_mir_med
+        y_fir_med = np.array([y31med,y32med,y33med,y34med,y35med]) 
+        y_fir_err1, y_fir_err2 = y_fir_med - np.array([y31_25per,y32_25per,y33_25per, y34_25per,y35_25per]),np.array([y31_75per,y32_75per,y33_75per,y34_75per,y35_75per]) - y_fir_med
+
+
+        c1 = '#377eb8'
+        c2 = '#984ea3'
+        c3 = '#4daf4a'
+        c4 = '#ff7f00'
+        c5 = '#e41a1c'
+
+        xlim = [43.5,47]
+        ylim = [-3,0.25]
+
+        fig = plt.figure(figsize=(10, 21))
+        gs = fig.add_gridspec(ncols=1,nrows=3)#,left=0.06,right=0.95,top=0.86,bottom=0.14,wspace=0.0)
+        ax1 = plt.subplot(gs[0], aspect='equal', adjustable='box')
+        ax1.scatter(x1,y11,c=c1,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 1')
+        ax1.scatter(x2,y12,c=c2,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 2')
+        ax1.scatter(x3,y13,c=c3,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 3')
+        ax1.scatter(x4,y14,c=c4,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 4')
+        ax1.scatter(x5,y15,c=c5,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 5')
+
+        ax1.errorbar(xmed, y_uv_med, xerr=[xerr1, xerr2], yerr=[y_uv_err1, y_uv_err2], mfc=c1, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+        ax1.scatter(x1med, y11med, color=c1, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax1.scatter(x2med, y12med, color=c2, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax1.scatter(x3med, y13med, color=c3, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax1.scatter(x4med, y14med, color=c4, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax1.scatter(x5med, y15med, color=c5, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+
+        ax2 = plt.subplot(gs[1], aspect='equal', adjustable='box')
+        ax2.scatter(x1,y21,c=c1,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 1')
+        ax2.scatter(x2,y22,c=c2,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 2')
+        ax2.scatter(x3,y23,c=c3,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 3')
+        ax2.scatter(x4,y24,c=c4,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 4')
+        ax2.scatter(x5,y25,c=c5,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 5')
+
+        ax2.errorbar(xmed, y_mir_med, xerr=[xerr1, xerr2], yerr=[y_mir_err1, y_mir_err2], mfc=c1, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+        ax2.scatter(x1med, y21med, color=c1, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax2.scatter(x2med, y22med, color=c2, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax2.scatter(x3med, y23med, color=c3, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax2.scatter(x4med, y24med, color=c4, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+        ax2.scatter(x5med, y25med, color=c5, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+
+        ax3 = plt.subplot(gs[2], aspect='equal', adjustable='box')
+        if 'FIR' in Y:
+            ax3.scatter(x1[up_check1 == 1],y31[up_check1 == 1],c=c1,marker=2,rasterized=True,s=55,alpha=0.55)
+            ax3.scatter(x2[up_check2 == 1],y32[up_check2 == 1],c=c2,marker=2,rasterized=True,s=55,alpha=0.55)
+            ax3.scatter(x3[up_check3 == 1],y33[up_check3 == 1],c=c3,marker=2,rasterized=True,s=55,alpha=0.55)
+            ax3.scatter(x4[up_check4 == 1],y34[up_check4 == 1],c=c4,marker=2,rasterized=True,s=55,alpha=0.55)
+            ax3.scatter(x5[up_check5 == 1],y35[up_check5 == 1],c=c5,marker=2,rasterized=True,s=55,alpha=0.55)
+
+            ax3.scatter(x1[up_check1 == 1],y31[up_check1 == 1],c=c1,marker=11,rasterized=True,s=55,alpha=0.5)
+            ax3.scatter(x2[up_check2 == 1],y32[up_check2 == 1],c=c2,marker=11,rasterized=True,s=55,alpha=0.5)
+            ax3.scatter(x3[up_check3 == 1],y33[up_check3 == 1],c=c3,marker=11,rasterized=True,s=55,alpha=0.5)
+            ax3.scatter(x4[up_check4 == 1],y34[up_check4 == 1],c=c4,marker=11,rasterized=True,s=55,alpha=0.5)
+            ax3.scatter(x5[up_check5 == 1],y35[up_check5 == 1],c=c5,marker=11,rasterized=True,s=55,alpha=0.5)
+
+            ax3.scatter(x1[up_check1 == 0],y31[up_check1 == 0],c=c1,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 1')
+            ax3.scatter(x2[up_check2 == 0],y32[up_check2 == 0],c=c2,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 2')
+            ax3.scatter(x3[up_check3 == 0],y33[up_check3 == 0],c=c3,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 3')
+            ax3.scatter(x4[up_check4 == 0],y34[up_check4 == 0],c=c4,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 4')
+            ax3.scatter(x5[up_check5 == 0],y35[up_check5 == 0],c=c5,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 5')
+            
+        else:    
+            ax3.scatter(x1,y31,c=c1,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 1')
+            ax3.scatter(x2,y32,c=c2,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 2')
+            ax3.scatter(x3,y33,c=c3,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 3')
+            ax3.scatter(x4,y34,c=c4,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 4')
+            ax3.scatter(x5,y35,c=c5,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 5')
+
+        if Median == 'Bins':
+            ax3.errorbar(xmed, y_fir_med, xerr=[xerr1, xerr2], yerr=[y_fir_err1, y_fir_err2], mfc=c1, ecolor='k', capsize=5, fmt='none', rasterized=True,zorder=1)
+            ax3.scatter(x1med, y31med, color=c1, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+            ax3.scatter(x2med, y32med, color=c2, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+            ax3.scatter(x3med, y33med, color=c3, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+            ax3.scatter(x4med, y34med, color=c4, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+            ax3.scatter(x5med, y35med, color=c5, marker='o', s = 150, edgecolor='k', linewidth=2, rasterized=True)
+
+        secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
+        secax1.set_xticks([9,10,11,12,13])
+        secax1.set_xlabel(xlabel+r'/L$_{\odot}$')
+
+        ax1.set_xlim(xlim[0],xlim[1])
+        ax2.set_xlim(xlim[0],xlim[1])
+        ax3.set_xlim(xlim[0],xlim[1])
+
+        ax1.set_ylim(ylim[0],ylim[1])
+        ax2.set_ylim(ylim[0],ylim[1])
+        ax3.set_ylim(ylim[0],ylim[1])
+
+        ax1.set_xticklabels([])
+        ax2.set_xticklabels([])
+
+        ax3.set_xlabel(xlabel+xunits)
+        ax1.set_ylabel(ylabel1)
+        ax2.set_ylabel(ylabel2)
+        ax3.set_ylabel(ylabel3)
+
+        ax1.grid()
+        ax2.grid()
+        ax3.grid()
+        ax2.legend()
+        
+        plt.tight_layout()
+        plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
+        plt.show()
+
+
+
 
 
         
