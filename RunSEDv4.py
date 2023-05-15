@@ -292,7 +292,7 @@ abs_corr_use_f_match = abs_corr_use_f[cosmos_ix]
 check_abs_match = check_abs[cosmos_ix]
 print('COSMOS phot match: ', len(chandra_cosmos_phot_id_match))
 
-print(len(check_abs_match),len(check_abs_match[check_abs_match == 0]))
+# print(len(check_abs_match),len(check_abs_match[check_abs_match == 0]))
 
 # Convert the X-ray flux values to from cgs to mJy
 chandra_cosmos_Fx_full_match_mjy = chandra_cosmos_Fx_full_match*4.136E8/(10-0.5)
@@ -427,10 +427,19 @@ s82x_Lx_soft = np.array([10**i for i in lamassa_data['SOFT_LUM']])
 s82x_Fx_full = lamassa_data['FULL_FLUX']
 s82x_Fx_hard = lamassa_data['HARD_FLUX']
 s82x_Fx_soft = lamassa_data['SOFT_FLUX']
-s82x_spec_class = lamassa_data['SPEC_CLASS']
+# s82x_spec_class = lamassa_data['SPEC_CLASS']
 s82x_Fx_full_int = s82x_Fx_full.copy()
 s82x_Fx_hard_int = s82x_Fx_hard.copy()
 s82x_Fx_soft_int = s82x_Fx_soft.copy()
+
+# S82X Spec type data
+s82x_spec_type_in = lamassa_data['spec_class']
+s82x_spec_class = np.ones(np.shape(s82x_spec_type_in))
+for i in range(len(s82x_spec_type_in)):
+    if i != 'QSO':
+        s82x_spec_class[i] = 2
+    else:
+        continue
 
 # Read in WISE data 
 s82x_W1 = lamassa_data['W1']
@@ -948,7 +957,7 @@ plt.legend()
 plt.xlim(-0.05,1.25)
 plt.grid()
 plt.tight_layout()
-plt.savefig('/Users/connor_auge/Desktop/Final_plots/Lx_z_spec3.pdf')
+plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_new/Lx_z_spec3.pdf')
 plt.show()
 '''
 ####################
@@ -976,7 +985,7 @@ print(f'Done with file reading ({tfl - ti:0.4f} second)')
 
 
 # Filters used in COSMOS field 
-COSMOS_filters = np.array(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'J_FLUX_APER2', 'H_FLUX_APER2',
+COSMOS_filters = np.array(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'JVHS', 'H_FLUX_APER2',
                           'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 
 # COSMOS_filters = np.array(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'J_FLUX_APER2', 'H_FLUX_APER2',
@@ -1054,6 +1063,15 @@ FIR_R_lum = []
 Nh_check = []
 abs_check = []
 mix_x, mix_y = [], []
+F025_boot, F1_boot, F6_boot, F10_boot, F100_boot = [], [], [], [], []
+F2_boot = []
+xval_out_boot, F2kev_boot = [], []
+spec_class = []
+check_sed6 = []
+
+F24_out = []
+F100_ratio =[]
+stack_bin = []
 ###############################################################################
 ###############################################################################
 ############################### Run COSMOS SEDs ###############################
@@ -1065,16 +1083,35 @@ for i in range(len(chandra_cosmos_phot_id_match)):
 # for i in range(50):
     # if chandra_cosmos_phot_id_match[i] == 222544:
         source = AGN(chandra_cosmos_phot_id_match[i], chandra_cosmos_z_match[i], COSMOS_filters, cosmos_flux_array[i], cosmos_flux_err_array[i])
-        source.MakeSED()
+        source.MakeSED(data_replace_filt='FLUX_24')
         source.FIR_extrap(['FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+        Lcheck = source.Lum_filter('FLUX_24')
+        F24_out.append(Lcheck)
+        stack_bin.append(7)
 
         ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
         int_x.append(ix)
         int_y.append(iy)
 
+        # wfir, ffir, f100, f100_boot = source.Int_SED_FIR(Find_value=100.0,discreet=True,boot=True)
         wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0,discreet=True)
         wfir_out.append(wfir)
         ffir_out.append(ffir)
+
+        L100_ratio = source.flux_ratio_lower()
+        F100_ratio.append(L100_ratio)
+
+        # f1, f1_boot = source.Find_value(1.0, boot=True)
+        # f2, f2_boot = source.Find_value(2.0, boot=True)
+        # xval, xval_boot = source.Find_value(3E-4, boot=True)
+        # f6, f6_boot = source.Find_value(6.0, boot=True)
+        # f025, f025_boot = source.Find_value(0.25, boot=True)
+        # f10, f10_boot = source.Find_value(10, boot=True)
+        # f2kev, f2kev_boot = source.Find_value(6.1992e-4, boot=True)
+
+        # f015, f015_boot = source.Find_value(0.15, boot=True)
+        # f65, f65_boot = source.Find_value(6.5, boot=True)
 
         f1 = source.Find_value(1.0)
         f2 = source.Find_value(2.0)
@@ -1120,6 +1157,14 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         F100.append(f100)
         F2kev.append(f2kev)
         xval_out.append(xval)
+        # F1_boot.append(f1_boot)
+        # F025_boot.append(f025_boot)
+        # F2_boot.append(f2_boot)
+        # F6_boot.append(f6_boot)
+        # F10_boot.append(f10_boot)
+        # xval_out_boot.append(xval_boot)
+        # F100_boot.append(f100_boot)
+        # F2kev_boot.append(f2kev_boot)
         Lbol_out.append(lbol)
         Lbol_sub_out.append(lbol_sub)
         Nh.append(chandra_cosmos_Nh_match[i])
@@ -1143,14 +1188,17 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         plot = Plotter(Id, redshift, w, f, chandra_cosmos_Lx_full_match[i],f1,up_check)
 
         # if check == 'GOOD':
-        # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
-        #     if shape == 6:
-        #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
-        #         plot.PlotSED(point_x=[0.15,1.0,6.5,10],point_y=[f015/f1,f1/f1,f65/f1,f10/f1],fir_x = wfir, fir_y = ffir)
+        # # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
+        #     if up_check == 1:
+        # #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
+        #         plot.PlotSED(point_x=[0.15,1.0,6.5,10,100],point_y=[f015/f1,f1/f1,f65/f1,f10/f1,f100/f1],fir_x = wfir, fir_y = ffir)
 
         check = source.check_SED(10, check_span=2.75)
+        check6 = source.check_SED(6, check_span=2.75)
         check_sed.append(check)
-        field.append('c')
+        check_sed6.append(check6)
+        field.append('COSMOS')
+        spec_class.append(chandra_cosmos_spec_type_match[i])
 
         # if check == 'GOOD':
         #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
@@ -1178,9 +1226,9 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         # elif Id == 662467:
         # if check == 'GOOD':
         # if Id == 687415:
-        #     # plot.Plot_FIR_SED(wfir, ffir/f1)
+            # plot.Plot_FIR_SED(wfir, ffir/f1)
         #     source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-        #     plot.PlotSED(point_x=100,point_y=f100/f1)
+            # plot.PlotSED(point_x=100,point_y=f100/f1)
             
         # if Id == 536989 or Id == 576750:
         #     # if check == 'GOOD':
@@ -1218,16 +1266,37 @@ for i in range(len(s82x_id)):
     # if s82x_id[i] == 187:
         try:
             source = AGN(s82x_id[i],s82x_z[i],S82X_filters,s82x_flux_array[i],s82x_flux_err_array[i])
-            source.MakeSED()
-            source.FIR_extrap(['W4','FLUX_250_s82x', 'FLUX_350_s82x', 'FLUX_500_s82x'])
+            source.MakeSED(data_replace_filt='W4')
+            source.FIR_extrap(['W4','FLUX_250_s82x', 'FLUX_350_s82x', 'FLUX_500_s82x'],stack=False)
+            # stack_out = source.stack_check()
+            # print(stack_out)
+            stack_bin.append(7)
+
+            Lcheck = source.Lum_filter('W4')
+            F24_out.append(Lcheck)
 
             ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
             int_x.append(ix)
             int_y.append(iy)
 
+            # wfir, ffir, f100, f100_boot = source.Int_SED_FIR(Find_value=100.0,discreet=True,boot=True)
             wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0,discreet=True)
             wfir_out.append(wfir)
             ffir_out.append(ffir)
+
+            L100_ratio = source.flux_ratio_lower()
+            F100_ratio.append(L100_ratio)
+
+            # f1, f1_boot = source.Find_value(1.0, boot=True)
+            # f2, f2_boot = source.Find_value(2.0, boot=True)
+            # xval, xval_boot = source.Find_value(3E-4, boot=True)
+            # f6, f6_boot = source.Find_value(6.0, boot=True)
+            # f025, f025_boot = source.Find_value(0.25, boot=True)
+            # f10, f10_boot = source.Find_value(10, boot=True)
+            # f2kev, f2kev_boot = source.Find_value(6.1992e-4, boot=True)
+
+            # f015, f015_boot = source.Find_value(0.15, boot=True)
+            # f65, f65_boot = source.Find_value(6.5, boot=True)
 
             f1 = source.Find_value(1.0)
             f2 = source.Find_value(2.0)
@@ -1235,6 +1304,7 @@ for i in range(len(s82x_id)):
             f6 = source.Find_value(6.0)
             f025 = source.Find_value(0.25)
             f10 = source.Find_value(10)
+            f2kev = source.Find_value(6.1992e-4)
 
             f015 = source.Find_value(0.15)
             f65 = source.Find_value(6.5)
@@ -1269,6 +1339,15 @@ for i in range(len(s82x_id)):
             F10.append(f10)
             F100.append(f100)
             xval_out.append(xval)
+            F2kev.append(f2kev)
+            # F1_boot.append(f1_boot)
+            # F025_boot.append(f025_boot)
+            # F2_boot.append(f2_boot)
+            # F6_boot.append(f6_boot)
+            # F10_boot.append(f10_boot)
+            # xval_out_boot.append(xval_boot)
+            # F100_boot.append(f100_boot)
+            # F2kev_boot.append(f2kev_boot)
             Lbol_out.append(lbol)
             Lbol_sub_out.append(lbol_sub)
             Nh.append(s82x_Nh[i])
@@ -1292,13 +1371,16 @@ for i in range(len(s82x_id)):
 
             plot = Plotter(Id, redshift, w, f, s82x_Lx_full[i],f1,up_check)
             check = source.check_SED(10, check_span=2.75)
+            check6 = source.check_SED(6, check_span=2.75)
             check_sed.append(check)
-            field.append('s')
-            # if check == 'GOOD':
-            # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
-            #     if shape == 6:
-            #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
-            #         plot.PlotSED(point_x=[0.15,1.0,6.5,10],point_y=[f015/f1,f1/f1,f65/f1,f10/f1],fir_x = wfir, fir_y = ffir)
+            check_sed6.append(check6)
+            field.append('S82X')
+            spec_class.append(s82x_spec_class[i])
+            # if check6 == 'GOOD':
+            # # # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
+            # #     if up_check == 1:
+            # # #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
+                # plot.PlotSED(point_x=[0.15,1.0,6.5,10,100],point_y=[f015/f1,f1/f1,f65/f1,f10/f1,f100/f1],fir_x = wfir, fir_y = ffir)
 
             # if Id == 187:
             #     print(source.Find_slope(0.15,1.0))
@@ -1335,16 +1417,34 @@ fill_nan[fill_nan == 0] = np.nan
 for i in range(len(goodsN_auge_ID_match)):
     # for i in range(50):
     source = AGN(goodsN_auge_ID_match[i], goodsN_auge_z_match[i], GOODSN_auge_filters, goodsN_flux_array_auge[i], goodsN_flux_err_array_auge[i])
-    source.MakeSED()
+    source.MakeSED(data_replace_filt='FLUX_24')
     source.FIR_extrap(['FLUX_24', 'MIPS2', 'FLUX_100_goodsN', 'FLUX_160_goodsN', 'FLUX_250_goodsN', 'FLUX_350_goodsN', 'FLUX_500_goodsN'])
+
+    Lcheck = source.Lum_filter('FLUX_24')
+    F24_out.append(Lcheck)
+    stack_bin.append(7)
 
     ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
     int_x.append(ix)
     int_y.append(iy)
 
+    # wfir, ffir, f100, f100_boot = source.Int_SED_FIR(Find_value=100.0, discreet=True, boot=True)
     wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0, discreet=True)
     wfir_out.append(wfir)
     ffir_out.append(ffir)
+
+    L100_ratio = source.flux_ratio_lower()
+    F100_ratio.append(L100_ratio)
+
+    # f1, f1_boot = source.Find_value(1.0, boot=True)
+    # f2, f2_boot = source.Find_value(2.0, boot=True)
+    # xval, xval_boot = source.Find_value(3E-4, boot=True)
+    # f6, f6_boot = source.Find_value(6.0, boot=True)
+    # f025, f025_boot = source.Find_value(0.25, boot=True)
+    # f10, f10_boot = source.Find_value(10, boot=True)
+    # f2kev, f2kev_boot = source.Find_value(6.1992e-4, boot=True)
+    # f015, f015_boot = source.Find_value(0.15,boot=True)
+    # f65, f65_boot = source.Find_value(6.5,boot=True)
 
     f1 = source.Find_value(1.0)
     f2 = source.Find_value(2.0)
@@ -1352,9 +1452,10 @@ for i in range(len(goodsN_auge_ID_match)):
     f6 = source.Find_value(6.0)
     f025 = source.Find_value(0.25)
     f10 = source.Find_value(10)
-
+    f2kev = source.Find_value(6.1992e-4)
     f015 = source.Find_value(0.15)
     f65 = source.Find_value(6.5)
+
 
     lbol = source.Find_Lbol()
     lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
@@ -1386,6 +1487,15 @@ for i in range(len(goodsN_auge_ID_match)):
     F10.append(f10)
     F100.append(f100)
     xval_out.append(xval)
+    F2kev.append(f2kev)
+    # F1_boot.append(f1_boot)
+    # F025_boot.append(f025_boot)
+    # F2_boot.append(f2_boot)
+    # F6_boot.append(f6_boot)
+    # F10_boot.append(f10_boot)
+    # xval_out_boot.append(xval_boot)
+    # F100_boot.append(f100_boot)
+    # F2kev_boot.append(f2kev_boot)
     Lbol_out.append(lbol)
     Lbol_sub_out.append(lbol_sub)
     Nh.append(goodsN_auge_Nh_match[i])
@@ -1408,7 +1518,7 @@ for i in range(len(goodsN_auge_ID_match)):
 
     plot = Plotter(Id, redshift, w, f, goodsN_auge_Lx_match[i], f1, up_check)
 
-    check = source.check_SED(10, check_span=2.75)
+    # check = source.check_SED(10, check_span=5.5)
 
     # if check == 'GOOD':
     # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
@@ -1416,8 +1526,12 @@ for i in range(len(goodsN_auge_ID_match)):
     #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
     #         plot.PlotSED(point_x=[0.15,1.0,6.5,10],point_y=[f015/f1,f1/f1,f65/f1,f10/f1],fir_x = wfir, fir_y = ffir)
 
+    check = source.check_SED(10, check_span=2.75)
+    check6 = source.check_SED(6, check_span=2.75)
     check_sed.append(check)
-    field.append('gn')
+    check_sed6.append(check6)
+    field.append('GOODS-N')
+    spec_class.append(0)
     # if check == 'GOOD':
     #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
     #     source.write_output_file('AGN_Properties',data,cols,'w')
@@ -1442,16 +1556,34 @@ for i in range(len(goodsS_auge_ID_match)):
     # for i in range(50):
     try:
         source = AGN(goodsS_auge_ID_match[i], goodsS_auge_z_match[i], GOODSS_auge_filters, goodsS_flux_array_auge[i], goodsS_flux_err_array_auge[i])
-        source.MakeSED()
+        source.MakeSED(data_replace_filt='FLUX_24')
         source.FIR_extrap(['FLUX_24', 'MIPS2', 'FLUX_100_goodsS', 'FLUX_160_goodsS', 'FLUX_250_goodsS', 'FLUX_350_goodsS', 'FLUX_500_goodsS'])
+
+        Lcheck = source.Lum_filter('FLUX_24')
+        F24_out.append(Lcheck)
+        stack_bin.append(7)
 
         ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
         int_x.append(ix)
         int_y.append(iy)
 
+        # wfir, ffir, f100, f100_boot = source.Int_SED_FIR(Find_value=100.0, discreet=True, boot=True)
         wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0, discreet=True)
         wfir_out.append(wfir)
         ffir_out.append(ffir)
+
+        L100_ratio = source.flux_ratio_lower()
+        F100_ratio.append(L100_ratio)
+
+        # f1, f1_boot = source.Find_value(1.0, boot=True)
+        # f2, f2_boot = source.Find_value(2.0, boot=True)
+        # xval, xval_boot = source.Find_value(3E-4, boot=True)
+        # f6, f6_boot = source.Find_value(6.0, boot=True)
+        # f025, f025_boot = source.Find_value(0.25, boot=True)
+        # f10, f10_boot = source.Find_value(10, boot=True)
+        # f2kev, f2kev_boot = source.Find_value(6.1992e-4, boot=True)
+        # f015, f015_boot = source.Find_value(0.15,boot=True)
+        # f65, f65_boot = source.Find_value(6.5,boot=True)
 
         f1 = source.Find_value(1.0)
         f2 = source.Find_value(2.0)
@@ -1459,7 +1591,7 @@ for i in range(len(goodsS_auge_ID_match)):
         f6 = source.Find_value(6.0)
         f025 = source.Find_value(0.25)
         f10 = source.Find_value(10)
-
+        f2kev = source.Find_value(6.1992e-4)
         f015 = source.Find_value(0.15)
         f65 = source.Find_value(6.5)
 
@@ -1469,7 +1601,7 @@ for i in range(len(goodsS_auge_ID_match)):
 
         lbol = source.Find_Lbol()
         lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
-        # lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum, xmax=50)
+        lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum, xmax=50)
         shape = source.SED_shape()
 
         Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
@@ -1490,6 +1622,15 @@ for i in range(len(goodsS_auge_ID_match)):
         F10.append(f10)
         F100.append(f100)
         xval_out.append(xval)
+        F2kev.append(f2kev)
+        # F1_boot.append(f1_boot)
+        # F025_boot.append(f025_boot)
+        # F2_boot.append(f2_boot)
+        # F6_boot.append(f6_boot)
+        # F10_boot.append(f10_boot)
+        # xval_out_boot.append(xval_boot)
+        # F100_boot.append(f100_boot)
+        # F2kev_boot.append(f2kev_boot)
         Lbol_out.append(lbol)
         Lbol_sub_out.append(lbol_sub)
         Nh.append(goodsS_auge_Nh_match[i])
@@ -1512,7 +1653,9 @@ for i in range(len(goodsS_auge_ID_match)):
 
         plot = Plotter(Id, redshift, w, f, goodsS_auge_Lx_match[i], f1, up_check)
         check = source.check_SED(10, check_span=2.75)
+        check6 = source.check_SED(6, check_span=2.75)
         check_sed.append(check)
+        check_sed6.append(check6)
 
         # if check == 'GOOD':
             # print(Id,check,shape)
@@ -1524,7 +1667,8 @@ for i in range(len(goodsS_auge_ID_match)):
         #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
         #         plot.PlotSED(point_x=[0.15,1.0,6.5,10],point_y=[f015/f1,f1/f1,f65/f1,f10/f1],fir_x = wfir, fir_y = ffir)
 
-        field.append('gs')
+        spec_class.append(0)
+        field.append('GOODS-S')
         # if check_sed[i] == 'GOOD':
         #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
         #     source.write_output_file('AGN_Properties',data,cols,'w')
@@ -1548,33 +1692,83 @@ print(f'Done with GOODS-S sources ({tgs - tgn:0.4f} second)')
 # Make all output lists into arrays with only good sources
 check_sed = np.asarray(check_sed)
 GOOD_SED = check_sed == 'GOOD'
-print(len(check_sed[check_sed=='GOOD']))
-print(len(out_ID),len(norm),np.shape(wfir_out),len(F100))
+
+
 
 # Make all output lists into arrays and remove the bad SEDs
-out_ID, out_z, out_x, out_y, out_frac_error = np.asarray(out_ID)[GOOD_SED], np.asarray(out_z)[GOOD_SED], np.asarray(out_x)[GOOD_SED], np.asarray(out_y)[GOOD_SED], np.asarray(out_frac_error)[[GOOD_SED]]
-out_Lx, out_Lx_hard = np.log10(np.asarray(out_Lx)[GOOD_SED]), np.log10(np.asarray(out_Lx_hard)[GOOD_SED])
-wfir_out, ffir_out = np.asarray(wfir_out)[GOOD_SED], np.asarray(ffir_out)[GOOD_SED]
-int_x, int_y = np.asarray(int_x)[GOOD_SED], np.asarray(int_y)[GOOD_SED]
-norm = np.asarray(norm)[GOOD_SED]
-FIR_upper_lims = np.asarray(FIR_upper_lims)[GOOD_SED]
-F025, F1, F6, F10, F100 = np.asarray(F025)[GOOD_SED], np.asarray(F1)[GOOD_SED], np.asarray(F6)[GOOD_SED], np.asarray(F10)[GOOD_SED], np.asarray(F100)[GOOD_SED]
-F2 = np.asarray(F2)[GOOD_SED]
-xval_out = np.asarray(xval_out)[GOOD_SED]
-field = np.asarray(field)[GOOD_SED]
-out_SED_shape = np.asarray(out_SED_shape)[GOOD_SED]
-uv_slope, mir_slope1, mir_slope2 = np.asarray(uv_slope)[GOOD_SED], np.asarray(mir_slope1)[GOOD_SED], np.asarray(mir_slope2)[GOOD_SED]
-Lbol_out, Lbol_sub_out = np.asarray(Lbol_out)[GOOD_SED], np.asarray(Lbol_sub_out)[GOOD_SED]
-Nh = np.asarray(Nh)[GOOD_SED]
-UV_lum_out, OPT_lum_out, MIR_lum_out, FIR_lum_out = np.asarray(UV_lum_out)[GOOD_SED], np.asarray(OPT_lum_out)[GOOD_SED], np.asarray(MIR_lum_out)[GOOD_SED], np.asarray(FIR_lum_out)[GOOD_SED]
-X_UV_lum_out = np.asarray(X_UV_lum_out)[GOOD_SED]
-FIR_R_lum = np.asarray(FIR_R_lum)[GOOD_SED]
-Nh_check = np.asarray(Nh_check)[GOOD_SED]
-abs_check = np.asarray(abs_check)[GOOD_SED]
+# out_ID, out_z, out_x, out_y, out_frac_error = np.asarray(out_ID)[GOOD_SED], np.asarray(out_z)[GOOD_SED], np.asarray(out_x)[GOOD_SED], np.asarray(out_y)[GOOD_SED], np.asarray(out_frac_error)[[GOOD_SED]]
+# out_Lx, out_Lx_hard = np.log10(np.asarray(out_Lx)[GOOD_SED]), np.log10(np.asarray(out_Lx_hard)[GOOD_SED])
+# wfir_out, ffir_out = np.asarray(wfir_out)[GOOD_SED], np.asarray(ffir_out)[GOOD_SED]
+# int_x, int_y = np.asarray(int_x)[GOOD_SED], np.asarray(int_y)[GOOD_SED]
+# norm = np.asarray(norm)[GOOD_SED]
+# FIR_upper_lims = np.asarray(FIR_upper_lims)[GOOD_SED]
+# F025, F1, F6, F10, F100 = np.asarray(F025)[GOOD_SED], np.asarray(F1)[GOOD_SED], np.asarray(F6)[GOOD_SED], np.asarray(F10)[GOOD_SED], np.asarray(F100)[GOOD_SED]
+# F2 = np.asarray(F2)[GOOD_SED]
+# xval_out = np.asarray(xval_out)[GOOD_SED]
 
-mix_x, mix_y = np.asarray(mix_x)[GOOD_SED], np.asarray(mix_y)[GOOD_SED]
+# # F025_boot, F1_boot, F6_boot, F10_boot, F100_boot = np.asarray(F025_boot)[GOOD_SED], np.asarray(F1_boot)[GOOD_SED], np.asarray(F6_boot)[GOOD_SED], np.asarray(F10_boot)[GOOD_SED], np.asarray(F100_boot)[GOOD_SED]
+# # F2_boot = np.asarray(F2_boot)[GOOD_SED]
+# # xval_out_boot = np.asarray(xval_out_boot)[GOOD_SED]
+
+# F025_boot, F1_boot, F6_boot, F10_boot, F100_boot = np.asarray(F025), np.asarray(F1), np.asarray(F6), np.asarray(F10), np.asarray(F100)
+# F2_boot = np.asarray(F2)
+# xval_out_boot = np.asarray(xval_out)
+
+# field = np.asarray(field)[GOOD_SED]
+# out_SED_shape = np.asarray(out_SED_shape)[GOOD_SED]
+# uv_slope, mir_slope1, mir_slope2 = np.asarray(uv_slope)[GOOD_SED], np.asarray(mir_slope1)[GOOD_SED], np.asarray(mir_slope2)[GOOD_SED]
+# Lbol_out, Lbol_sub_out = np.asarray(Lbol_out)[GOOD_SED], np.asarray(Lbol_sub_out)[GOOD_SED]
+# Nh = np.asarray(Nh)[GOOD_SED]
+# UV_lum_out, OPT_lum_out, MIR_lum_out, FIR_lum_out = np.asarray(UV_lum_out)[GOOD_SED], np.asarray(OPT_lum_out)[GOOD_SED], np.asarray(MIR_lum_out)[GOOD_SED], np.asarray(FIR_lum_out)[GOOD_SED]
+# X_UV_lum_out = np.asarray(X_UV_lum_out)[GOOD_SED]
+# FIR_R_lum = np.asarray(FIR_R_lum)[GOOD_SED]
+# Nh_check = np.asarray(Nh_check)[GOOD_SED]
+# abs_check = np.asarray(abs_check)[GOOD_SED]
+# spec_class = np.asarray(spec_class)[GOOD_SED]
+
+# mix_x, mix_y = np.asarray(mix_x)[GOOD_SED], np.asarray(mix_y)[GOOD_SED]
+
+# check_sed = check_sed[GOOD_SED]
 
 
+out_ID, out_z, out_x, out_y, out_frac_error = np.asarray(out_ID), np.asarray(out_z), np.asarray(out_x), np.asarray(out_y), np.asarray(out_frac_error)
+out_Lx, out_Lx_hard = np.log10(np.asarray(out_Lx)), np.log10(np.asarray(out_Lx_hard))
+wfir_out, ffir_out = np.asarray(wfir_out), np.asarray(ffir_out)
+int_x, int_y = np.asarray(int_x), np.asarray(int_y)
+norm = np.asarray(norm)
+FIR_upper_lims = np.asarray(FIR_upper_lims)
+F025, F1, F6, F10, F100 = np.asarray(F025), np.asarray(F1), np.asarray(F6), np.asarray(F10), np.asarray(F100)
+F2 = np.asarray(F2)
+xval_out = np.asarray(xval_out)
+
+# F025_boot, F1_boot, F6_boot, F10_boot, F100_boot = np.asarray(F025_boot)[GOOD_SED], np.asarray(F1_boot)[GOOD_SED], np.asarray(F6_boot)[GOOD_SED], np.asarray(F10_boot)[GOOD_SED], np.asarray(F100_boot)[GOOD_SED]
+# F2_boot = np.asarray(F2_boot)[GOOD_SED]
+# xval_out_boot = np.asarray(xval_out_boot)[GOOD_SED]
+
+F025_boot, F1_boot, F6_boot, F10_boot, F100_boot = np.asarray(F025), np.asarray(F1), np.asarray(F6), np.asarray(F10), np.asarray(F100)
+F2_boot = np.asarray(F2)
+xval_out_boot = np.asarray(xval_out)
+
+field = np.asarray(field)
+out_SED_shape = np.asarray(out_SED_shape)
+uv_slope, mir_slope1, mir_slope2 = np.asarray(uv_slope), np.asarray(mir_slope1), np.asarray(mir_slope2)
+Lbol_out, Lbol_sub_out = np.asarray(Lbol_out), np.asarray(Lbol_sub_out)
+Nh = np.asarray(Nh)
+UV_lum_out, OPT_lum_out, MIR_lum_out, FIR_lum_out = np.asarray(UV_lum_out), np.asarray(OPT_lum_out), np.asarray(MIR_lum_out), np.asarray(FIR_lum_out)
+X_UV_lum_out = np.asarray(X_UV_lum_out)
+FIR_R_lum = np.asarray(FIR_R_lum)
+Nh_check = np.asarray(Nh_check)
+abs_check = np.asarray(abs_check)
+spec_class = np.asarray(spec_class)
+
+mix_x, mix_y = np.asarray(mix_x), np.asarray(mix_y)
+
+check_sed = check_sed
+check_sed6 = np.asarray(check_sed6)
+
+F24_out = np.asarray(F24_out)
+stack_bin = np.asarray(stack_bin)
+F100_ratio = np.asarray(F100_ratio)
 # values, base = np.histogram(FIR_lum_out[FIR_upper_lims == 1]/Lbol_out[FIR_upper_lims == 1], bins=40)
 # #evaluate the cumulative
 # cumulative = np.cumsum(values)
@@ -1583,43 +1777,107 @@ mix_x, mix_y = np.asarray(mix_x)[GOOD_SED], np.asarray(mix_y)[GOOD_SED]
 # plt.show()
 
 
-# Sort all output data by the intrinsic X-ray luminosity
-sort = out_Lx.argsort()
-out_ID, out_z, out_x, out_y, out_frac_error = out_ID[sort], out_z[sort], out_x[sort], out_y[sort], out_frac_error[sort]
-out_Lx, out_Lx_hard = out_Lx[sort], out_Lx_hard[sort]
-wfir_out, ffir_out = wfir_out[sort], ffir_out[sort]
-int_x, int_y = int_x[sort], int_y[sort]
-norm = norm[sort]
-FIR_upper_lims = FIR_upper_lims[sort]
-F025, F1, F6, F10, F100 = F025[sort], F1[sort], F6[sort], F10[sort], F100[sort]
-F2 = F2[sort]
-xval_out = xval_out[sort]
-field = field[sort]
-out_SED_shape = out_SED_shape[sort]
-uv_slope, mir_slope1, mir_slope2 = uv_slope[sort], mir_slope1[sort], mir_slope2[sort]
-Lbol_out, Lbol_sub_out = Lbol_out[sort], Lbol_sub_out[sort]
-Nh = Nh[sort]
-UV_lum_out, OPT_lum_out, MIR_lum_out, FIR_lum_out = UV_lum_out[sort], OPT_lum_out[sort], MIR_lum_out[sort], FIR_lum_out[sort]
-FIR_R_lum = FIR_R_lum[sort]
-Nh_check = Nh_check[sort]
-abs_check = abs_check[sort]
+# # Sort all output data by the intrinsic X-ray luminosity
+# sort = out_Lx.argsort()
+# out_ID, out_z, out_x, out_y, out_frac_error = out_ID[sort], out_z[sort], out_x[sort], out_y[sort], out_frac_error[sort]
+# out_Lx, out_Lx_hard = out_Lx[sort], out_Lx_hard[sort]
+# wfir_out, ffir_out = wfir_out[sort], ffir_out[sort]
+# int_x, int_y = int_x[sort], int_y[sort]
+# norm = norm[sort]
+# FIR_upper_lims = FIR_upper_lims[sort]
+# F025, F1, F6, F10, F100 = F025[sort], F1[sort], F6[sort], F10[sort], F100[sort]
+# F2 = F2[sort]
+# xval_out = xval_out[sort]
 
-mix_x, mix_y = mix_x[sort], mix_y[sort]
+# # F025_boot, F1_boot, F6_boot, F10_boot, F100_boot = F025_boot[sort], F1_boot[sort], F6_boot[sort], F10_boot[sort], F100_boot[sort]
+# # F2_boot = F2_boot[sort]
+# # xval_out_boot = xval_out_boot[sort]
+
+# field = field[sort]
+# out_SED_shape = out_SED_shape[sort]
+# uv_slope, mir_slope1, mir_slope2 = uv_slope[sort], mir_slope1[sort], mir_slope2[sort]
+# Lbol_out, Lbol_sub_out = Lbol_out[sort], Lbol_sub_out[sort]
+# Nh = Nh[sort]
+# UV_lum_out, OPT_lum_out, MIR_lum_out, FIR_lum_out = UV_lum_out[sort], OPT_lum_out[sort], MIR_lum_out[sort], FIR_lum_out[sort]
+# FIR_R_lum = FIR_R_lum[sort]
+# Nh_check = Nh_check[sort]
+# abs_check = abs_check[sort]
+# spec_class = spec_class[sort]
+# mix_x, mix_y = mix_x[sort], mix_y[sort]
+
+# check_sed = check_sed[sort]
+
+# F24_out = F24_out[sort]
+# stack_bin = stack_bin[sort]
+# F100_ratio = F100_ratio[sort]
+
+stack_bin1_ID = np.asarray([2667,   2700,   2731,   2803,   2846,   2873,   2960,   3015,   3029,   3092,
+                            3131,   3171,   3318,   3335,   3398,   3485,   3504,   3739,   3783,   3840,
+                            3851,   3854,   3939,   3976,   4007,   4034,   4053,   4214,   4222,   4290,
+                            4295,   4387,   4414,   4592,   4596,   4739,   4898,   4964,   4991,   5062,
+                            5089,   5135,   5143,   5172,    434,    514,    520,    521,  57494,  89316,
+                            129885, 180988])
+stack_bin2_ID = np.asarray([2387,   2446,   2471,   2522,   2635,   2673,   2675,   2693,   2716,   2728,
+                            2782,   2811,   2831,   2886,   2906,   2935,   2940,   3053,   3106,   3232,
+                            3241,   3246,   3264,   3312,   3327,   3354,   3427,   3488,   3540,   3547,
+                            3626,   3647,   3708,   3763,   3810,   3831,   3846,   3861,   3872,   3921,
+                            3979,   3982,   4010,   4021,   4028,   4029,   4051,   4073,   4087,   4139,
+                            4179,   4194,   4236,   4272,   4278,   4407,   4418,   4422,   4424,   4437,
+                            4512,   4558,   4747,   4758,   4853,   4867,   4877,   4913,   5087,   5151,
+                            399,    418,    425,  15292,  15296,  57498, 129802, 129884, 180997])
+stack_bin3_ID = np.asarray([2363,   2388,   2420,   2442,   2482,   2609,   2702,   2711,   2845,   2925,
+                            2948,   2949,   3037,   3116,   3179,   3305,   3339,   3408,   3501,   3557,
+                            3868,   3912,   3929,   3934,   3949,   3975,   3983,   4019,   4060,   4158,
+                            4174,   4287,   4306,   4321,   4510,   4557,   4591,   4624,   4630,   4661,
+                            4766,   4781,   4799,   4845,   4881,   4902,   4930,   4939,   5025,   5064,
+                            5068,   5078,   5213,    411,    488,    491,  15306, 107987])
+stack_bin4_ID = np.asarray([2379,   2407,   2413,   2524,   2587,   2741,   2871,   2971,   3005,   3147,
+                            3194,   3209,   3211,   3219,   3316,   3603,   3636,   3652,   3654,   3719,
+                            3808,   3903,   4001,   4054,   4096,   4134,   4136,   4220,   4235,   4329,
+                            4398,   4495,   4544,   4625,   4626,   4645,   4666,   4771,   4920,   5043,
+                            5076,   5093,   5094,   5163,  15297,  50021, 129821])
+stack_bin5_ID = np.asarray([2517,   2814,   2893,  2901,   2914,   3027,   3274,   3306,   3361,   3381,
+                            3482,   3492,   3511,  3711,   3816,   3835,   3837,   3853,   3880,   4020,
+                            4211,   4212,   4231,  4258,   4284,   4303,   4365,   4420,   4446,   4746,
+                            4825,   4832,   4870,  4884,   5158, 129814])
+stack_bin6_ID = np.asarray([2368,   2445,   2470,   2476,   2545,   2570,   2606,   2637,   2707,   3076,
+                            3099,   3249,   3268,   3487,   3517,   3552,   3726,   3766,   3822,   3862,
+                            3865,   3937,   3967,   4111,   4147,   4241,   4676,   4704,   4735,   4784,
+                            4793,   4865,   4980,   5106,   5211, 108045])
+bin_stack_out = []
+for i in range(len(out_ID)):
+    if out_ID[i] in stack_bin1_ID:
+        bin_stack_out.append(1)
+    elif out_ID[i] in stack_bin2_ID:
+        bin_stack_out.append(2)
+    elif out_ID[i] in stack_bin3_ID:
+        bin_stack_out.append(3)
+    elif out_ID[i] in stack_bin4_ID:
+        bin_stack_out.append(4)
+    elif out_ID[i] in stack_bin5_ID:
+        bin_stack_out.append(5)
+    elif out_ID[i] in stack_bin6_ID:
+        bin_stack_out.append(6)
+    else:
+        bin_stack_out.append(7)
+
+# print(bin_stack_out)
+bin_stack_out = np.asarray(bin_stack_out)
+# print(len(bin_stack_out))
 
 h = np.asarray(['ID','field','shape','z','x','y','frac_err','Lx','Lx_hard','wfir','ffir','int_x','int_y','norm','FIR_upper_lims',
-                'F025','F1','F6','F10','F100','F2','uv_slope','mir_slope1','mir_slope2',
-                'Lbol','Lbol_sub','Nh','UV_lum','OPT_lum','MIR_lum','FIR_lum','FIR_R_lum','Nh_check','abs_check','mix_x','mix_y'])
+                'F025','F025_boot','F1','F1_boot','F6','F6_boot','F10','F10_boot','F100','F100_boot','F2','F2_boot','uv_slope','mir_slope1','mir_slope2',
+                'Lbol','Lbol_sub','Nh','UV_lum','OPT_lum','MIR_lum','FIR_lum','FIR_R_lum','Nh_check','abs_check','mix_x','mix_y','spec_class','sed_check','F24_lum','stack_bin','F100_ratio','check6'])
 t = Table([ out_ID,field,out_SED_shape,out_z,out_x,out_y,out_frac_error,
             out_Lx,out_Lx_hard,wfir_out,ffir_out,int_x,int_y,norm,FIR_upper_lims,
-            F025,F1,F6,F10,F100,F2,uv_slope,mir_slope1,mir_slope2,
-            Lbol_out,Lbol_sub_out,Nh,UV_lum_out,OPT_lum_out,MIR_lum_out,FIR_lum_out,FIR_R_lum,Nh_check,abs_check,mix_x,mix_y],names=(h))
+            F025,F025_boot,F1,F1_boot,F6,F6_boot,F10,F10_boot,F100,F100_boot,F2,F2_boot,uv_slope,mir_slope1,mir_slope2,
+            Lbol_out,Lbol_sub_out,Nh,UV_lum_out,OPT_lum_out,MIR_lum_out,FIR_lum_out,FIR_R_lum,Nh_check,abs_check,mix_x,mix_y,spec_class,check_sed,F24_out,bin_stack_out,F100_ratio,check_sed6],names=(h))
 
-t.write('/Users/connor_auge/Research/Disertation/catalogs/AHA_SEDs_out.fits',format='fits',overwrite=True)
-
-
+t.write('/Users/connor_auge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6.fits',format='fits',overwrite=True)
 
 
-print(len(abs_check),len(abs_check[abs_check == 0]),len(abs_check[abs_check == 1]),len(abs_check[abs_check == 2]))
+
+# print(len(abs_check),len(abs_check[abs_check == 0]),len(abs_check[abs_check == 1]),len(abs_check[abs_check == 2]))
 
 Lbol_out = np.log10(Lbol_out)
 Lbol_sub_out = np.log10(Lbol_sub_out)
@@ -1628,11 +1886,19 @@ Lbol_duras = np.log10(Lit_functions.Durras_Lbol(out_Lx,typ='Lx'))+out_Lx
 check_durras = np.log10(Lit_functions.Durras_Lbol(np.arange(43,46,0.25),typ='Lx'))+np.arange(43,46,0.25)
 check = np.log10(Lit_functions.Durras_Lbol(np.arange(42,48,0.05),typ='Lbol'))
 
+print('Total SEDs')
+print('Stripe82X: ', len(out_ID[field == 'S82X']))
+print('COSMOS: ', len(out_ID[field == 'COSMOS']))
+print('GOODS-N: ', len(out_ID[field == 'GOODS-N']))
+print('GOODS-S: ', len(out_ID[field == 'GOODS-S']))
+print('All: ', len(out_ID))
+print('~~~~~~~~~~')
 print('Total GOOD SEDs')
-print('Stripe82X: ', len(out_ID[field == 's']))
-print('COSMOS: ', len(out_ID[field == 'c']))
-print('GOODS-N: ', len(out_ID[field == 'gn']))
-print('GOODS-S: ', len(out_ID[field == 'gs']))
+print('Stripe82X: ', len(out_ID[GOOD_SED][field[GOOD_SED] == 'S82X']))
+print('COSMOS: ', len(out_ID[GOOD_SED][field[GOOD_SED] == 'COSMOS']))
+print('GOODS-N: ', len(out_ID[GOOD_SED][field[GOOD_SED] == 'GOODS-N']))
+print('GOODS-S: ', len(out_ID[GOOD_SED][field[GOOD_SED] == 'GOODS-S']))
+print('All: ', len(out_ID[GOOD_SED]))
 
 # Begin Plotting
 # plot = Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_upper_lims)
@@ -1671,16 +1937,16 @@ plot_shape = SED_shape_Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_up
 # plt.axvline(np.nanmean(out_Lx[field == 's']), color = 'r', lw=3, ls='--', alpha=0.7)
 # plt.axvline(np.nanmean(out_Lx[(field == 'gs') | (field == 'gn')]), color = 'k', lw=3, ls='--', alpha=0.8)
 # plt.xlabel(r'log L$_{\mathrm{X}}$ [erg/s]')
-# # plt.legend()
+# plt.legend()
 # plt.grid()
 # plt.xlim(42.75,46)
-# plt.savefig('/Users/connor_auge/Desktop/Final_Plots/Lx_sample2.pdf')
+# plt.savefig('/Users/connor_auge/Desktop/Final_Plots/a_new/Lx_sample_update.pdf')
 # plt.show()
 
 
 # opt_x = np.ones(len(xval_out))
 # opt_x[opt_x == 1.] = 3E-4
-# plot.multi_SED('a_new/All_SEDs',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
+# plot.multi_SED('a_new/All_SEDs_test',median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims')
 # plot.multi_SED('Shape1',median_x=int_x[out_SED_shape == 1],median_y=int_y[out_SED_shape == 1],wfir=wfir_out[out_SED_shape == 1],ffir=ffir_out[out_SED_shape == 1],Median_line=True,FIR_upper='upper lims')
 # plot.multi_SED_bins('a_new/All_z_bins_norm',bin='redshift',field=field,median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims',scale=True)
 # plot.multi_SED_bins('a_new/All_Lx_bins_norm',bin='Lx',field=field,median_x=int_x,median_y=int_y,wfir=wfir_out,ffir=ffir_out,Median_line=True,FIR_upper='upper lims',scale=True)
@@ -1732,7 +1998,7 @@ plot_shape = SED_shape_Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_up
 # plot.L_ratio_3panels('AGN_Lx_ratio_new','Lx','UV-MIR-FIR','X-axis',F1,F025,F6,F100,shape=out_SED_shape,L=Lbol_sub_out)
 
 # plot.L_scatter_3panels('a_new/AGN_Lx_scatter_no_upper_other', 'UV-MIR-FIR', 'Lx', 'X-axis', F1[FIR_upper_lims == 0], F025[FIR_upper_lims == 0],F6[FIR_upper_lims == 0], F100[FIR_upper_lims == 0], shape=out_SED_shape[FIR_upper_lims == 0], L=Lbol_sub_out[FIR_upper_lims == 0])
-# plot.L_scatter_3panels('a_new/AGN_Lx_scatter_fit', 'UV-MIR-FIR', 'Lx', 'X-axis', F1, F025,F6, F100, shape=out_SED_shape, L=Lbol_sub_out)
+# plot.L_scatter_3panels('a_new/AGN_Lx_scatter_fit1', 'UV-MIR-FIR', 'Lx', 'X-axis', F1, F025,F6, F100, shape=out_SED_shape, L=Lbol_sub_out)
 
 
 # print(out_Lx_hard)
