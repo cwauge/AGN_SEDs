@@ -49,6 +49,11 @@ def Stern_MIR(L6):
 
     return Lx
 
+def Stern_Lx(Lx):
+    a, b, c = 40.981, 1.024, 0.047
+
+    
+
 def Hopkins_Lbol(L,band='Lx'):
     '''X-ray to bolometric correction from Hopkins et al. 2007'''
     if band == 'Lx':
