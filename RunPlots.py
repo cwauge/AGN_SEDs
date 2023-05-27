@@ -6,15 +6,17 @@ from SED_plots_v2 import Plotter
 from SED_shape_plots import SED_shape_Plotter
 from plots_Letter import Plotter_Letter
 from plots_Letter2 import Plotter_Letter2
+from scipy.stats import kstest
 from match import match
 from SED_v8 import Flux_to_Lum
+from match import match
 
 
 
 path = '/Users/connor_auge/Research/Disertation/catalogs/'
 # AHA_SEDs_out_good_1sig
 # AHA_SEDs_out_ALL
-with fits.open(path+'AHA_SEDs_out_ALL_F6.fits') as hdul:
+with fits.open(path+'AHA_SEDs_out_ALL_F6_FINAL2.fits') as hdul:
     cols = hdul[1].columns
     data = hdul[1].data 
 
@@ -182,6 +184,13 @@ BAD_SED = check_sed == 'BAD'
 GOOD_6 = check_sed6 == 'GOOD'
 BAD_6 = check_sed6 == 'BAD'
 
+
+
+# plt.hist(z[GOOD_6][field[GOOD_6] == 'S82X'],bins=np.arange(0,1.3,0.1))
+# plt.show()
+
+
+
 # GOOD_SED = check_sed6 == 'GOOD'
 # BAD_SED = check_sed6 == 'BAD'
 
@@ -206,13 +215,13 @@ print('GOODS-N: ', len(id[field == 'GOODS-N']))
 print('GOODS-S: ', len(id[field == 'GOODS-S']))
 print('All: ', len(id))
 print('~~~~~~~~~~')
-print('Total GOOD SEDs')
-print('Stripe82X: ', len(id[GOOD_SED][field[GOOD_SED] == 'S82X']))
-print('COSMOS: ', len(id[GOOD_SED][field[GOOD_SED] == 'COSMOS']))
-print('GOODS-N: ', len(id[GOOD_SED][field[GOOD_SED] == 'GOODS-N']))
-print('GOODS-S: ', len(id[GOOD_SED][field[GOOD_SED] == 'GOODS-S']))
-print('All: ', len(id[GOOD_SED]))
-print('~~~~~~~~~~')
+# print('Total GOOD SEDs')
+# print('Stripe82X: ', len(id[GOOD_SED][field[GOOD_SED] == 'S82X']))
+# print('COSMOS: ', len(id[GOOD_SED][field[GOOD_SED] == 'COSMOS']))
+# print('GOODS-N: ', len(id[GOOD_SED][field[GOOD_SED] == 'GOODS-N']))
+# print('GOODS-S: ', len(id[GOOD_SED][field[GOOD_SED] == 'GOODS-S']))
+# print('All: ', len(id[GOOD_SED]))
+# print('~~~~~~~~~~')
 print('Total GOOD 6 SEDs')
 print('Stripe82X: ', len(id[GOOD_6][field[GOOD_6] == 'S82X']))
 print('COSMOS: ', len(id[GOOD_6][field[GOOD_6] == 'COSMOS']))
@@ -220,34 +229,103 @@ print('GOODS-N: ', len(id[GOOD_6][field[GOOD_6] == 'GOODS-N']))
 print('GOODS-S: ', len(id[GOOD_6][field[GOOD_6] == 'GOODS-S']))
 print('All: ', len(id[GOOD_6]))
 print('~~~~~~~~~~')
-print('Total BAD SEDs')
-print('Stripe82X: ', len(id[BAD_SED][field[BAD_SED] == 'S82X']))
-print('COSMOS: ', len(id[BAD_SED][field[BAD_SED] == 'COSMOS']))
-print('GOODS-N: ', len(id[BAD_SED][field[BAD_SED] == 'GOODS-N']))
-print('GOODS-S: ', len(id[BAD_SED][field[BAD_SED] == 'GOODS-S']))
-print('All: ', len(id[BAD_SED]))
+# print('Total BAD SEDs')
+# print('Stripe82X: ', len(id[BAD_SED][field[BAD_SED] == 'S82X']))
+# print('COSMOS: ', len(id[BAD_SED][field[BAD_SED] == 'COSMOS']))
+# print('GOODS-N: ', len(id[BAD_SED][field[BAD_SED] == 'GOODS-N']))
+# print('GOODS-S: ', len(id[BAD_SED][field[BAD_SED] == 'GOODS-S']))
+# print('All: ', len(id[BAD_SED]))
 
-print('~~~~~~~~~~')
-print('~~~~~~~~~~')
-print('~~~~~~~~~~')
 
-print('Total shape break down')
-print('shape 1: ',len(id[shape == 1]),len(id[shape == 1])/len(id)*100)
-print('shape 2: ',len(id[shape == 2]),len(id[shape == 2])/len(id)*100)
-print('shape 3: ',len(id[shape == 3]),len(id[shape == 3])/len(id)*100)
-print('shape 4: ',len(id[shape == 4]),len(id[shape == 4])/len(id)*100)
-print('shape 5: ',len(id[shape == 5]),len(id[shape == 5])/len(id)*100)
-print('shape 4 + 5: ',len(id[shape == 4])+len(id[shape == 5]),(len(id[shape == 4])+len(id[shape == 5]))/len(id)*100)
-print('~~~~~~~~~~')
+# def sed_shape(uv_slope, mir_slope1, mir_slope2):
+    # Pre-defined conditions. Check slope values to determine SED shape bin and return bin
+    # if (uv_slope < -0.3) & (mir_slope1 >= -0.2):
+    #     bin = 1
+    # elif (uv_slope >= -0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2):
+    #     bin = 2
+    # elif (uv_slope > 0.2) & (mir_slope1 >= -0.2):
+    #     bin = 3
+    # elif (uv_slope >=-0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0):
+    #     bin = 4
+    # elif (uv_slope >=-0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0):
+    #     bin = 5
+    # else:
+    #     bin = 6
+    # return bin
 
-print('GOOD shape break down')
-print('shape 1: ',len(id[GOOD_SED][shape[GOOD_SED] == 1]),len(id[GOOD_SED][shape[GOOD_SED] == 1])/len(id[GOOD_SED])*100)
-print('shape 2: ',len(id[GOOD_SED][shape[GOOD_SED] == 2]),len(id[GOOD_SED][shape[GOOD_SED] == 2])/len(id[GOOD_SED])*100)
-print('shape 3: ',len(id[GOOD_SED][shape[GOOD_SED] == 3]),len(id[GOOD_SED][shape[GOOD_SED] == 3])/len(id[GOOD_SED])*100)
-print('shape 4: ',len(id[GOOD_SED][shape[GOOD_SED] == 4]),len(id[GOOD_SED][shape[GOOD_SED] == 4])/len(id[GOOD_SED])*100)
-print('shape 5: ',len(id[GOOD_SED][shape[GOOD_SED] == 5]),len(id[GOOD_SED][shape[GOOD_SED] == 5])/len(id[GOOD_SED])*100)
-print('shape 4 + 5: ',len(id[GOOD_SED][shape[GOOD_SED] == 4])+len(id[GOOD_SED][shape[GOOD_SED] == 5]),(len(id[GOOD_SED][shape[GOOD_SED] == 4])+len(id[GOOD_SED][shape[GOOD_SED] == 5]))/len(id[GOOD_SED])*100)
-print('~~~~~~~~~~')
+def sed_shape(uv_slope, mir_slope1, mir_slope2):
+#     # Pre-defined conditions. Check slope values to determine SED shape bin and return bin
+    if (uv_slope < -0.3) & (mir_slope1 >= -0.35):
+        bin = 1
+    elif (uv_slope >= -0.3) & (uv_slope <= 0.21) & (mir_slope1 >= -0.35):
+        bin = 2
+    elif (uv_slope > 0.21) & (mir_slope1 >= -0.35):
+        bin = 3
+    elif (uv_slope > 0.21) & (mir_slope1 < -0.35) & (mir_slope2 > 0.0):
+        bin = 4
+    elif (uv_slope > 0.21) & (mir_slope1 < -0.35) & (mir_slope2 <= 0.0):
+        bin = 5
+    else:
+        bin = 6
+    return bin
+
+# ix, iy = match(np.asarray(id[GOOD_6][test_shape2]), np.asarray(id[GOOD_6][test_shape3]))
+# print(len(id[GOOD_6][ix]),len(id[GOOD_6][iy]))
+
+# print(id[GOOD_6][test_shape2])
+# print(id[GOOD_6][test_shape3])
+
+sed_shape_check = []
+for i in range(len(uv_slope)):
+    s = sed_shape(uv_slope[i], mir_slope1[i], mir_slope2[i])
+    sed_shape_check.append(s)
+sed_shape_check = np.asarray(sed_shape_check)[GOOD_6]
+print(np.shape(sed_shape_check))
+print('shape 1: ',len(sed_shape_check[sed_shape_check == 1]), len(sed_shape_check[sed_shape_check == 1])/len(sed_shape_check)*100)
+print('shape 2: ',len(sed_shape_check[sed_shape_check == 2]), len(sed_shape_check[sed_shape_check == 2])/len(sed_shape_check)*100)
+print('shape 3: ',len(sed_shape_check[sed_shape_check == 3]), len(sed_shape_check[sed_shape_check == 3])/len(sed_shape_check)*100)
+print('shape 4: ',len(sed_shape_check[sed_shape_check == 4]), len(sed_shape_check[sed_shape_check == 4])/len(sed_shape_check)*100)
+print('shape 5: ',len(sed_shape_check[sed_shape_check == 5]), len(sed_shape_check[sed_shape_check == 5])/len(sed_shape_check)*100)
+print('shape 6: ',len(sed_shape_check[sed_shape_check == 6]), len(sed_shape_check[sed_shape_check == 6])/len(sed_shape_check)*100)
+print('Total: ', len(sed_shape_check[sed_shape_check == 1])+len(sed_shape_check[sed_shape_check == 2])+len(
+    sed_shape_check[sed_shape_check == 3])+len(sed_shape_check[sed_shape_check == 4])+len(sed_shape_check[sed_shape_check == 5]))
+print('Total: ', len(sed_shape_check[sed_shape_check == 1])+len(sed_shape_check[sed_shape_check == 2])+len(
+    sed_shape_check[sed_shape_check == 3])+len(sed_shape_check[sed_shape_check == 4])+len(sed_shape_check[sed_shape_check == 5])+len(sed_shape_check[sed_shape_check == 6]))
+
+
+# sed_shape_check = shape[GOOD_6]
+# print(np.shape(sed_shape_check))
+# print('shape 1: ', len(sed_shape_check[sed_shape_check == 1]))
+# print('shape 2: ', len(sed_shape_check[sed_shape_check == 2]))
+# print('shape 3: ', len(sed_shape_check[sed_shape_check == 3]))
+# print('shape 4: ', len(sed_shape_check[sed_shape_check == 4]))
+# print('shape 5: ', len(sed_shape_check[sed_shape_check == 5]))
+# print('Total: ', len(sed_shape_check[sed_shape_check == 1])+len(sed_shape_check[sed_shape_check == 2])+len(
+#     sed_shape_check[sed_shape_check == 3])+len(sed_shape_check[sed_shape_check == 4])+len(sed_shape_check[sed_shape_check == 5]))
+
+
+
+# print('~~~~~~~~~~')
+# print('~~~~~~~~~~')
+# print('~~~~~~~~~~')
+
+# print('Total shape break down')
+# print('shape 1: ',len(id[shape == 1]),len(id[shape == 1])/len(id)*100)
+# print('shape 2: ',len(id[shape == 2]),len(id[shape == 2])/len(id)*100)
+# print('shape 3: ',len(id[shape == 3]),len(id[shape == 3])/len(id)*100)
+# print('shape 4: ',len(id[shape == 4]),len(id[shape == 4])/len(id)*100)
+# print('shape 5: ',len(id[shape == 5]),len(id[shape == 5])/len(id)*100)
+# print('shape 4 + 5: ',len(id[shape == 4])+len(id[shape == 5]),(len(id[shape == 4])+len(id[shape == 5]))/len(id)*100)
+# print('~~~~~~~~~~')
+
+# print('GOOD shape break down')
+# print('shape 1: ',len(id[GOOD_SED][shape[GOOD_SED] == 1]),len(id[GOOD_SED][shape[GOOD_SED] == 1])/len(id[GOOD_SED])*100)
+# print('shape 2: ',len(id[GOOD_SED][shape[GOOD_SED] == 2]),len(id[GOOD_SED][shape[GOOD_SED] == 2])/len(id[GOOD_SED])*100)
+# print('shape 3: ',len(id[GOOD_SED][shape[GOOD_SED] == 3]),len(id[GOOD_SED][shape[GOOD_SED] == 3])/len(id[GOOD_SED])*100)
+# print('shape 4: ',len(id[GOOD_SED][shape[GOOD_SED] == 4]),len(id[GOOD_SED][shape[GOOD_SED] == 4])/len(id[GOOD_SED])*100)
+# print('shape 5: ',len(id[GOOD_SED][shape[GOOD_SED] == 5]),len(id[GOOD_SED][shape[GOOD_SED] == 5])/len(id[GOOD_SED])*100)
+# print('shape 4 + 5: ',len(id[GOOD_SED][shape[GOOD_SED] == 4])+len(id[GOOD_SED][shape[GOOD_SED] == 5]),(len(id[GOOD_SED][shape[GOOD_SED] == 4])+len(id[GOOD_SED][shape[GOOD_SED] == 5]))/len(id[GOOD_SED])*100)
+# print('~~~~~~~~~~')
 
 print('GOOD 6 shape break down')
 print('shape 1: ',len(id[GOOD_6][shape[GOOD_6] == 1]),len(id[GOOD_6][shape[GOOD_6] == 1])/len(id[GOOD_6])*100)
@@ -255,18 +333,19 @@ print('shape 2: ',len(id[GOOD_6][shape[GOOD_6] == 2]),len(id[GOOD_6][shape[GOOD_
 print('shape 3: ',len(id[GOOD_6][shape[GOOD_6] == 3]),len(id[GOOD_6][shape[GOOD_6] == 3])/len(id[GOOD_6])*100)
 print('shape 4: ',len(id[GOOD_6][shape[GOOD_6] == 4]),len(id[GOOD_6][shape[GOOD_6] == 4])/len(id[GOOD_6])*100)
 print('shape 5: ',len(id[GOOD_6][shape[GOOD_6] == 5]),len(id[GOOD_6][shape[GOOD_6] == 5])/len(id[GOOD_6])*100)
-print('shape 4 + 5: ',len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]),(len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]))/len(id[GOOD_6])*100)
+print('shape 6: ',len(id[GOOD_6][shape[GOOD_6] == 6]),len(id[GOOD_6][shape[GOOD_6] == 6])/len(id[GOOD_6])*100)
+# print('shape 4 + 5: ',len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]),(len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]))/len(id[GOOD_6])*100)
 print('~~~~~~~~~~')
 
 
-print('BAD shape break down')
-print('shape 1: ',len(id[BAD_SED][shape[BAD_SED] == 1]),len(id[BAD_SED][shape[BAD_SED] == 1])/len(id[BAD_SED])*100)
-print('shape 2: ',len(id[BAD_SED][shape[BAD_SED] == 2]),len(id[BAD_SED][shape[BAD_SED] == 2])/len(id[BAD_SED])*100)
-print('shape 3: ',len(id[BAD_SED][shape[BAD_SED] == 3]),len(id[BAD_SED][shape[BAD_SED] == 3])/len(id[BAD_SED])*100)
-print('shape 4: ',len(id[BAD_SED][shape[BAD_SED] == 4]),len(id[BAD_SED][shape[BAD_SED] == 4])/len(id[BAD_SED])*100)
-print('shape 5: ',len(id[BAD_SED][shape[BAD_SED] == 5]),len(id[BAD_SED][shape[BAD_SED] == 5])/len(id[BAD_SED])*100)
-print('shape 4 + 5: ',len(id[BAD_SED][shape[BAD_SED] == 4])+len(id[BAD_SED][shape[BAD_SED] == 5]),(len(id[BAD_SED][shape[BAD_SED] == 4])+len(id[BAD_SED][shape[BAD_SED] == 5]))/len(id[BAD_SED])*100)
-print('~~~~~~~~~~')
+# print('BAD shape break down')
+# print('shape 1: ',len(id[BAD_SED][shape[BAD_SED] == 1]),len(id[BAD_SED][shape[BAD_SED] == 1])/len(id[BAD_SED])*100)
+# print('shape 2: ',len(id[BAD_SED][shape[BAD_SED] == 2]),len(id[BAD_SED][shape[BAD_SED] == 2])/len(id[BAD_SED])*100)
+# print('shape 3: ',len(id[BAD_SED][shape[BAD_SED] == 3]),len(id[BAD_SED][shape[BAD_SED] == 3])/len(id[BAD_SED])*100)
+# print('shape 4: ',len(id[BAD_SED][shape[BAD_SED] == 4]),len(id[BAD_SED][shape[BAD_SED] == 4])/len(id[BAD_SED])*100)
+# print('shape 5: ',len(id[BAD_SED][shape[BAD_SED] == 5]),len(id[BAD_SED][shape[BAD_SED] == 5])/len(id[BAD_SED])*100)
+# print('shape 4 + 5: ',len(id[BAD_SED][shape[BAD_SED] == 4])+len(id[BAD_SED][shape[BAD_SED] == 5]),(len(id[BAD_SED][shape[BAD_SED] == 4])+len(id[BAD_SED][shape[BAD_SED] == 5]))/len(id[BAD_SED])*100)
+# print('~~~~~~~~~~')
 
 
 # plt.figure(figsize=(8,8))
@@ -288,14 +367,30 @@ print('~~~~~~~~~~')
 
 # plt.figure(figsize=(10,10))
 # plt.hist(Lx,bins=np.arange(42,47,0.25),color='gray',alpha=0.5)
+# plt.hist(Lx[check_sed == 'GOOD'],bins=np.arange(42,47,0.25),color='red',histtype='step',lw=3,label='Sample')
+# plt.hist(Lx[check_sed == 'BAD'],bins=np.arange(42,47,0.25),color='blue',histtype='step',lw=3,label='Removed sources')
+# plt.axvline(np.nanmedian(Lx[check_sed == 'GOOD']), ls='--', color='r',lw=3)
+# plt.axvline(np.nanmedian(Lx[check_sed == 'BAD']), ls='--', color='b',lw=3)
+# plt.xlabel(r'log L$_{\rm X}$ [erg/s]')
+# plt.legend()
+# # plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_six/Lx_hist_sample6_3.pdf')
+# plt.show()
+
+# print('KS TEST ORIG: ',kstest(Lx[check_sed == 'GOOD'], Lx[check_sed == 'BAD']))
+
+
+# plt.figure(figsize=(10,10))
+# plt.hist(Lx,bins=np.arange(42,47,0.25),color='gray',alpha=0.5)
 # plt.hist(Lx[check_sed6 == 'GOOD'],bins=np.arange(42,47,0.25),color='red',histtype='step',lw=3,label='Sample')
 # plt.hist(Lx[check_sed6 == 'BAD'],bins=np.arange(42,47,0.25),color='blue',histtype='step',lw=3,label='Removed sources')
 # plt.axvline(np.nanmedian(Lx[check_sed6 == 'GOOD']), ls='--', color='r',lw=3)
 # plt.axvline(np.nanmedian(Lx[check_sed6 == 'BAD']), ls='--', color='b',lw=3)
 # plt.xlabel(r'log L$_{\rm X}$ [erg/s]')
 # plt.legend()
-# plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_check/Lx_hist_sample6_3.pdf')
+# plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_six/Lx_hist_sample6_3.pdf')
 # plt.show()
+
+# print('KS TEST NEW: ', kstest(Lx[check_sed6 == 'GOOD'], Lx[check_sed6 == 'BAD']))
 
 # plt.figure(figsize=(10,10))
 # # plt.plot(z, Lx, 'o', color='gray',alpha=0.5,label='Total Sample')
@@ -315,7 +410,7 @@ print('~~~~~~~~~~')
 # plt.ylabel(r'log L$_{\rm X}$ [erg/s]')
 # plt.grid()
 # plt.legend()
-# plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_check/Lx_z_sample6.pdf')
+# plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_six/Lx_z_sample6.pdf')
 # plt.show()
 
 # print(np.shape(F100_boot))
@@ -352,7 +447,28 @@ print('~~~~~~~~~~')
 
 
 
+print('FIR Detections')
+print('Total number of sources:                 ', len(FIR_upper_lims[GOOD_6]))
+print('Number of sources with detections:       ',len(FIR_upper_lims[GOOD_6][FIR_upper_lims[GOOD_6] == 0]))
+print('Number of sources with upper limits:     ',len(FIR_upper_lims[GOOD_6][FIR_upper_lims[GOOD_6] == 1]))
+print('Percentage of sources with detection:    ',len(FIR_upper_lims[GOOD_6][FIR_upper_lims[GOOD_6] == 0])/len(FIR_upper_lims[GOOD_6])*100)
+print('Percentage of sources with no detection: ',len(FIR_upper_lims[GOOD_6][FIR_upper_lims[GOOD_6] == 1])/len(FIR_upper_lims[GOOD_6])*100)
+print('~~~~~~~~~~')
 
+
+print('NH Detections')
+print('Total number of sources:                 ', len(Nh_upper[GOOD_6]))
+print('Number of sources with detections:       ',len(Nh_upper[GOOD_6][Nh_upper[GOOD_6] == 0]))
+print('Number of sources with upper limits:     ',len(Nh_upper[GOOD_6][Nh_upper[GOOD_6] == 1]))
+print('Number of sources with lower limits:     ',len(Nh_upper[GOOD_6][Nh_upper[GOOD_6] == 2]))
+print('Percentage of sources with detection:    ',len(Nh_upper[GOOD_6][Nh_upper[GOOD_6] == 0])/len(Nh_upper[GOOD_6])*100)
+print('Percentage of sources with no detection: ',len(Nh_upper[GOOD_6][Nh_upper[GOOD_6] == 1])/len(Nh_upper[GOOD_6])*100)
+print('~~~~~~~~~~')
+
+id_check = id == 25734
+print('Source Check:')
+print(field[id_check],id[id_check],10**Lx[id_check],Nh[id_check],Lbol_sub[id_check],shape[id_check])
+print('~~~~~~~~~~')
 
 
 ### 
@@ -436,11 +552,11 @@ med3_2 = np.nanmedian(np.log10(F6[b3][(np.log10(F6[b3]) > per3_25)&(np.log10(F6[
 med4_2 = np.nanmedian(np.log10(F6[b4][(np.log10(F6[b4]) > per4_25)&(np.log10(F6[b4]) < per4_75)]))
 med5_2 = np.nanmedian(np.log10(F6[b5][(np.log10(F6[b5]) > per5_25)&(np.log10(F6[b5]) < per5_75)]))
 
-print(np.log10(F6[b1]))
-print(np.log10(F6[b1][(np.log10(F6[b1]) > per1_25)&(np.log10(F6[b1]) < per1_75)]))
-print(med1,med1_2)
-print(len(F6[b1]))
-print(len(F6[b1][(np.log10(F6[b1]) > per1_25) & (np.log10(F6[b1]) < per1_75)]))
+# print(np.log10(F6[b1]))
+# print(np.log10(F6[b1][(np.log10(F6[b1]) > per1_25)&(np.log10(F6[b1]) < per1_75)]))
+# print(med1,med1_2)
+# print(len(F6[b1]))
+# print(len(F6[b1][(np.log10(F6[b1]) > per1_25) & (np.log10(F6[b1]) < per1_75)]))
 # med1_2 = np.nanmedian(np.log10(F6[(Lx > 44.75) & (Lx < 45.75)]))
 # med2_2 = np.nanmedian(np.log10(F6[(Lx > 44.25) & (Lx < 45.25)]))
 # med3_2 = np.nanmedian(np.log10(F6[(Lx > 43.75) & (Lx < 44.75)]))
@@ -555,15 +671,22 @@ yout = p(xrange)
 # plt.show()
 
 
+# print(fir_lum)
+# plt.figure(figsize=(8,8))
+# plt.scatter(np.log10(Lbol[FIR_upper_lims == 1]),fir_lum[FIR_upper_lims == 1]/Lbol[FIR_upper_lims == 1])
+# plt.grid()
+# plt.show()
+
+# highfrac = np.where(fir_lum[FIR_upper_lims == 1]/Lbol[FIR_upper_lims == 1] >= 0.5)[0]
+# print(len(highfrac))
+# print(len(highfrac)/len(Lbol))
 
 
-
-
-good_shape = shape[GOOD_SED]
-bad_shape = shape[BAD_SED]
-print('GOOD: ',len(shape[GOOD_6]))
-print('BAD: ',len(shape[BAD_6]))
-print('TOTAL: ',len(shape[GOOD_6])+len(shape[BAD_6]))
+# good_shape = shape[GOOD_SED]
+# bad_shape = shape[BAD_SED]
+# print('GOOD: ',len(shape[GOOD_6]))
+# print('BAD: ',len(shape[BAD_6]))
+# print('TOTAL: ',len(shape[GOOD_6])+len(shape[BAD_6]))
 
 # plt.figure(figsize=(8,8))
 # plt.hist(shape[GOOD_SED]-0.5,bins=np.arange(0.5,7.5,1),histtype='step',color='b',lw=3.5,label='GOOD')
@@ -580,9 +703,9 @@ print('TOTAL: ',len(shape[GOOD_6])+len(shape[BAD_6]))
 
 
 
-print(len(Lx[field == 'S82X']))
-print(len(Lx[field == 'COSMOS']))
-print(len(Lx[np.logical_or(field == 'GOODS-S', field == 'GOODS-N')]))
+# print(len(Lx[field == 'S82X']))
+# print(len(Lx[field == 'COSMOS']))
+# print(len(Lx[np.logical_or(field == 'GOODS-S', field == 'GOODS-N')]))
 
 # Fig 2
 # plt.figure(figsize=(10,10),facecolor='w')
@@ -596,63 +719,76 @@ print(len(Lx[np.logical_or(field == 'GOODS-S', field == 'GOODS-N')]))
 # plt.legend()
 # plt.grid()
 # plt.xlabel(r'log $L_{\rm X}$ [erg s$^{-1}$]')
-# plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_six/Lx_sample.pdf')
+# plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_six/a_final/Lx_sample.pdf')
 # plt.show()
 
 # Fig 3
 # plot.multi_SED('a_check/All_SEDs_temp',int_x,int_y,wfir,ffir,wave_labels=True,temp_comp=True,temp_comp_x=temp_wave,temp_comp_y=temp_nuFnu_norm)
 # plot.multi_SED('a_check/All_SEDs_sample_bad', int_x[GOOD_SED], int_y[GOOD_SED], wfir[GOOD_SED], ffir[GOOD_SED], wave_labels=True)
-# plot.multi_SED('a_six/All_SEDs', int_x[GOOD_6], int_y[GOOD_6], wfir[GOOD_6], ffir[GOOD_6], wave_labels=True)
+# plot.multi_SED('a_six/a_final/All_SEDs_ALL', int_x[GOOD_6], int_y[GOOD_6], wfir[GOOD_6], ffir[GOOD_6], wave_labels=True)
 
 # Fig 4
-# plot.L_hist('a_six/Lone_hist',np.log10(F1[GOOD_6]),r'log L (1 $\mu$m) [erg/s]',[41.5,46],[41.5,46,0.25],median=True,std=True)
+# plot.L_hist('a_six/a_final/Lone_hist',np.log10(F1[GOOD_6]),r'log L (1 $\mu$m) [erg/s]',[41.5,46],[41.5,46,0.25],median=True,std=True)
 
 # Fig 5
-# plot.multi_SED_bins('a_six/All_z_bins_norm','redshift',field[GOOD_6],median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6])
+# plot.multi_SED_bins('a_six/a_final/All_z_bins_norm','redshift',field[GOOD_6],median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],scale=True)
 
 # Fig 6 
-
+# plot.L_hist_zbins('a_six/a_final/Lone_hist_zbins',np.log10(F1[GOOD_6]),r'log L (1 $\mu$m) [erg/s]',[41.5,46],[41.5,46,0.25],median=True,std=False)
+# plot_shape.L_hist_bins('a_six/Lone_hist_Lx_bins',np.log10(F1[GOOD_6]),r'log L (1 $\mu$m) [erg/s]',[41.5,46],[41.5,46,0.25],median=True,std=False,bins='Lx')
 
 # Fig 7 
-# plot.multi_SED_bins('a_six/All_Lx_bins_norm',bin='Lx',field=field[GOOD_6],median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],Median_line=True,FIR_upper='upper lims',scale=True)
+# plot.multi_SED_bins('a_six/a_final/All_Lx_bins_norm',bin='Lx',field=field[GOOD_6],median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],Median_line=True,FIR_upper='upper lims',scale=True)
 
 # Fig 8 
 # plot.L_scatter_3panels('a_new/AGN_emission_s82x_3sig','UV-MIR-FIR','Lx','X-axis',norm,F025,F6,F100,shape,Lx,uv_err=F025_err,mir_err=F6_err,fir_err=F100_err,error=False)
 # plot.L_scatter_3panels('a_new/AGN_emission_1sig','UV-MIR-FIR','Lx','X-axis',norm,F025,F6,F100,shape,Lx,error=False,stack_color=True,stack_bins=stack_bin,F100_ratio=F100_ratio,field = field,fir_field=True)
 # plot.L_scatter_3panels('a_new/AGN_emission_medians', 'Lx', 'UV-MIR-FIR', 'X-axis', norm, F025, F6, F100, shape,Lx, error=False, stack_color=True, stack_bins=stack_bin, F100_ratio=F100_ratio, field=field, fir_field=True)
-# plot.L_scatter_3panels_vert('a_six/AGN_emission', 'Lx', 'UV-MIR-FIR', 'X-axis', norm[GOOD_6], F025[GOOD_6], F6[GOOD_6], F100[GOOD_6], shape[GOOD_6],Lx[GOOD_6], error=False, stack_color=True, stack_bins=stack_bin[GOOD_6], F100_ratio=F100_ratio[GOOD_6], field=field[GOOD_6], fir_field=True)
 
-# plot.L_scatter_3panels('a_six/AGN_emission_sample1', 'Lx', 'UV-MIR-FIR', 'X-axis', norm[GOOD_6], F025[GOOD_6], F6[GOOD_6], F100[GOOD_6], shape[GOOD_6],Lx[GOOD_6], error=False, stack_color=True, stack_bins=stack_bin[GOOD_6], F100_ratio=F100_ratio[GOOD_6], field=field[GOOD_6], fir_field=True)
+# plot.L_scatter_3panels('a_six/AGN_emission_sample', 'Lx', 'UV-MIR-FIR', 'X-axis', norm[GOOD_6], F025[GOOD_6], F6[GOOD_6], F100[GOOD_6], shape[GOOD_6],Lx[GOOD_6], error=False, stack_color=True, stack_bins=stack_bin[GOOD_6], F100_ratio=F100_ratio[GOOD_6], field=field[GOOD_6], fir_field=True)
+# plot.L_scatter_3panels_vert('a_six/a_final/AGN_emission_ALL', 'Lx', 'UV-MIR-FIR', 'X-axis', norm[GOOD_6], F025[GOOD_6], F6[GOOD_6], F100[GOOD_6], shape[GOOD_6],Lx[GOOD_6], error=False, stack_color=True, stack_bins=stack_bin[GOOD_6], F100_ratio=F100_ratio[GOOD_6], field=field[GOOD_6], fir_field=True)
 
 
-# One panel hist
-# plot.L_hist('a_new/Lbol_hist_update',np.log10(Lbol),r'Total log $L_{\rm bol}/({\rm erg \; s^{-1}})$',[43,47],[43,47,0.25],std=True,top_label=True,xlabel2=r'Total log $L_{\rm bol}/\rm{L_\odot}$')
-# plot.L_hist('a_new/Nh_hist_update',np.log10(Nh),r'log $N_{\rm H}/(\rm{cm}^{-2})$', [20,24.5], [20,24.5,0.25],split=True,split_param=Nh_upper)
+# Fig 9
+# plot.L_hist('a_six/a_final/Nh_hist',np.log10(Nh[GOOD_6]),r'log $N_{\rm H}/(\rm{cm}^{-2})$', [20,24.5], [20,24.5,0.25],split=True,split_param=Nh_upper[GOOD_6])
+
+# Fig 10
+# plot.L_hist('a_six/a_final/Lbol_hist',np.log10(Lbol[GOOD_6]),r'Total log $L_{\rm bol}/({\rm erg \; s^{-1}})$',[43,47],[43,47,0.25],std=True,top_label=True,xlabel2=r'Total log $L_{\rm bol}/\rm{L_\odot}$')
 
 # Fig 11 (Lbol/Lx scatter)
-# plot.L_ratio_1panel('a_new/Lx_Lbol_update','Lbol','Lbol/Lx','X-axis',F1,F025,F6,F100,shape,np.log10(Lbol_sub))
+# plot.L_ratio_1panel('a_six/a_final/Lx_Lbol','Lbol','Lbol/Lx','X-axis',F1[GOOD_6],F025[GOOD_6],F6[GOOD_6],F100[GOOD_6],shape[GOOD_6],np.log10(Lbol_sub[GOOD_6]))
 # plot.L_ratio_1panel('a_new/Lx_Lbol_spec_type','Lbol','Lbol/Lx','X-axis',F1,F025,F6,F100,shape,np.log10(Lbol_sub),sample=True,spec_type=spec_type)
 
 # Fig 12
 # plot_shape.shape_1bin_v('a_check/vertical_5_panel_check_all6',median_x=int_x,median_y=int_y,wfir=wfir,ffir=ffir,uv_slope=uv_slope,mir_slope1=mir_slope1,mir_slope2=mir_slope2,Median_line=True,FIR_upper='upper lims',bins='shape')
-# plot_shape.shape_1bin_v('a_six/vertical_5_panel',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
+# plot_shape.shape_1bin_v('a_six/a_final/vertical_5_panel',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
+# plot_shape.shape_1bin_h('a_six/horizontal_5_panel_check2',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
+
+# Fig 13
+# plot_shape.L_hist_panels('a_six/a_final/Lone_hist_panels_update',np.log10(F1[GOOD_6]),r'log L (1 $\mu$m)/(erg s$^{-1}$)',[43.25,46],[43.25,46,0.25],z_label=True,top_label=True,xlabel2=r'log L (1 $\mu$m)/$\rm{L_\odot}$')
 
 # Fig 14 (Med SED)
-# plot.median_SED_1panel('a_check/median_SED_update',int_x[GOOD_SED],int_y[GOOD_SED],wfir[GOOD_SED],ffir[GOOD_SED],shape[GOOD_SED],plot_temp=True,temp_x=temp_wave,temp_y=temp_nuLnu*1E6)
+# plot.median_SED_1panel('a_six/a_final/median_SED',int_x[GOOD_6],int_y[GOOD_6],wfir[GOOD_6],ffir[GOOD_6],shape[GOOD_6],plot_temp=True,temp_x=temp_wave,temp_y=temp_nuLnu*1E6)
 
-# Multi-panel hist
-# plot_shape.L_hist_panels('a_new/Lone_hist_panels_update',np.log10(F1),r'log L (1 $\mu$m)/(erg s$^{-1}$)',[43.25,46],[43.25,46,0.25],z_label=True,top_label=True,xlabel2=r'log L (1 $\mu$m)/$\rm{L_\odot}$')
-# plot_shape.L_hist_panels('a_check/Lx_hist_panels_all',Lx,r'log $L_{\rm X}$/(erg s$^{-1}$)',[43,46],[43,46,0.25],z_label=True)
-# plot_shape.L_hist_panels('a_new/Nh_hist_panel_update',np.log10(Nh),r'log $N_{\rm H}/(\rm{cm}^{-2})$', [20,24.5],[20,24.5,0.25],split=True,split_param=Nh_upper)
+# Fig 15
+# plot_shape.L_hist_panels('a_six/a_final/Lx_hist_panels_all',Lx[GOOD_6],r'log $L_{\rm X}$/(erg s$^{-1}$)',[43,46],[43,46,0.25],z_label=True)
+# plot_shape.L_hist_panels('a_six/a_final/LbolLx_hist_panels_all',np.log10(Lbol_sub[GOOD_6])-Lx[GOOD_6],r'log $L_{\rm bol}$ / $L_{\rm X}$',[-0.5,3],[0,2.75,0.25],z_label=True)
 
-# plot_shape.L_hist_panels2('a_new/Lbol_Lx_hist_panels_update', np.log10(Lbol_sub), np.log10(Lbol_sub)-Lx, r'log $L_{\rm bol-gal,e}$',[44,47],[44,47,0.25],[0,3],[0,3,0.25])
+# Fig 16
+# plot2.scatter_1panel('a_six/a_final/UV_MIR','MIR6','UV/MIR6','None','Bins',Nh[GOOD_6],Lx[GOOD_6],np.log10(Lbol_sub[GOOD_6]),F1[GOOD_6],np.log10(F025[GOOD_6]),np.log10(F6[GOOD_6]),np.log10(F100[GOOD_6]),np.log10(F10[GOOD_6]),uv_slope[GOOD_6],mir_slope1[GOOD_6],mir_slope2[GOOD_6],FIR_upper_lims[GOOD_6],shape[GOOD_6])
+
+# Fig 17 
+# plot.L_ratio_multi_panel('a_six/a_final/ratio_multipanel','Lx','AGN','bins',np.log10(F1[GOOD_6]),np.log10(F025[GOOD_6]),np.log10(F6[GOOD_6]),np.log10(F100[GOOD_6]),np.log10(Nh[GOOD_6]),np.log10(Lbol_sub[GOOD_6]),shape[GOOD_6],FIR_upper_lims[GOOD_6],F100_ratio=F100_ratio[GOOD_6],field=field[GOOD_6])
+
+# Fig 18
+# plot_shape.L_hist_panels('a_six/a_final/Nh_hist_panel_update',np.log10(Nh[GOOD_6]),r'log $N_{\rm H}/(\rm{cm}^{-2})$', [20,24.5],[20,24.5,0.25],split=True,split_param=Nh_upper[GOOD_6])
+
+# Fig 19
+# plot_shape.L_hist_panels2('a_six/a_final/Lbol_Lx_hist_panels_update', np.log10(Lbol_sub[GOOD_6]), np.log10(Lbol_sub[GOOD_6])-Lx[GOOD_6], r'log $L_{\rm bol-gal,e}$',[44,47],[44,47,0.25],[0,3],[0,3,0.25])
 
 # Panel Scatter
-# plot2.scatter_1panel('a_new/FIR_Lx_update','Lx','FIR/Lx',None,'Bins',Nh,Lx,np.log10(Lbol_sub),np.log10(F1),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),uv_slope,mir_slope1,mir_slope2,FIR_upper_lims,shape)
-
-# Ratio Plots
-# plot.L_ratio_multi_panel('a_new/ratio_multipanel_1sig_nostack','Lx','AGN','bins',np.log10(F1),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(Nh),np.log10(Lbol_sub),shape,FIR_upper_lims,F100_ratio=F100_ratio,field=field)
+# plot2.scatter_1panel('a_new/FIR_Lx_update_check2','Lx','FIR/Lx',None,'Bins',Nh,Lx,np.log10(Lbol_sub),np.log10(F1),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),uv_slope,mir_slope1,mir_slope2,FIR_upper_lims,shape)
 
 # U-panel plots
 # plot2.Upanels_ratio_plots('a_new/Nh_Upanels_update','Nh','UV/MIR-UV/Lx-MIR/Lx','Bins',Nh,Lx,Lbol_sub,np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F025),np.log10(F6),np.log10(F100),np.log10(F10),F1,field,z,uv_slope,mir_slope1,mir_slope2,FIR_upper_lims,shape=shape,Nh_upper=Nh_upper)
-# plot.Upanels_ratio('a_new/Lum_Lbol_update','Lbol','UV-MIR-FIR','Bins',np.log10(Lbol_sub),np.log10(uv_lum),np.log10(mir_lum),np.log10(fir_lum),np.log10(F1),shape,FIR_upper_lims)
+# plot.Upanels_ratio('a_six/a_final/Lum_Lbol_update','Lbol','UV-MIR-FIR','Bins',np.log10(Lbol_sub[GOOD_6]),np.log10(uv_lum[GOOD_6]),np.log10(mir_lum[GOOD_6]),np.log10(fir_lum[GOOD_6]),np.log10(F1[GOOD_6]),shape[GOOD_6],FIR_upper_lims[GOOD_6],field=field[GOOD_6])

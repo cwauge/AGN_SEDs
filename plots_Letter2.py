@@ -12,6 +12,7 @@ from match import match
 # from SED_v7 import Flux_to_Lum
 import matplotlib.patheffects as pe
 import Lit_functions
+from plot_fit import plot_fit
 
 class Plotter_Letter2():
 	
@@ -1805,10 +1806,10 @@ class Plotter_Letter2():
 				ax1.scatter(x_15[Nh_upper5 != 0], y_15[Nh_upper5 != 0],marker=1,color='gray',rasterized=True, alpha=0.5, zorder=0)
 
 				ax1.scatter(x_11[Nh_upper1 == 0], y_11[Nh_upper1 == 0], marker='P', color=c1,rasterized=True, alpha=0.85, label='Panel 1',zorder=0)
-				ax1.scatter(x_12[Nh_upper2 == 0], y_12[Nh_upper2 == 0], marker='P', color=c2,rasterized=True, alpha=0.85, label='Panel 1',zorder=0)
-				ax1.scatter(x_13[Nh_upper3 == 0], y_13[Nh_upper3 == 0], marker='P', color=c3,rasterized=True, alpha=0.85, label='Panel 1',zorder=0)
-				ax1.scatter(x_14[Nh_upper4 == 0], y_14[Nh_upper4 == 0], marker='P', color=c4,rasterized=True, alpha=0.85, label='Panel 1',zorder=0)
-				ax1.scatter(x_15[Nh_upper5 == 0], y_15[Nh_upper5 == 0], marker='P', color=c5,rasterized=True, alpha=0.85, label='Panel 1',zorder=0)
+				ax1.scatter(x_12[Nh_upper2 == 0], y_12[Nh_upper2 == 0], marker='P', color=c2,rasterized=True, alpha=0.85, label='Panel 2',zorder=0)
+				ax1.scatter(x_13[Nh_upper3 == 0], y_13[Nh_upper3 == 0], marker='P', color=c3,rasterized=True, alpha=0.85, label='Panel 3',zorder=0)
+				ax1.scatter(x_14[Nh_upper4 == 0], y_14[Nh_upper4 == 0], marker='P', color=c4,rasterized=True, alpha=0.85, label='Panel 4',zorder=0)
+				ax1.scatter(x_15[Nh_upper5 == 0], y_15[Nh_upper5 == 0], marker='P', color=c5,rasterized=True, alpha=0.85, label='Panel 5',zorder=0)
 
 			else:
 				ax1.scatter(x_11, y_11, color=c1, marker='+', rasterized=True, alpha=0.6, label='Panel 1',zorder=0)
@@ -2658,7 +2659,7 @@ class Plotter_Letter2():
 		elif '/' in X:
 			tax_check = False
 		else:
-			tax_check = True
+			tax_check = False
 		 
 
 		if X == 'Nh':
@@ -3128,7 +3129,7 @@ class Plotter_Letter2():
 		Lx_duras = Lit_functions.Durras_Lbol(np.arange(42,48,0.25),typ='Lbol')
 		Lx_Hopkins = Lit_functions.Hopkins_Lbol(np.arange(42,48,0.25),band='Lx')
 
-		Median
+		# Median
 		x11_medx, y11_medx = np.nanmedian(x[b1]), np.nanmedian(y[b1])
 		x12_medx, y12_medx = np.nanmedian(x[b2]), np.nanmedian(y[b2])
 		x13_medx, y13_medx = np.nanmedian(x[b3]), np.nanmedian(y[b3])
@@ -3261,6 +3262,8 @@ class Plotter_Letter2():
 
 			# yang = Lit_functions.Yang_FIR_Lx(np.linspace(42,48))
 			# ax1.plot(yang,np.linspace(42,48)/yang,'--',color='k',label='Yang et al. 2019')
+			plot_fit(x,y,1,42,47,'k')
+			ax1.plot([42,43,44,45,46],[2,1,0,-1,-2],color='k',alpha=0.8,zorder=0)
 			
 
 		else:

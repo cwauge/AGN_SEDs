@@ -47,8 +47,23 @@ goals_Lx_min = 35
 
 # Read in the data
 # COSMOS2020 catalog
-cosmos = fits.open(path+'cosmos2020/classic/COSMOS2020_CLASSIC_R1_v2.0_master.fits')
+# cosmos = fits.open(path+'cosmos2020/classic/COSMOS2020_CLASSIC_R1_v2.0_master.fits')
+# cosmos_data = cosmos[1].data
+# cosmos.close()
+
+# COSMOS2020 catalog
+cosmos = fits.open(path+'COSMOS2020_CLASSIC_R1_v2.2_p3.fits')
 cosmos_data = cosmos[1].data
+cosmos.close()
+
+# COSMOS2015 catalog
+cosmos2015 = fits.open(path+'COSMOS2015_Laigle+_v1.1.fits')
+cosmos2015_data = cosmos2015[1].data
+cosmos2015.close()
+
+# COSMOS FIR catalog 
+cosmos_fir = fits.open(path+'cosmos_superdeblended.fit')
+cosmos_fir_data = cosmos_fir[1].data
 cosmos.close()
 
 # Chandra 2016 catalog
@@ -77,6 +92,8 @@ deimos_z_spec = np.asarray([deimos_z[i] for i in range(len(deimos_z)) if 'L' in 
 # Gather all IDs
 chandra_cosmos_phot_id = chandra_cosmos_data['id_k_uv']
 cosmos_laigle_id = cosmos_data['ID_COSMOS2015']
+cosmos_fir_id = cosmos_fir_data['ID']
+cosmos2015_ID = cosmos2015_data['NUMBER']
 cosmos_xid = cosmos_data['id_chandra']
 chandra_cosmos_xid = chandra_cosmos_data['id_x']
 chandra_cosmos2_xid = chandra_cosmos2_data['id_x']
@@ -87,13 +104,12 @@ chandra_cosmos_RA = chandra_cosmos_data['RA_x']
 chandra_cosmos_DEC = chandra_cosmos_data['DEC_x']
 
 # Redshfits
-cosmos_sz = cosmos_data['sz_zspec']
-cosmos_ez = cosmos_data['ez_z_spec']
+# cosmos_sz = cosmos_data['sz_zspec']
+# cosmos_ez = cosmos_data['ez_z_spec']
 chandra_cosmos_z = chandra_cosmos_data['z_spec']
 chandra_cosmos_z_phot = chandra_cosmos_data['z_best']
 
 chandra_cosmos2_z = chandra_cosmos2_data['z_best']
-
 
 # X-ray Flux
 chandra_cosmos_Fx_hard = chandra_cosmos_data['flux_h']
@@ -241,6 +257,7 @@ chandra_cosmos_Nh = np.asarray(chandra_cosmos_Nh)*1E22
 check = np.asarray(check)
 cosmos_Nh_check = np.asarray(cosmos_Nh_check)
 
+
 print('COSMOS All Lx cat: ', len(chandra_cosmos_Lx_full))
 
 # Limit chandra sample to sources in z and Lx range
@@ -290,6 +307,49 @@ abs_corr_use_h_match = abs_corr_use_h[cosmos_ix]
 abs_corr_use_s_match = abs_corr_use_s[cosmos_ix]
 abs_corr_use_f_match = abs_corr_use_f[cosmos_ix]
 check_abs_match = check_abs[cosmos_ix]
+
+cosmos2015_ix, cosmos2015_iy = match(cosmos_laigle_id_match,cosmos2015_ID)
+
+
+cosmos_F24, cosmos_F100, cosmos_F160, cosmos_F250, cosmos_F350, cosmos_F500 = [], [], [], [], [], []
+cosmos_F24err, cosmos_F100err, cosmos_F160err, cosmos_F250err, cosmos_F350err, cosmos_F500err = [], [], [], [], [], []
+
+ix2,iy2 = match(cosmos_laigle_id_match,cosmos_fir_id)
+print('HERE: ')
+print(len(cosmos_fir_id[iy2]))
+# for i in range(len(cosmos_laigle_id_match)):
+#     ind = np.where(cosmos_fir_id == cosmos_laigle_id_match[i])[0]
+#     print(ind)
+#     if len(ind) > 0:
+#         cosmos_F24.append(cosmos_fir_data['F24'][ind])
+#         cosmos_F24err.append(cosmos_fir_data['e_F24'][ind])
+#         cosmos_F24.append(cosmos_fir_data['F100'][ind])
+#         cosmos_F24err.append(cosmos_fir_data['e_F100'][ind])
+#         cosmos_F24.append(cosmos_fir_data['F160'][ind])
+#         cosmos_F24err.append(cosmos_fir_data['e_F160'][ind])
+#         cosmos_F24.append(cosmos_fir_data['F250'][ind])
+#         cosmos_F24err.append(cosmos_fir_data['e_F250'][ind])
+#         cosmos_F24.append(cosmos_fir_data['F350'][ind])
+#         cosmos_F24err.append(cosmos_fir_data['e_F350'][ind])
+#         cosmos_F24.append(cosmos_fir_data['F500'][ind])
+#         cosmos_F24err.append(cosmos_fir_data['e_F500'][ind])
+#     else:
+#         cosmos_F24.append(-9999.)
+#         cosmos_F24err.append(-9999.)
+#         cosmos_F24.append(-9999.)
+#         cosmos_F24err.append(-9999.)
+#         cosmos_F24.append(-9999.)
+#         cosmos_F24err.append(-9999.)
+#         cosmos_F24.append(-9999.)
+#         cosmos_F24err.append(-9999.)
+#         cosmos_F24.append(-9999.)
+#         cosmos_F24err.append(-9999.)
+#         cosmos_F24.append(-9999.)
+#         cosmos_F24err.append(-9999.)
+# cosmos_F24, cosmos_F100, cosmos_F160, cosmos_F250, cosmos_F350, cosmos_F500 = np.asarray(cosmos_F24), np.asarray(cosmos_F100), np.asarray(cosmos_F160), np.asarray(cosmos_F250), np.asarray(cosmos_F350), np.asarray(cosmos_F500) 
+# cosmos_F24err, cosmos_F100err, cosmos_F160err, cosmos_F250err, cosmos_F350err, cosmos_F500err = np.asarray(cosmos_F24err), np.asarray(cosmos_F100err), np.asarray(cosmos_F160err), np.asarray(cosmos_F250err), np.asarray(cosmos_F350err), np.asarray(cosmos_F500err)
+
+# print(len(cosmos_laigle_id_match),len(cosmos_F24))
 print('COSMOS phot match: ', len(chandra_cosmos_phot_id_match))
 
 # print(len(check_abs_match),len(check_abs_match[check_abs_match == 0]))
@@ -327,12 +387,24 @@ cosmos_flux_array = np.array([
     cosmos_data['SPLASH_CH2_FLUX'][cosmos_iy],
     cosmos_data['SPLASH_CH3_FLUX'][cosmos_iy],
     cosmos_data['SPLASH_CH4_FLUX'][cosmos_iy],
-    cosmos_data['FIR_24_FLUX'][cosmos_iy],
-    cosmos_data['FIR_100_FLUX'][cosmos_iy],
-    cosmos_data['FIR_160_FLUX'][cosmos_iy],
-    cosmos_data['FIR_250_FLUX'][cosmos_iy],
-    cosmos_data['FIR_350_FLUX'][cosmos_iy],
-    cosmos_data['FIR_500_FLUX'][cosmos_iy],
+    # cosmos_data['FIR_24_FLUX'][cosmos_iy],
+    # cosmos_data['FIR_100_FLUX'][cosmos_iy],
+    # cosmos_data['FIR_160_FLUX'][cosmos_iy],
+    # cosmos_data['FIR_250_FLUX'][cosmos_iy],
+    # cosmos_data['FIR_350_FLUX'][cosmos_iy],
+    # cosmos_data['FIR_500_FLUX'][cosmos_iy],
+    cosmos2015_data['Flux_24'][cosmos2015_iy],
+    cosmos2015_data['Flux_100'][cosmos2015_iy]*1000,
+    cosmos2015_data['Flux_160'][cosmos2015_iy]*1000,
+    cosmos2015_data['Flux_250'][cosmos2015_iy]*1000,
+    cosmos2015_data['Flux_350'][cosmos2015_iy]*1000,
+    cosmos2015_data['Flux_500'][cosmos2015_iy]*1000
+    # cosmos_F24*1000,
+    # cosmos_F100*1000,
+    # cosmos_F160*1000,
+    # cosmos_F250*1000,
+    # cosmos_F350*1000,
+    # cosmos_F500*1000
     # cosmos_data['FIR_850_FLUX'][cosmos_iy],
     # cosmos_data['FIR_1100_FLUX'][cosmos_iy],
     # cosmos_data['FIR_20CM_FLUX'][cosmos_iy]
@@ -356,12 +428,24 @@ cosmos_flux_err_array = np.array([
     cosmos_data['SPLASH_CH2_FLUXERR'][cosmos_iy],
     cosmos_data['SPLASH_CH3_FLUXERR'][cosmos_iy],
     cosmos_data['SPLASH_CH4_FLUXERR'][cosmos_iy],
-    cosmos_data['FIR_24_FLUXERR'][cosmos_iy],
-    cosmos_data['FIR_100_FLUXERR'][cosmos_iy],
-    cosmos_data['FIR_160_FLUXERR'][cosmos_iy],
-    cosmos_data['FIR_250_FLUXERR'][cosmos_iy],
-    cosmos_data['FIR_350_FLUXERR'][cosmos_iy],
-    cosmos_data['FIR_500_FLUXERR'][cosmos_iy],
+    # cosmos_data['FIR_24_FLUXERR'][cosmos_iy],
+    # cosmos_data['FIR_100_FLUXERR'][cosmos_iy],
+    # cosmos_data['FIR_160_FLUXERR'][cosmos_iy],
+    # cosmos_data['FIR_250_FLUXERR'][cosmos_iy],
+    # cosmos_data['FIR_350_FLUXERR'][cosmos_iy],
+    # cosmos_data['FIR_500_FLUXERR'][cosmos_iy],
+    cosmos2015_data['Fluxerr_24'][cosmos2015_iy],
+    cosmos2015_data['Fluxerr_100'][cosmos2015_iy]*1000,
+    cosmos2015_data['Fluxerr_160'][cosmos2015_iy]*1000,
+    cosmos2015_data['Fluxerr_250'][cosmos2015_iy]*1000,
+    cosmos2015_data['Fluxerr_350'][cosmos2015_iy]*1000,
+    cosmos2015_data['Fluxerr_500'][cosmos2015_iy]*1000
+    # cosmos_F24err*1000,
+    # cosmos_F100err*1000,
+    # cosmos_F160err*1000,
+    # cosmos_F250err*1000,
+    # cosmos_F350err*1000,
+    # cosmos_F500err*1000
     # cosmos_data['FIR_850_FLUXERR'][cosmos_iy],
     # cosmos_data['FIR_1100_FLUXERR'][cosmos_iy],
     # cosmos_data['FIR_20CM_FLUXERR'][cosmos_iy]
@@ -370,6 +454,9 @@ cosmos_flux_err_array = np.array([
 # Transpose arrays so each row is a new source and each column is a obs filter
 cosmos_flux_array = cosmos_flux_array.T
 cosmos_flux_err_array = cosmos_flux_err_array.T
+
+print(np.shape(cosmos_flux_array))
+
 
 ###################################################################################
 
@@ -605,6 +692,8 @@ s82x_flux_array = np.array([
     mag_to_flux(lamassa_data['HVHS'][s82x_condition], 'HVHS')*1E6,
     mag_to_flux(lamassa_data['KVHS'][s82x_condition], 'KVHS')*1E6,
     mag_to_flux(s82x_W1[s82x_condition], 'W1')*1E6,
+    # mag_to_flux(lamassa_data['CH1_SPIES'][s82x_condition],'Ch1Spies')*1E6,
+    # mag_to_flux(lamassa_data['CH2_SPIES'][s82x_condition],'Ch2Spies')*1E6,
     mag_to_flux(s82x_W2[s82x_condition], 'W2')*1E6,
     mag_to_flux(s82x_W3[s82x_condition], 'W3')*1E6,
     mag_to_flux(s82x_W4[s82x_condition], 'W4')*1E6,
@@ -638,6 +727,10 @@ s82x_flux_err_array = np.array([
     magerr_to_fluxerr(lamassa_data['KVHS'][s82x_condition],
                       lamassa_data['KVHS_err'][s82x_condition], 'KVHS')*1E6,
     magerr_to_fluxerr(s82x_W1[s82x_condition], s82x_W1_err[s82x_condition], 'W1')*1E6,
+    # magerr_to_fluxerr(lamassa_data['CH1_SPIES'][s82x_condition],
+    #                   lamassa_data['CH1_SPIES_err'][s82x_condition], 'Ch1Spies')*1E6,
+    # magerr_to_fluxerr(lamassa_data['CH2_SPIES'][s82x_condition],
+    #                   lamassa_data['CH2_SPIES'][s82x_condition], 'Ch2Spies')*1E6,                  
     magerr_to_fluxerr(s82x_W2[s82x_condition], s82x_W2_err[s82x_condition], 'W2')*1E6,
     magerr_to_fluxerr(s82x_W3[s82x_condition], s82x_W3_err[s82x_condition], 'W3')*1E6,
     magerr_to_fluxerr(s82x_W4[s82x_condition], s82x_W4_err[s82x_condition], 'W4')*1E6,
@@ -656,11 +749,14 @@ s82x_flux_err_array = s82x_flux_err_array.T
 ###################################################################################
 ###################################################################################
 ############################## Read in GOODS-N files ##############################
-goodsN_auge = fits.open(path+'GOODsN_full_cat.fits')
+goodsN_auge = fits.open(path+'GOODsN_full_cat_update.fits')
 goodsN_auge_data = goodsN_auge[1].data
 goodsN_auge.close()
 
 goodsN_auge_ID = goodsN_auge_data['id_xray']
+goodsN_auge_phot_ID = goodsN_auge_data['id_rainbow']
+goodsN_RA = goodsN_auge_data['xRA']
+goodsN_DEC = goodsN_auge_data['xDec']
 goodsN_auge_Lx = goodsN_auge_data['Lx']
 goodsN_auge_Lx_hard = goodsN_auge_data['Lx']*0.611
 goodsN_auge_z = goodsN_auge_data['z_spec']
@@ -671,6 +767,9 @@ goodsN_auge_Nh_hi = goodsN_auge_data['Nh_hi']
 goodsN_auge_condition = (np.log10(goodsN_auge_Lx) >= Lx_min) & (np.log10(goodsN_auge_Lx) <= Lx_max) &(goodsN_auge_z > z_min) & (goodsN_auge_z <= z_max) & (goodsN_auge_z != 0.0)
 
 goodsN_auge_ID_match = goodsN_auge_ID[goodsN_auge_condition]
+goodsN_auge_phot_ID_match = goodsN_auge_phot_ID[goodsN_auge_condition]
+goodsN_auge_RA_match = goodsN_RA[goodsN_auge_condition]
+goodsN_auge_DEC_match = goodsN_DEC[goodsN_auge_condition]
 goodsN_auge_Lx_match = goodsN_auge_Lx[goodsN_auge_condition]
 goodsN_auge_Lx_hard_match = goodsN_auge_Lx_hard[goodsN_auge_condition]
 goodsN_auge_z_match = goodsN_auge_z[goodsN_auge_condition]
@@ -779,6 +878,9 @@ goodsS_auge_data = goodsS_auge[1].data
 goodsS_auge.close()
 
 goodsS_auge_ID = goodsS_auge_data['id_xray']
+goodsS_auge_phot_ID = goodsS_auge_data['id_rainbow']
+goodsS_auge_RA = goodsS_auge_data['xRA']
+goodsS_auge_DEC = goodsS_auge_data['xDEC']
 goodsS_auge_Lx = goodsS_auge_data['Lxc']
 goodsS_auge_Lx_hard = goodsS_auge_data['Lxc']*0.611
 goodsS_auge_z = goodsS_auge_data['z_spec']
@@ -789,6 +891,9 @@ goodsS_auge_Nh_hi = goodsS_auge_data['Nh_hi']
 goodsS_auge_condition = (np.log10(goodsS_auge_Lx) >= Lx_min) & (np.log10(goodsS_auge_Lx) <= Lx_max) &(goodsS_auge_z > z_min) & (goodsS_auge_z <= z_max) & (goodsS_auge_z != 0.0)
 
 goodsS_auge_ID_match = goodsS_auge_ID[goodsS_auge_condition]
+goodsS_auge_phot_ID_match = goodsS_auge_phot_ID[goodsS_auge_condition]
+goodsS_auge_RA_match = goodsS_auge_RA[goodsS_auge_condition]
+goodsS_auge_DEC_match = goodsS_auge_DEC[goodsS_auge_condition]
 goodsS_auge_Lx_match = goodsS_auge_Lx[goodsS_auge_condition]
 goodsS_auge_Lx_hard_match = goodsS_auge_Lx_hard[goodsS_auge_condition]
 goodsS_auge_z_match = goodsS_auge_z[goodsS_auge_condition]
@@ -1006,24 +1111,31 @@ GOODSN_auge_filters = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV',
 filter_total = np.array(['Fxh','Fxs','FUV','NUV','u','g','r','i','z','y','J','H','Ks','W1','IRAC1','IRAC2','W2','IRAC3','IRAC4','W3','W4','F24','F250','F350','F500'])
 filter_COSMOS_match = np.array(['Fxh','Fxs','nan','FUV','NUV','u','g','r','i','z','y','J','H','Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F250','F350','F500'])
 filter_S82X_match = np.array(['Fxh','Fxs','nan','FUV','NUV','u','g','r','i','z','J','H','Ks','W1','W2','W3','W4','nan','F250','F350','F500'])
+filter_GOODSN_match = np.asarray(['Fxh','Fxs','nan','FUV','NUV','I','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
+filter_GOODSS_match = np.asarray(['Fxh','Fxs','nan','FUV','NUV','I','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F850LP', 'F098M','F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
 
+filter_COSMOS_total = np.array(['Fxh','Fxs','FUV','NUV','u','g','r','i','z','y','J','H','Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F250','F350','F500'])
+filter_S82X_total = np.array(['Fxh','Fxs','FUV','NUV','u','g','r','i','z','J','H','Ks','W1','W2','W3','W4','F250','F350','F500'])
+filter_GOODSN_total = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
+filter_GOODSS_total = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F850LP', 'F098M','F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
+filter_GOODS_total  = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F850LP', 'F098M','F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
 ###############################################################################
 ############################## Start CIGALE File ##############################
-# cigale_name = 'AHA_sample2/AHA_S82X_shape2_3.mag'
-# # cigale_name = 'test_FIR_cosmos3.mag'
-# inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
-# header = np.asarray(['# id', 'redshift'])
-# cigale_filters = Filters('filter_list.dat').pull_filter(S82X_filters, 'xcigale name')
-# for i in range(len(cigale_filters)):
-#     header = np.append(header, cigale_filters[i])
-#     header = np.append(header, cigale_filters[i]+'_err')
-# np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
-# inf.close()
+cigale_name = 'AHA_sample_6/AHA_COSMOS_shape4_2.mag'
+# cigale_name = 'test_FIR_cosmos3.mag'
+inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
+header = np.asarray(['# id', 'redshift'])
+cigale_filters = Filters('filter_list.dat').pull_filter(COSMOS_filters, 'xcigale name')
+for i in range(len(cigale_filters)):
+    header = np.append(header, cigale_filters[i])
+    header = np.append(header, cigale_filters[i]+'_err')
+np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
+inf.close()
 ###############################################################################
 
 
 ###############################################################################
-# ############################## Start Check SED File ##############################
+# ############################# Start Check SED File #############################
 # check_sed_fname = 'COSMOS_SED_Check'
 # with open(f'/Users/connor_auge/Desktop/sed_check_output/{check_sed_fname}.txt', 'w') as outf:
 #     outf.writelines('ID,Bad_SED,UV_extrap,F1_extrap,MIR_extrap,FIR_extrap,Bad_FIR,Manual_Check\n')
@@ -1031,9 +1143,9 @@ filter_S82X_match = np.array(['Fxh','Fxs','nan','FUV','NUV','u','g','r','i','z',
 
 
 # Slope lims
-uv1, uv2 = 0.15, 1.0
-mir11, mir12 = 1.0, 6.5
-mir21, mir22 = 6.5, 10
+uv1, uv2 = 0.2, 1.0
+mir11, mir12 = 1.0, 6.0
+mir21, mir22 = 6.0, 10
 
 
 ###################################################################################
@@ -1083,7 +1195,7 @@ for i in range(len(chandra_cosmos_phot_id_match)):
 # for i in range(50):
     # if chandra_cosmos_phot_id_match[i] == 222544:
         source = AGN(chandra_cosmos_phot_id_match[i], chandra_cosmos_z_match[i], COSMOS_filters, cosmos_flux_array[i], cosmos_flux_err_array[i])
-        source.MakeSED(data_replace_filt='FLUX_24')
+        source.MakeSED(data_replace_filt=['FLUX_24'])
         source.FIR_extrap(['FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 
         Lcheck = source.Lum_filter('FLUX_24')
@@ -1121,7 +1233,7 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         f10 = source.Find_value(10)
         f2kev = source.Find_value(6.1992e-4)
 
-        f015 = source.Find_value(0.15)
+        f015 = source.Find_value(0.2)
         f65 = source.Find_value(6.5)
 
         lbol = source.Find_Lbol()
@@ -1187,12 +1299,6 @@ for i in range(len(chandra_cosmos_phot_id_match)):
 
         plot = Plotter(Id, redshift, w, f, chandra_cosmos_Lx_full_match[i],f1,up_check)
 
-        # if check == 'GOOD':
-        # # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
-        #     if up_check == 1:
-        # #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
-        #         plot.PlotSED(point_x=[0.15,1.0,6.5,10,100],point_y=[f015/f1,f1/f1,f65/f1,f10/f1,f100/f1],fir_x = wfir, fir_y = ffir)
-
         check = source.check_SED(10, check_span=2.75)
         check6 = source.check_SED(6, check_span=2.75)
         check_sed.append(check)
@@ -1200,12 +1306,23 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         field.append('COSMOS')
         spec_class.append(chandra_cosmos_spec_type_match[i])
 
-        # if check == 'GOOD':
-        #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
-        #     source.write_output_file('AGN_Properties_cosmos.fits',data,cols,'w')
+        # if check6 == 'GOOD':
+        # # # # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
+        # #     if shape == 3:
+        #         print(Id,check6,shape,up_check,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
+        #         plot.PlotSED(point_x=[0.2,1.0,6.,10,100],point_y=[f015/f1,f1/f1,f6/f1,f10/f1,f100/f1],fir_x = wfir, fir_y = ffir)
 
-        #     cols, data = source.output_phot('COSMOS',filter_total,filter_COSMOS_match)
-        #     source.write_output_file('AGN_photometry',data,cols,'w')
+
+        # if check6 == 'GOOD':
+        #     c = SkyCoord(ra = chandra_cosmos_RA_match[i]*u.degree, dec = chandra_cosmos_DEC_match[i]*u.degree)
+        #     coords = c.to_string('hmsdms').split()
+
+        #     cols, data, dtyp = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],coords[0],coords[1],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
+        #     source.write_output_file('AGN_Properties7.fits',data,cols,dtyp,'w')
+
+        #     cols, data, dtyp = source.output_phot('COSMOS',filter_COSMOS_total,filter_COSMOS_match)
+        #     source.write_output_file('AGN_photometry_cosmos7.fits',data,cols,dtyp,'w')
+
         # if Id == 847966:
 
 
@@ -1236,19 +1353,19 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         #     plot.PlotSED(point_x=100, point_y=f100/f1)
             # source.Find_Lbol()
 
-        # if check == 'GOOD':
-        #     if shape == 5:
-        #         cigale_count += 1
-        #         if (cigale_count > 90) & (cigale_count <= 120):
-        #         # if cigale_count <= 30:
-        #             # source.write_cigale_file(cigale_name,COSMOS_filters)
-        #             source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-        #         else:
-        #             continue
-        #     else:
-        #         continue
-        # else:
-        #     continue    
+        if check6 == 'GOOD':
+            if shape == 4:
+                cigale_count += 1
+                if (cigale_count > 30) & (cigale_count <= 60):
+                # if cigale_count <= 30:
+                    # source.write_cigale_file(cigale_name,COSMOS_filters)
+                    source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            continue    
     
 
 # '''
@@ -1262,12 +1379,18 @@ print(f'Done with COSMOS sources ({tc - tfl:0.4f} second)')
 # Make array of NaNs to fill in the output wave and Lum arrays so output is consistent shape
 fill_nan = np.zeros(len(GOODSS_auge_filters)-len(S82X_filters)) 
 fill_nan[fill_nan == 0] = np.nan
+# bad_source = np.asarray([2585,2685,2748,2774,2795,2931,2964,3129,3201,3296,3451,3522,3531,3851,4158,4349,4435,4453,4490,4728,4857,4872,15292,105703])
+bad_source = np.asarray([2685,2748,2774,2795,2931,2964,3129,3201,3451,3522,3531,4158,4349,4435,4453,4490,4857,4872,15292,105703])
+
 for i in range(len(s82x_id)):
-    # if s82x_id[i] == 187:
+    # if s82x_id[i] == 15292:
+    if s82x_id[i] in bad_source:
+        continue
+    else:
         try:
             source = AGN(s82x_id[i],s82x_z[i],S82X_filters,s82x_flux_array[i],s82x_flux_err_array[i])
-            source.MakeSED(data_replace_filt='W4')
-            source.FIR_extrap(['W4','FLUX_250_s82x', 'FLUX_350_s82x', 'FLUX_500_s82x'],stack=False)
+            source.MakeSED(data_replace_filt=['W4'])
+            source.FIR_extrap(['W4','FLUX_250_s82x', 'FLUX_350_s82x', 'FLUX_500_s82x'],stack=True)
             # stack_out = source.stack_check()
             # print(stack_out)
             stack_bin.append(7)
@@ -1306,7 +1429,7 @@ for i in range(len(s82x_id)):
             f10 = source.Find_value(10)
             f2kev = source.Find_value(6.1992e-4)
 
-            f015 = source.Find_value(0.15)
+            f015 = source.Find_value(0.2)
             f65 = source.Find_value(6.5)
 
             hao_x, hao_y = source.mix_loc([1,0.3],[3,1])
@@ -1376,21 +1499,22 @@ for i in range(len(s82x_id)):
             check_sed6.append(check6)
             field.append('S82X')
             spec_class.append(s82x_spec_class[i])
+           
             # if check6 == 'GOOD':
             # # # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
-            # #     if up_check == 1:
-            # # #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
-                # plot.PlotSED(point_x=[0.15,1.0,6.5,10,100],point_y=[f015/f1,f1/f1,f65/f1,f10/f1,f100/f1],fir_x = wfir, fir_y = ffir)
+            #     # if shape == 3:
+            #         print(Id,check6,shape,up_check)#source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
+            #         plot.PlotSED(point_x=[0.25,1.0,6.5,10,100],point_y=[f025/f1,f1/f1,f6/f1,f10/f1,f100/f1],fir_x = wfir, fir_y = ffir)
 
             # if Id == 187:
             #     print(source.Find_slope(0.15,1.0))
             #     plot.PlotSED(point_x=100,point_y=f100/f1)
             #     source.write_cigale_file(cigale_name,S82X_filters,int_fx=s82x_Fx_int_array[i],use_int_fx=True)
 
-            # if check == 'GOOD':
+            # if check6 == 'GOOD':
             #     if shape == 2:
             #         cigale_count += 1
-            #         if (cigale_count > 60) & (cigale_count <= 90):
+            #         if (cigale_count > 120) & (cigale_count <= 150):
             #         # if cigale_count <= 30:
             #             source.write_cigale_file(cigale_name, int_fx=s82x_Fx_int_array[i], use_int_fx=True)
             #         else:
@@ -1400,10 +1524,22 @@ for i in range(len(s82x_id)):
             # else:
             #     continue
 
-            
+            # if check6 == 'GOOD':
+            #     c = SkyCoord(ra = s82x_ra[i]*u.degree, dec = s82x_dec[i]*u.degree)
+            #     coords = c.to_string('hmsdms').split()
 
+            #     cols, data, dtyp = source.output_properties('Stripe82X',int(s82x_id[i]),coords[0],coords[1],s82x_Lx_full[i],s82x_Nh[i])
+            #     source.write_output_file('AGN_Properties7.fits',data,cols,dtyp,'w')
+
+            #     cols, data, dtyp = source.output_phot('Stripe82X',filter_S82X_total,filter_S82X_match)
+            #     source.write_output_file('AGN_photometry_s82x7.fits',data,cols,dtyp,'w')
+
+            
+    
         except ValueError:
             continue
+    # else:
+    #     continue
 # '''
 ts = time.perf_counter()
 print(f'Done with Stripe82X sources ({ts - tc:0.4f} second)')
@@ -1416,8 +1552,8 @@ fill_nan = np.zeros(len(GOODSS_auge_filters)-len(GOODSN_auge_filters))
 fill_nan[fill_nan == 0] = np.nan
 for i in range(len(goodsN_auge_ID_match)):
     # for i in range(50):
-    source = AGN(goodsN_auge_ID_match[i], goodsN_auge_z_match[i], GOODSN_auge_filters, goodsN_flux_array_auge[i], goodsN_flux_err_array_auge[i])
-    source.MakeSED(data_replace_filt='FLUX_24')
+    source = AGN(goodsN_auge_phot_ID_match[i], goodsN_auge_z_match[i], GOODSN_auge_filters, goodsN_flux_array_auge[i], goodsN_flux_err_array_auge[i])
+    source.MakeSED(data_replace_filt=['FLUX_24'])
     source.FIR_extrap(['FLUX_24', 'MIPS2', 'FLUX_100_goodsN', 'FLUX_160_goodsN', 'FLUX_250_goodsN', 'FLUX_350_goodsN', 'FLUX_500_goodsN'])
 
     Lcheck = source.Lum_filter('FLUX_24')
@@ -1453,7 +1589,7 @@ for i in range(len(goodsN_auge_ID_match)):
     f025 = source.Find_value(0.25)
     f10 = source.Find_value(10)
     f2kev = source.Find_value(6.1992e-4)
-    f015 = source.Find_value(0.15)
+    f015 = source.Find_value(0.2)
     f65 = source.Find_value(6.5)
 
 
@@ -1520,24 +1656,33 @@ for i in range(len(goodsN_auge_ID_match)):
 
     # check = source.check_SED(10, check_span=5.5)
 
-    # if check == 'GOOD':
-    # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
-    #     if shape == 6:
-    #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
-    #         plot.PlotSED(point_x=[0.15,1.0,6.5,10],point_y=[f015/f1,f1/f1,f65/f1,f10/f1],fir_x = wfir, fir_y = ffir)
-
+    
     check = source.check_SED(10, check_span=2.75)
     check6 = source.check_SED(6, check_span=2.75)
     check_sed.append(check)
     check_sed6.append(check6)
     field.append('GOODS-N')
     spec_class.append(0)
-    # if check == 'GOOD':
-    #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
-    #     source.write_output_file('AGN_Properties',data,cols,'w')
 
-    #     cols, data = source.output_phot('COSMOS',filter_total,filter_COSMOS_match)
-    #     source.write_output_file('AGN_photometry',data,cols,'w')
+    # if check6 == 'GOOD':
+    # # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
+    #     # if shape == 6:
+    #         print(Id,check6,shape,up_check,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
+    #         plot.PlotSED(point_x=[0.25,1.0,6.5,10],point_y=[f025/f1,f1/f1,f6/f1,f10/f1],fir_x = wfir, fir_y = ffir)
+
+
+    # if check6 == 'GOOD':
+
+    #     c = SkyCoord(ra = goodsN_auge_RA_match[i], dec = goodsN_auge_DEC_match[i], unit=(u.hourangle, u.deg))
+    #     coords = c.to_string('hmsdms').split()
+
+    #     cols, data, dtyp = source.output_properties(
+    #         'GOODS-N', int(goodsN_auge_ID_match[i]), coords[0], coords[1], goodsN_auge_Lx_match[i], goodsN_auge_Nh_match[i])
+    #     source.write_output_file('AGN_Properties7.fits',data,cols,dtyp,'w')
+
+    #     cols, data, dtyp = source.output_phot('GOODS-N',filter_GOODS_total,filter_GOODSN_match)
+    #     source.write_output_file('AGN_photometry_GOODS7.fits',data,cols,dtyp,'w')
+
     # if Id == 167601:
     # plot.Plot_FIR_SED(wfir, ffir/f1)
         # plot.PlotSED(point_x=6.0,point_y=f6/f1)
@@ -1552,137 +1697,147 @@ print(f'Done with GOODS-N sources ({tgn - ts:0.4f} second)')
 ###############################################################################
 ############################## Run GOODS-S SEDs ###############################
 # '''
+bad_source = np.asarray([409,520,579])
 for i in range(len(goodsS_auge_ID_match)):
-    # for i in range(50):
-    try:
-        source = AGN(goodsS_auge_ID_match[i], goodsS_auge_z_match[i], GOODSS_auge_filters, goodsS_flux_array_auge[i], goodsS_flux_err_array_auge[i])
-        source.MakeSED(data_replace_filt='FLUX_24')
-        source.FIR_extrap(['FLUX_24', 'MIPS2', 'FLUX_100_goodsS', 'FLUX_160_goodsS', 'FLUX_250_goodsS', 'FLUX_350_goodsS', 'FLUX_500_goodsS'])
-
-        Lcheck = source.Lum_filter('FLUX_24')
-        F24_out.append(Lcheck)
-        stack_bin.append(7)
-
-        ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
-        int_x.append(ix)
-        int_y.append(iy)
-
-        # wfir, ffir, f100, f100_boot = source.Int_SED_FIR(Find_value=100.0, discreet=True, boot=True)
-        wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0, discreet=True)
-        wfir_out.append(wfir)
-        ffir_out.append(ffir)
-
-        L100_ratio = source.flux_ratio_lower()
-        F100_ratio.append(L100_ratio)
-
-        # f1, f1_boot = source.Find_value(1.0, boot=True)
-        # f2, f2_boot = source.Find_value(2.0, boot=True)
-        # xval, xval_boot = source.Find_value(3E-4, boot=True)
-        # f6, f6_boot = source.Find_value(6.0, boot=True)
-        # f025, f025_boot = source.Find_value(0.25, boot=True)
-        # f10, f10_boot = source.Find_value(10, boot=True)
-        # f2kev, f2kev_boot = source.Find_value(6.1992e-4, boot=True)
-        # f015, f015_boot = source.Find_value(0.15,boot=True)
-        # f65, f65_boot = source.Find_value(6.5,boot=True)
-
-        f1 = source.Find_value(1.0)
-        f2 = source.Find_value(2.0)
-        xval = source.Find_value(3E-4)
-        f6 = source.Find_value(6.0)
-        f025 = source.Find_value(0.25)
-        f10 = source.Find_value(10)
-        f2kev = source.Find_value(6.1992e-4)
-        f015 = source.Find_value(0.15)
-        f65 = source.Find_value(6.5)
-
-        hao_x, hao_y = source.mix_loc([0.3, 1], [1, 3])
-        mix_x.append(hao_x)
-        mix_y.append(hao_y)
-
-        lbol = source.Find_Lbol()
-        lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
-        lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum, xmax=50)
-        shape = source.SED_shape()
-
-        Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
-        out_ID.append(Id)
-        out_x.append(w)
-        out_y.append(f)
-        out_frac_error.append(frac_err)
-        out_Lx.append(goodsS_auge_Lx_match[i])
-        out_Lx_hard.append(goodsS_auge_Lx_hard_match[i])
-        out_z.append(goodsS_auge_z_match[i])
-        FIR_upper_lims.append(up_check)
-
-        norm.append(f1)
-        F025.append(f025)
-        F1.append(f1)
-        F2.append(f2)
-        F6.append(f6)
-        F10.append(f10)
-        F100.append(f100)
-        xval_out.append(xval)
-        F2kev.append(f2kev)
-        # F1_boot.append(f1_boot)
-        # F025_boot.append(f025_boot)
-        # F2_boot.append(f2_boot)
-        # F6_boot.append(f6_boot)
-        # F10_boot.append(f10_boot)
-        # xval_out_boot.append(xval_boot)
-        # F100_boot.append(f100_boot)
-        # F2kev_boot.append(f2kev_boot)
-        Lbol_out.append(lbol)
-        Lbol_sub_out.append(lbol_sub)
-        Nh.append(goodsS_auge_Nh_match[i])
-        Nh_check.append(goodsS_Nh_check[i])
-        abs_check.append(0)
-
-        # shape = source.SED_shape(uv1, uv2, mir11, mir12, mir21, mir22)
-        shape = source.SED_shape()
-
-        uv_slope.append(source.Find_slope(uv1, uv2))
-        mir_slope1.append(source.Find_slope(mir11, mir12))
-        mir_slope2.append(source.Find_slope(mir21, mir22))
-        out_SED_shape.append(shape)
-        UV_lum_out.append(source.find_Lum_range(0.1,0.35))
-        OPT_lum_out.append(source.find_Lum_range(0.35,3))
-        MIR_lum_out.append(source.find_Lum_range(3,30))
-        FIR_lum_out.append(source.find_Lum_range(30,500/(1+goodsS_auge_z_match[i])))
-        X_UV_lum_out.append(source.find_Lum_range(1E-3,0.1))
-        FIR_R_lum.append(source.find_Lum_range(40,400))
-
-        plot = Plotter(Id, redshift, w, f, goodsS_auge_Lx_match[i], f1, up_check)
-        check = source.check_SED(10, check_span=2.75)
-        check6 = source.check_SED(6, check_span=2.75)
-        check_sed.append(check)
-        check_sed6.append(check6)
-
-        # if check == 'GOOD':
-            # print(Id,check,shape)
-            # plot.PlotSED(point_x=[0.25,6,100],point_y=[f025/f1,f6/f1,f100/f1],fir_x = wfir, fir_y = ffir)
-
-        # if check == 'GOOD':
-        # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
-        #     if shape == 6:
-        #         print(Id,check,shape,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
-        #         plot.PlotSED(point_x=[0.15,1.0,6.5,10],point_y=[f015/f1,f1/f1,f65/f1,f10/f1],fir_x = wfir, fir_y = ffir)
-
-        spec_class.append(0)
-        field.append('GOODS-S')
-        # if check_sed[i] == 'GOOD':
-        #     cols, data = source.output_properties('COSMOS',chandra_cosmos_xid_match[i],chandra_cosmos_RA_match[i],chandra_cosmos_DEC_match[i],chandra_cosmos_Lx_full_match[i],chandra_cosmos_Nh_match[i])
-        #     source.write_output_file('AGN_Properties',data,cols,'w')
-
-        #     cols, data = source.output_phot('COSMOS',filter_total,filter_COSMOS_match)
-        #     source.write_output_file('AGN_photometry',data,cols,'w')
-        # if Id == 567:
-            # plot.Plot_FIR_SED(wfir, ffir/f1)
-        # if Id == 911:
-            # print(source.Find_slope(0.1, 1.0))
-            # plot.PlotSED(point_x=100,point_y=f100/f1)
-        # source.Find_Lbol()
-    except ValueError:
+    if goodsS_auge_ID_match[i] in bad_source:
         continue
+    else:
+    # for i in range(50):
+        try:
+            source = AGN(goodsS_auge_phot_ID_match[i], goodsS_auge_z_match[i], GOODSS_auge_filters, goodsS_flux_array_auge[i], goodsS_flux_err_array_auge[i])
+            source.MakeSED(data_replace_filt=['FLUX_24'])
+            source.FIR_extrap(['FLUX_24', 'MIPS2', 'FLUX_100_goodsS', 'FLUX_160_goodsS', 'FLUX_250_goodsS', 'FLUX_350_goodsS', 'FLUX_500_goodsS'])
+
+            Lcheck = source.Lum_filter('FLUX_24')
+            F24_out.append(Lcheck)
+            stack_bin.append(7)
+
+            ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
+            int_x.append(ix)
+            int_y.append(iy)
+
+            # wfir, ffir, f100, f100_boot = source.Int_SED_FIR(Find_value=100.0, discreet=True, boot=True)
+            wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0, discreet=True)
+            wfir_out.append(wfir)
+            ffir_out.append(ffir)
+
+            L100_ratio = source.flux_ratio_lower()
+            F100_ratio.append(L100_ratio)
+
+            # f1, f1_boot = source.Find_value(1.0, boot=True)
+            # f2, f2_boot = source.Find_value(2.0, boot=True)
+            # xval, xval_boot = source.Find_value(3E-4, boot=True)
+            # f6, f6_boot = source.Find_value(6.0, boot=True)
+            # f025, f025_boot = source.Find_value(0.25, boot=True)
+            # f10, f10_boot = source.Find_value(10, boot=True)
+            # f2kev, f2kev_boot = source.Find_value(6.1992e-4, boot=True)
+            # f015, f015_boot = source.Find_value(0.15,boot=True)
+            # f65, f65_boot = source.Find_value(6.5,boot=True)
+
+            f1 = source.Find_value(1.0)
+            f2 = source.Find_value(2.0)
+            xval = source.Find_value(3E-4)
+            f6 = source.Find_value(6.0)
+            f025 = source.Find_value(0.25)
+            f10 = source.Find_value(10)
+            f2kev = source.Find_value(6.1992e-4)
+            f015 = source.Find_value(0.2)
+            f65 = source.Find_value(6.5)
+
+            hao_x, hao_y = source.mix_loc([0.3, 1], [1, 3])
+            mix_x.append(hao_x)
+            mix_y.append(hao_y)
+
+            lbol = source.Find_Lbol()
+            lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
+            lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum, xmax=50)
+            shape = source.SED_shape()
+
+            Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
+            out_ID.append(Id)
+            out_x.append(w)
+            out_y.append(f)
+            out_frac_error.append(frac_err)
+            out_Lx.append(goodsS_auge_Lx_match[i])
+            out_Lx_hard.append(goodsS_auge_Lx_hard_match[i])
+            out_z.append(goodsS_auge_z_match[i])
+            FIR_upper_lims.append(up_check)
+
+            norm.append(f1)
+            F025.append(f025)
+            F1.append(f1)
+            F2.append(f2)
+            F6.append(f6)
+            F10.append(f10)
+            F100.append(f100)
+            xval_out.append(xval)
+            F2kev.append(f2kev)
+            # F1_boot.append(f1_boot)
+            # F025_boot.append(f025_boot)
+            # F2_boot.append(f2_boot)
+            # F6_boot.append(f6_boot)
+            # F10_boot.append(f10_boot)
+            # xval_out_boot.append(xval_boot)
+            # F100_boot.append(f100_boot)
+            # F2kev_boot.append(f2kev_boot)
+            Lbol_out.append(lbol)
+            Lbol_sub_out.append(lbol_sub)
+            Nh.append(goodsS_auge_Nh_match[i])
+            Nh_check.append(goodsS_Nh_check[i])
+            abs_check.append(0)
+
+            # shape = source.SED_shape(uv1, uv2, mir11, mir12, mir21, mir22)
+            shape = source.SED_shape()
+
+            uv_slope.append(source.Find_slope(uv1, uv2))
+            mir_slope1.append(source.Find_slope(mir11, mir12))
+            mir_slope2.append(source.Find_slope(mir21, mir22))
+            out_SED_shape.append(shape)
+            UV_lum_out.append(source.find_Lum_range(0.1,0.35))
+            OPT_lum_out.append(source.find_Lum_range(0.35,3))
+            MIR_lum_out.append(source.find_Lum_range(3,30))
+            FIR_lum_out.append(source.find_Lum_range(30,500/(1+goodsS_auge_z_match[i])))
+            X_UV_lum_out.append(source.find_Lum_range(1E-3,0.1))
+            FIR_R_lum.append(source.find_Lum_range(40,400))
+
+            plot = Plotter(Id, redshift, w, f, goodsS_auge_Lx_match[i], f1, up_check)
+            check = source.check_SED(10, check_span=2.75)
+            check6 = source.check_SED(6, check_span=2.75)
+            check_sed.append(check)
+            check_sed6.append(check6)
+            spec_class.append(0)
+            field.append('GOODS-S')
+
+            # if check == 'GOOD':
+                # print(Id,check,shape)
+                # plot.PlotSED(point_x=[0.25,6,100],point_y=[f025/f1,f6/f1,f100/f1],fir_x = wfir, fir_y = ffir)
+
+            # if check6 == 'GOOD':
+            # # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
+            #     # if shape == 6:
+            #         print(Id,check6,shape,up_check,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
+            #         plot.PlotSED(point_x=[0.25,1.0,6.5,10],point_y=[f025/f1,f1/f1,f6/f1,f10/f1],fir_x = wfir, fir_y = ffir)
+
+            
+            # if check6 == 'GOOD':
+
+            #     c = SkyCoord(ra = goodsS_auge_RA_match[i]*u.degree, dec = goodsS_auge_DEC_match[i]*u.degree)
+            #     coords = c.to_string('hmsdms').split()
+
+            #     cols, data, dtyp = source.output_properties('GOODS-S', int(goodsS_auge_ID_match[i]), coords[0], coords[1], goodsS_auge_Lx_match[i], goodsS_auge_Nh_match[i])
+            #     source.write_output_file('AGN_Properties7.fits',data,cols,dtyp,'w')
+
+            #     cols, data, dtyp = source.output_phot('GOODS-S',filter_GOODS_total,filter_GOODSS_match)
+            #     source.write_output_file('AGN_photometry_GOODS7.fits',data,cols,dtyp,'w')
+                
+            # if Id == 567:
+                # plot.Plot_FIR_SED(wfir, ffir/f1)
+            # if Id == 911:
+                # print(source.Find_slope(0.1, 1.0))
+                # plot.PlotSED(point_x=100,point_y=f100/f1)
+            # source.Find_Lbol()
+        except ValueError:
+            continue
 
 
 # '''
@@ -1691,7 +1846,9 @@ print(f'Done with GOODS-S sources ({tgs - tgn:0.4f} second)')
 
 # Make all output lists into arrays with only good sources
 check_sed = np.asarray(check_sed)
+check_sed6 = np.asarray(check_sed6)
 GOOD_SED = check_sed == 'GOOD'
+GOOD_SED = check_sed6 == 'GOOD'
 
 
 
@@ -1811,39 +1968,59 @@ F100_ratio = np.asarray(F100_ratio)
 # stack_bin = stack_bin[sort]
 # F100_ratio = F100_ratio[sort]
 
-stack_bin1_ID = np.asarray([2667,   2700,   2731,   2803,   2846,   2873,   2960,   3015,   3029,   3092,
-                            3131,   3171,   3318,   3335,   3398,   3485,   3504,   3739,   3783,   3840,
-                            3851,   3854,   3939,   3976,   4007,   4034,   4053,   4214,   4222,   4290,
-                            4295,   4387,   4414,   4592,   4596,   4739,   4898,   4964,   4991,   5062,
-                            5089,   5135,   5143,   5172,    434,    514,    520,    521,  57494,  89316,
-                            129885, 180988])
-stack_bin2_ID = np.asarray([2387,   2446,   2471,   2522,   2635,   2673,   2675,   2693,   2716,   2728,
-                            2782,   2811,   2831,   2886,   2906,   2935,   2940,   3053,   3106,   3232,
-                            3241,   3246,   3264,   3312,   3327,   3354,   3427,   3488,   3540,   3547,
-                            3626,   3647,   3708,   3763,   3810,   3831,   3846,   3861,   3872,   3921,
-                            3979,   3982,   4010,   4021,   4028,   4029,   4051,   4073,   4087,   4139,
-                            4179,   4194,   4236,   4272,   4278,   4407,   4418,   4422,   4424,   4437,
-                            4512,   4558,   4747,   4758,   4853,   4867,   4877,   4913,   5087,   5151,
-                            399,    418,    425,  15292,  15296,  57498, 129802, 129884, 180997])
-stack_bin3_ID = np.asarray([2363,   2388,   2420,   2442,   2482,   2609,   2702,   2711,   2845,   2925,
-                            2948,   2949,   3037,   3116,   3179,   3305,   3339,   3408,   3501,   3557,
-                            3868,   3912,   3929,   3934,   3949,   3975,   3983,   4019,   4060,   4158,
-                            4174,   4287,   4306,   4321,   4510,   4557,   4591,   4624,   4630,   4661,
-                            4766,   4781,   4799,   4845,   4881,   4902,   4930,   4939,   5025,   5064,
-                            5068,   5078,   5213,    411,    488,    491,  15306, 107987])
-stack_bin4_ID = np.asarray([2379,   2407,   2413,   2524,   2587,   2741,   2871,   2971,   3005,   3147,
-                            3194,   3209,   3211,   3219,   3316,   3603,   3636,   3652,   3654,   3719,
-                            3808,   3903,   4001,   4054,   4096,   4134,   4136,   4220,   4235,   4329,
-                            4398,   4495,   4544,   4625,   4626,   4645,   4666,   4771,   4920,   5043,
-                            5076,   5093,   5094,   5163,  15297,  50021, 129821])
-stack_bin5_ID = np.asarray([2517,   2814,   2893,  2901,   2914,   3027,   3274,   3306,   3361,   3381,
-                            3482,   3492,   3511,  3711,   3816,   3835,   3837,   3853,   3880,   4020,
-                            4211,   4212,   4231,  4258,   4284,   4303,   4365,   4420,   4446,   4746,
-                            4825,   4832,   4870,  4884,   5158, 129814])
-stack_bin6_ID = np.asarray([2368,   2445,   2470,   2476,   2545,   2570,   2606,   2637,   2707,   3076,
-                            3099,   3249,   3268,   3487,   3517,   3552,   3726,   3766,   3822,   3862,
-                            3865,   3937,   3967,   4111,   4147,   4241,   4676,   4704,   4735,   4784,
-                            4793,   4865,   4980,   5106,   5211, 108045])
+stack_bin1_ID = np.asarray([2387,   2667,   2700,   2731,   2803,   2832,   2846,   2850,   2868,   2873,
+                            2960,   3015,   3029,   3092,   3131,   3171,   3318,   3335,   3388,   3398,
+                            3485,   3504,   3739,   3783,   3840,   3851,   3854,   3936,   3939,   3976,
+                            4007,   4034,   4053,   4214,   4222,   4276,   4290,   4295,   4334,   4387,
+                            4409,   4414,   4592,   4596,   4602,   4739,   4747,   4898,   4964,   5028,
+                            5062,   5089,   5135,   5143,   5151,   5172,    417,    434,    492,    514,
+                            520,    521,  57494,  89316, 129876, 129885])
+stack_bin2_ID = np.asarray([2360,   2463,   2471,   2525,   2563,   2598,   2635,   2693,   2728,   2782,
+                            2811,   2831,   2840,   2906,   3053,   3241,   3246,   3259,   3264,   3327,
+                            3427,   3488,   3540,   3547,   3626,   3628,   3647,   3708,   3763,   3810,
+                            3831,   3846,   3861,   3872,   3884,   3909,   3966,   3979,   3982,   4010,
+                            4028,   4031,   4051,   4073,   4087,   4139,   4159,   4264,   4272,   4407,
+                            4418,   4422,   4424,   4437,   4456,   4512,   4696,   4758,   4791,   4838,
+                            4867,   5031,   5087,    405,    425,  57498, 129884, 129887])
+stack_bin3_ID = np.asarray([2363,   2388,   2420,   2442,   2446,   2482,   2522,   2536,   2673,   2675,
+                            2702,   2711,   2753,   2845,   2878,   2886,   2925,   2935,   2940,   2948,
+                            2949,   3037,   3106,   3116,   3179,   3232,   3291,   3304,   3305,   3312,
+                            3339,   3354,   3408,   3868,   3912,   3921,   3929,   3934,   3949,   3975,
+                            3983,   4019,   4021,   4029,   4060,   4158,   4174,   4273,   4278,   4287,
+                            4306,   4321,   4442,   4467,   4510,   4557,   4558,   4591,   4624,   4630,
+                            4766,   4781,   4799,   4816,   4833,   4836,   4845,   4853,   4877,   4881,
+                            4902,   4913,   4939,   4957,   4991,   5005,   5025,   5064,   5068,   5078,
+                            5213,    411,    418,    488,    491,  15292,  15296,  15306,  42255,  50025,
+                            107987, 129802, 180997])
+stack_bin4_ID = np.asarray([2379,   2407,   2413,   2469,   2524,   2587,   2741,   2871,   2971,   3005,
+                            3085,   3147,   3194,   3209,   3211,   3219,   3316,   3555,   3557,   3603,
+                            3636,   3652,   3654,   3719,   3808,   4001,   4054,   4096,   4134,   4136,
+                            4194,   4220,   4235,   4292,   4329,   4398,   4495,   4544,   4625,   4626,
+                            4645,   4666,   4771,   4920,   5043,   5076,   5079,   5093,   5094,   5163,
+                            399,    505,  15297,  50021, 129821])
+stack_bin5_ID = np.asarray([2458,   2474,   2521,   2542,   2555,   2600,   2622,   2627,   2686,   2691,
+                            2788,   2793,   2847,   2893,   2895,   2901,   2974,   2988,   3050,   3059,
+                            3185,   3258,   3274,   3281,   3306,   3322,   3361,   3381,   3382,   3410,
+                            3482,   3492,   3511,   3608,   3627,   3705,   3711,   3744,   3761,   3794,
+                            3816,   3823,   3835,   3837,   3853,   3859,   3873,   3880,   3908,   3914,
+                            3937,   4020,   4074,   4112,   4118,   4122,   4127,   4196,   4211,   4212,
+                            4217,   4231,   4258,   4260,   4267,   4284,   4303,   4342,   4365,   4395,
+                            4420,   4441,   4449,   4488,   4585,   4692,   4707,   4716,   4728,   4778,
+                            4807,   4810,   4811,   4824,   4825,   4831,   4832,   4870,   4884,   4918,
+                            4934,   4940,   4982,   5007,   5012,   5041,   5100,   5139,   5148,   5155,
+                            489,  89309, 105728, 129814, 180999])
+stack_bin6_ID = np.asarray([2368,  2476,  2570,  2606,  2660,  2707,  2708,  2808,  2909,  3027,  3212,  3228,
+                            3268,  3376,  3487,  3544,  3610,  3633,  3660,  3709,  3726,  3862,  3865,  3915,
+                            4111,  4225,  4421,  4446,  4531,  4598,  4615,  4676,  4678,  4784,  4793,  4850,
+                            4851,  4915,  5106,   503, 50029])
+stack_bin7_ID = np.asarray([2445,   2516,   2533,   2637,   2654,   2706,   2729,   2829,   2936,   3070,
+                            3076,   3099,   3168,   3247,   3249,   3517,   3552,   3674,   3692,   3766,
+                            3768,   3800,   3803,   3822,   3836,   3946,   3953,   3965,   3967,   4059,
+                            4147,   4241,   4304,   4448,   4476,   4504,   4704,   4705,   4735,   4865,
+                            4998,   5101,   5158,   5162,   5211,    493,  89310, 107991, 129819])
+stack_bin8_ID = np.asarray([2685,   2748,   2774,   2795,   2931,   2964,   3129,   3201,   3296,   3451,
+                            3531,   4349,   4435,   4453,   4490,   4857,   4872,   5136,   5142,   5178,
+                            5185, 105703])
 bin_stack_out = []
 for i in range(len(out_ID)):
     if out_ID[i] in stack_bin1_ID:
@@ -1858,8 +2035,12 @@ for i in range(len(out_ID)):
         bin_stack_out.append(5)
     elif out_ID[i] in stack_bin6_ID:
         bin_stack_out.append(6)
-    else:
+    elif out_ID[i] in stack_bin7_ID:
         bin_stack_out.append(7)
+    elif out_ID[i] in stack_bin8_ID:
+        bin_stack_out.append(8)
+    else:
+        bin_stack_out.append(9)
 
 # print(bin_stack_out)
 bin_stack_out = np.asarray(bin_stack_out)
@@ -1873,7 +2054,7 @@ t = Table([ out_ID,field,out_SED_shape,out_z,out_x,out_y,out_frac_error,
             F025,F025_boot,F1,F1_boot,F6,F6_boot,F10,F10_boot,F100,F100_boot,F2,F2_boot,uv_slope,mir_slope1,mir_slope2,
             Lbol_out,Lbol_sub_out,Nh,UV_lum_out,OPT_lum_out,MIR_lum_out,FIR_lum_out,FIR_R_lum,Nh_check,abs_check,mix_x,mix_y,spec_class,check_sed,F24_out,bin_stack_out,F100_ratio,check_sed6],names=(h))
 
-t.write('/Users/connor_auge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6.fits',format='fits',overwrite=True)
+t.write('/Users/connor_auge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6_FINAL2.fits',format='fits',overwrite=True)
 
 
 

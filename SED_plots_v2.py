@@ -236,8 +236,8 @@ class Plotter():
         # Begin plot
         fig, ax = plt.subplots(figsize=(20,15))
         ax.set_aspect(1)
-        ax.set_xlabel(r'Rest Wavelength [$\mu$m]')
-        ax.set_ylabel(r'Normalized $\lambda$ L$_\lambda$')
+        ax.set_xlabel(r'Rest Wavelength [$\mu$m]',fontsize=22)
+        ax.set_ylabel(r'Normalized $\lambda$ L$_\lambda$',fontsize=22)
         ax.set_xscale('log')
         ax.set_yscale('log')
         ax.set_xticklabels([r'10$^{-4}$',r'10$^{-3}$','0.01','0.1','1.0','10','100'])
@@ -263,7 +263,7 @@ class Plotter():
         lc = self.multilines(x, y, L, lw=2.5, cmap=cmap, alpha=0.75, rasterized=True) 
         axcb1 = fig.colorbar(lc, fraction=0.046, pad=0.04)  # make colorbar
         axcb1.mappable.set_clim(clim1,clim2) # initialize colorbar limits
-        axcb1.set_label(r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]')
+        axcb1.set_label(r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]',fontsize=22)
 
         # plot data points for indvidual filters and optional point
         # ax.plot(x, y, 'x', color='k')
@@ -340,6 +340,9 @@ class Plotter():
             t1 = r'43 < log L$_{\rm X}$ < 43.75'
             t2 = r'43.75 < log L$_{\rm X}$ < 44.5'
             t3 = r'log L$_{\rm X}$ < 44.5'
+            z1 = self.z[b1]
+            z2 = self.z[b2]
+            z3 = self.z[b3]
 
         else:
             print('Specify bins. Options are: redshift,    field,    Lx')
@@ -406,6 +409,10 @@ class Plotter():
         ax1.set_yticks(yticks)
         ax1.set_xticklabels(xticks_labels)
         ax1.text(0.05,0.8,f'n = {len(x1)}',transform=ax1.transAxes)
+        if bin == 'redshift':
+            ax1.text(0.05,0.72,r'$L_{\rm X, med}$ = '+str(round(np.nanmedian(L1),2)),transform=ax1.transAxes)
+        if bin == 'Lx':
+            ax1.text(0.05,0.72,r'$z_{\rm med}$ = '+str(round(np.nanmedian(z1),2)),transform=ax1.transAxes)
         ax1.set_title(t1)
         ax1.grid()
         ax1.set_ylabel(r'Normalized $\lambda$ L$_\lambda$')
@@ -438,6 +445,10 @@ class Plotter():
         ax2.set_xticklabels(xticks_labels)
         ax2.set_yticklabels([])
         ax2.text(0.05, 0.8, f'n = {len(x2)}', transform=ax2.transAxes)
+        if bin == 'redshift':
+            ax2.text(0.05,0.72,r'$L_{\rm X, med}$ = '+str(round(np.nanmedian(L2),2)),transform=ax2.transAxes)
+        if bin == 'Lx':
+            ax2.text(0.05,0.72,r'$z_{\rm med}$ = '+str(round(np.nanmedian(z2),2)),transform=ax2.transAxes)
         ax2.set_title(t2)
         ax2.grid()
         ax2.set_xlabel(r'Rest Wavelength [$\mu$m]')
@@ -469,6 +480,10 @@ class Plotter():
         ax3.set_yticklabels([])
         ax3.set_xticklabels(xticks_labels)
         ax3.text(0.05, 0.8, f'n = {len(x3)}', transform=ax3.transAxes)
+        if bin == 'redshift':
+            ax3.text(0.05,0.72,r'$L_{\rm X, med}$ = '+str(round(np.nanmedian(L3),2)),transform=ax3.transAxes)
+        if bin == 'Lx':
+            ax3.text(0.05,0.72,r'$z_{\rm med}$ = '+str(round(np.nanmedian(z3),2)),transform=ax3.transAxes) 
         ax3.grid()
         ax3.set_title(t3)
 
@@ -880,7 +895,7 @@ class Plotter():
 
         if plot_temp:
             print(temp_y)
-            ax1.plot(temp_x,temp_y,color='gray',alpha=0.7,lw=5,label='Quasar Template')
+            ax1.plot(temp_x,temp_y,color='gray',alpha=0.7,lw=5,label='Assef et al. 2010 AGN')
 
         if bins == 'Lx_3':
             x_connect, y_connect = self.median_sed(median_x1, median_y1, Norm=False,connect_point=True,color=c3,lw=4,label=bin1_name)
@@ -924,10 +939,10 @@ class Plotter():
         ax1.set_ylabel(r'$\lambda$ L$_\lambda$ [erg/s]')
         ax1.set_xlabel(r'Rest Wavelength [$\mu$m]')
         secax1 = ax1.secondary_yaxis('right', functions=(self.solar, self.ergs))
-        secax1.set_yticks([9, 10, 11, 12, 13])
+        # secax1.set_yticks([9, 10, 11, 12, 13])
         secax1.set_ylabel(r'$\lambda$ L$_\lambda$ [L$_{\odot}$]')
         ax1.grid()
-        ax1.legend(loc='lower right',fontsize=24)
+        ax1.legend(loc='lower right',fontsize=21)
 
         # plt.tight_layout()
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
@@ -1345,12 +1360,29 @@ class Plotter():
         xmed4, ymed4 = np.nanmean(x[bx4]), np.nanmean(y[bx4])
         xmed5, ymed5 = np.nanmean(x[bx5]), np.nanmean(y[bx5])
 
+        # xmed1, ymed1 = np.nanmedian(x[bx1]), np.nanmedian(y[bx1])
+        # xmed2, ymed2 = np.nanmedian(x[bx2]), np.nanmedian(y[bx2])
+        # xmed3, ymed3 = np.nanmedian(x[bx3]), np.nanmedian(y[bx3])
+        # xmed4, ymed4 = np.nanmedian(x[bx4]), np.nanmedian(y[bx4])
+        # xmed5, ymed5 = np.nanmedian(x[bx5]), np.nanmedian(y[bx5])
+
         y1std1 = np.std(y[bx1])
         y1std2 = np.std(y[bx2])
         y1std3 = np.std(y[bx3])
         y1std4 = np.std(y[bx4])
         y1std5 = np.std(y[bx5])
-  
+
+        # y_per25_1 = ymed1 - np.nanpercentile(y[bx1],25) 
+        # y_per25_2 = ymed2 - np.nanpercentile(y[bx2],25) 
+        # y_per25_3 = ymed3 - np.nanpercentile(y[bx3],25) 
+        # y_per25_4 = ymed4 - np.nanpercentile(y[bx4],25) 
+        # y_per25_5 = ymed5 - np.nanpercentile(y[bx5],25) 
+
+        # y_per75_1 = np.nanpercentile(y[bx1],75) - ymed1 
+        # y_per75_2 = np.nanpercentile(y[bx2],75) - ymed2 
+        # y_per75_3 = np.nanpercentile(y[bx3],75) - ymed3 
+        # y_per75_4 = np.nanpercentile(y[bx4],75) - ymed4 
+        # y_per75_5 = np.nanpercentile(y[bx5],75) - ymed5   
 
         # xmed = np.array([xmed1,xmed2,xmed3,xmed4,xmed5])
         if X == 'Lbol':
@@ -1361,6 +1393,7 @@ class Plotter():
 
         xstd = np.array([0.25, 0.25, 0.25, 0.25, 0.25])
         y1std = np.array([y1std1, y1std2, y1std3, y1std4, y1std5])
+        # y1std = np.array([[y_per25_1,y_per75_1], [y_per25_2,y_per75_2], [y_per25_3,y_per75_3], [y_per25_4,y_per75_4], [y_per25_5,y_per75_5]]).T
 
         durras_K = Lit_functions.Durras_Lbol(np.arange(42,48,0.25),typ='Lbol')
         hopkins_K = Lit_functions.Hopkins_Lbol(np.arange(42,48,0.25),band='Lx')
@@ -1930,19 +1963,33 @@ class Plotter():
             ylim = [41, 47]
 
         # Set median points for X-axis bins
-        y1med1, y2med1, y3med1 = np.nanmean(y1[b1x1]), np.nanmean(y2[b2x1]), np.nanmean(y3[b3x1])
-        y1med2, y2med2, y3med2 = np.nanmean(y1[b1x2]), np.nanmean(y2[b2x2]), np.nanmean(y3[b3x2])
-        y1med3, y2med3, y3med3 = np.nanmean(y1[b1x3]), np.nanmean(y2[b2x3]), np.nanmean(y3[b3x3])
-        y1med4, y2med4, y3med4 = np.nanmean(y1[b1x4]), np.nanmean(y2[b2x4]), np.nanmean(y3[b3x4])
-        y1med5, y2med5, y3med5 = np.nanmean(y1[b1x5]), np.nanmean(y2[b2x5]), np.nanmean(y3[b3x5])
-        y1med6 = np.nanmean(y1[b1x6])
+        y1med1, y2med1, y3med1 = np.nanmedian(y1[b1x1]), np.nanmedian(y2[b2x1]), np.nanmedian(y3[b3x1])
+        y1med2, y2med2, y3med2 = np.nanmedian(y1[b1x2]), np.nanmedian(y2[b2x2]), np.nanmedian(y3[b3x2])
+        y1med3, y2med3, y3med3 = np.nanmedian(y1[b1x3]), np.nanmedian(y2[b2x3]), np.nanmedian(y3[b3x3])
+        y1med4, y2med4, y3med4 = np.nanmedian(y1[b1x4]), np.nanmedian(y2[b2x4]), np.nanmedian(y3[b3x4])
+        y1med5, y2med5, y3med5 = np.nanmedian(y1[b1x5]), np.nanmedian(y2[b2x5]), np.nanmedian(y3[b3x5])
+        y1med6 = np.nanmedian(y1[b1x6])
 
-        y1std1, y2std1, y3std1 = np.std(y1[b1x1]), np.std(y2[b2x1]), np.std(y3[b3x1]) 
-        y1std2, y2std2, y3std2 = np.std(y1[b1x2]), np.std(y2[b2x2]), np.std(y3[b3x2]) 
-        y1std3, y2std3, y3std3 = np.std(y1[b1x3]), np.std(y2[b2x3]), np.std(y3[b3x3]) 
-        y1std4, y2std4, y3std4 = np.std(y1[b1x4]), np.std(y2[b2x4]), np.std(y3[b3x4]) 
-        y1std5, y2std5, y3std5 = np.std(y1[b1x5]), np.std(y2[b2x5]), np.std(y3[b3x5]) 
-        y1std6 = np.std(y1[b1x6])
+        # y1std1, y2std1, y3std1 = np.std(y1[b1x1]), np.std(y2[b2x1]), np.std(y3[b3x1]) 
+        # y1std2, y2std2, y3std2 = np.std(y1[b1x2]), np.std(y2[b2x2]), np.std(y3[b3x2]) 
+        # y1std3, y2std3, y3std3 = np.std(y1[b1x3]), np.std(y2[b2x3]), np.std(y3[b3x3]) 
+        # y1std4, y2std4, y3std4 = np.std(y1[b1x4]), np.std(y2[b2x4]), np.std(y3[b3x4]) 
+        # y1std5, y2std5, y3std5 = np.std(y1[b1x5]), np.std(y2[b2x5]), np.std(y3[b3x5]) 
+        # y1std6 = np.std(y1[b1x6])
+
+        y1per25_1, y2per25_1, y3per25_1 = y1med1 - np.nanpercentile(y1[b1x1],25), y2med1 - np.nanpercentile(y2[b2x1],25), y3med1 - np.nanpercentile(y3[b3x1],25) 
+        y1per25_2, y2per25_2, y3per25_2 = y1med2 - np.nanpercentile(y1[b1x2],25), y2med2 - np.nanpercentile(y2[b2x2],25), y3med2 - np.nanpercentile(y3[b3x2],25) 
+        y1per25_3, y2per25_3, y3per25_3 = y1med3 - np.nanpercentile(y1[b1x3],25), y2med3 - np.nanpercentile(y2[b2x3],25), y3med3 - np.nanpercentile(y3[b3x3],25) 
+        y1per25_4, y2per25_4, y3per25_4 = y1med4 - np.nanpercentile(y1[b1x4],25), y2med4 - np.nanpercentile(y2[b2x4],25), y3med4 - np.nanpercentile(y3[b3x4],25) 
+        y1per25_5, y2per25_5, y3per25_5 = y1med5 - np.nanpercentile(y1[b1x5],25), y2med5 - np.nanpercentile(y2[b2x5],25), y3med5 - np.nanpercentile(y3[b3x5],25) 
+        y1per25_6 = np.nanpercentile(y1[b1x6],25)
+
+        y1per75_1, y2per75_1, y3per75_1 = np.nanpercentile(y1[b1x1],75) - y1med1, np.nanpercentile(y2[b2x1],75) - y2med1, np.nanpercentile(y3[b3x1],75) - y3med1 
+        y1per75_2, y2per75_2, y3per75_2 = np.nanpercentile(y1[b1x2],75) - y1med2, np.nanpercentile(y2[b2x2],75) - y2med2, np.nanpercentile(y3[b3x2],75) - y3med2 
+        y1per75_3, y2per75_3, y3per75_3 = np.nanpercentile(y1[b1x3],75) - y1med3, np.nanpercentile(y2[b2x3],75) - y2med3, np.nanpercentile(y3[b3x3],75) - y3med3 
+        y1per75_4, y2per75_4, y3per75_4 = np.nanpercentile(y1[b1x4],75) - y1med4, np.nanpercentile(y2[b2x4],75) - y2med4, np.nanpercentile(y3[b3x4],75) - y3med4 
+        y1per75_5, y2per75_5, y3per75_5 = np.nanpercentile(y1[b1x5],75) - y1med5, np.nanpercentile(y2[b2x5],75) - y2med5, np.nanpercentile(y3[b3x5],75) - y3med5 
+        y1per75_6 = np.nanpercentile(y1[b1x6],75)
 
         x1_good, y1_good = remove_outliers(x1,y1,[43,46])
         x2_good, y2_good = remove_outliers(x2,y2,[43,46])
@@ -1968,9 +2015,14 @@ class Plotter():
 
         xstd = np.array([0.25, 0.25, 0.25, 0.25, 0.25])
         x1std = np.array([0.25, 0.25, 0.25, 0.25, 0.25, 0.25])
-        y1std = np.array([y1std1, y1std2, y1std3, y1std4, y1std5, y1std6])
-        y2std = np.array([y2std1, y2std2, y2std3, y2std4, y2std5])
-        y3std = np.array([y3std1, y3std2, y3std3, y3std4, y3std5])
+        # y1std = np.array([y1std1, y1std2, y1std3, y1std4, y1std5, y1std6])
+        # y2std = np.array([y2std1, y2std2, y2std3, y2std4, y2std5])
+        # y3std = np.array([y3std1, y3std2, y3std3, y3std4, y3std5])
+
+        y1std = np.array([[y1per25_1,y1per75_1], [y1per25_2,y1per75_2], [y1per25_3,y1per75_3], [y1per25_4,y1per75_4], [y1per25_5,y1per75_5], [y1per25_6,y1per75_6]]).T
+        y2std = np.array([[y2per25_1,y2per75_1], [y2per25_2,y2per75_2], [y2per25_3,y2per75_3], [y2per25_4,y2per75_4], [y2per25_5,y2per75_5]]).T
+        y3std = np.array([[y3per25_1,y3per75_1], [y3per25_2,y3per75_2], [y3per25_3,y3per75_3], [y3per25_4,y3per75_4], [y3per25_5,y3per75_5]]).T
+
 
         stern_Lx = Lit_functions.Stern_MIR(np.arange(42, 48, 0.25))
         just_Lx = Lit_functions.Just_alpha_ox(np.arange(42, 48, 0.25))
@@ -1988,13 +2040,13 @@ class Plotter():
         if X == 'UV-MIR-FIR':
             ax1.plot(np.arange(42,48,0.25),just_Lx,color='b',label='Just 2007')
         # elif Y == 'UV-MIR-FIR':
-        ax1.plot(just_Lx,np.arange(42,48,0.25),color='b',label='Just 2007')
+        ax1.plot(just_Lx,np.arange(42,48,0.25),color='b',label='Just et al. 2007')
         ax1.scatter(x1,y1,color='k',marker='.',s=35,alpha=0.5,rasterized=True)
         if error:
             ax1.errorbar(x1,y1,xerr=x1err,color='k',lw=1,linestyle='')
         if median == 'X-axis' or median == 'Both':
             ax1.plot(x1med, y1med, marker='s', color='k',ms=10, markeredgecolor='white',linestyle='')
-            ax1.errorbar(x1med,y1med,xerr=x1std,yerr=y1std,color='k',markeredgecolor='white',linestyle='')
+            ax1.errorbar(x1med,y1med,xerr=x1std,yerr=y1std,color='k',markeredgecolor='white',linestyle='',lw=3)
         if X != 'Lx':
             secax1 = ax1.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
             secax1.set_xticks([9,10,11,12,13])
@@ -2008,13 +2060,21 @@ class Plotter():
         #     secax1.set_yticks([9,10,11,12,13])
         #     secax1.set_ylabel(ylabel+r' [L$_{\odot}$]')
         plot_fit(x1med,y1med,2,43,45.5,'k')
-        # plot_fit(x1[x1 < 44],y1[x1 < 44],1,42.5,44,'r')
-        # plot_fit(x1[x1 > 44], y1[x1 > 44],1,44,47,'purple')
+        # plot_fit(x1[y1 < 44],y1[y1 < 44],1,42.5,47,'r')
+        # plot_fit(x1[y1 > 44], y1[y1 > 44],1,42.5,47,'purple')
         # plot_fit(x1_good, y1_good, 2, 43, 45, 'orange')
         if compare:
             ax1.scatter(np.log10(comp_uv),comp_L,marker='X',c='r',s=100)
+        # plt.scatter(x1[shape == 1],y1[shape == 1],color='purple')
+        # plt.scatter(x1[shape == 2],y1[shape == 2],color='purple')
+        # print('here')
+        # plot_fit(x1[np.logical_or(shape == 1, shape == 2)],
+                #  y1[np.logical_or(shape == 1, shape == 2)], 1, 43, 45, 'r')
+        # plot_fit(x1[shape == 2],
+                #  y1[shape == 2], 1, 43, 45, 'r')
 
-        # plt.legend(fontsize=15)
+
+        plt.legend(fontsize=15)
 
         ax2 = plt.subplot(gs[1])#, aspect='equal', adjustable='box')
         ax2.set_xlim(xlim[0], xlim[1])
@@ -2035,7 +2095,7 @@ class Plotter():
             ax2.errorbar(x2,y2,xerr=x2err,color='k',lw=1,linestyle='')
         if median == 'X-axis' or median == 'Both':
             ax2.plot(x2med, y2med, marker='s', color='k',ms=10, markeredgecolor='white',linestyle='')
-            ax2.errorbar(x2med,y2med,xerr=xstd,yerr=y2std,color='k',markeredgecolor='white',linestyle='')
+            ax2.errorbar(x2med,y2med,xerr=xstd,yerr=y2std,color='k',markeredgecolor='white',linestyle='',lw=3)
         if X != 'Lx':
             secax2 = ax2.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
             secax2.set_xticks([9,10,11,12,13])
@@ -2052,7 +2112,7 @@ class Plotter():
         #     secax2.set_yticks([9,10,11,12,13])
         #     secax2.set_ylabel(ylabel+r' [L$_{\odot}$]')
 
-        plot_fit(x2med, y2med, 2, 43, 45.5, 'k')
+        plot_fit(x2med, y2med, 1, 43, 45.5, 'k')
         # ytest1 = 0.54824163*(np.arange(43, 45.5))+19.62959268
         # ytest2 = 1.0*np.arange(43, 45.5)
         # ax2.plot(np.arange(43,45.5),ytest1,color='b')
@@ -2063,7 +2123,7 @@ class Plotter():
         if compare:
             ax2.scatter(np.log10(comp_mir),comp_L,marker='X',c='r',s=100)
         # plot_fit(10**x2_good,10**y2_good,1,40,48,'orange')
-        # ax2.legend(fontsize=15)
+        ax2.legend(fontsize=15)
 
         ax3 = plt.subplot(gs[2])#, aspect='equal', adjustable='box')
         ax3.set_xlim(xlim[0], xlim[1])
@@ -2153,7 +2213,7 @@ class Plotter():
             ax3.errorbar(x3,y3,xerr=x3err,color='k',lw=1,linestyle='')
         if median == 'X-axis' or median == 'Both':
             ax3.plot(x3med, y3med, marker='s', color='k',ms=10, markeredgecolor='white',linestyle='')
-            ax3.errorbar(x3med, y3med, xerr=xstd, yerr=y3std,color='k', markeredgecolor='white', linestyle='')
+            ax3.errorbar(x3med, y3med, xerr=xstd, yerr=y3std,color='k', markeredgecolor='white', linestyle='',lw=3)
         if X != 'Lx':
             secax3 = ax3.secondary_xaxis('top', functions=(self.solar_log, self.ergs_log))
             secax3.set_xticks([9,10,11,12,13])
@@ -2653,9 +2713,9 @@ class Plotter():
         plt.ylim(0,max(n)+max(n)*0.1)
         plt.legend(fontsize=18)
 
-        print('bin 1: ',np.nanmean(x[b1]))
-        print('bin 2: ',np.nanmean(x[b2]))
-        print('bin 3: ',np.nanmean(x[b3]))
+        print('bin 1: ',np.nanmean(x[b1]),np.std(x[b1]))
+        print('bin 2: ',np.nanmean(x[b2]),np.std(x[b2]))
+        print('bin 3: ',np.nanmean(x[b3]),np.std(x[b3]))
 
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
@@ -3161,7 +3221,7 @@ class Plotter():
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
 
-    def Upanels_ratio(self,savestring,X,Y,Median,x,uv,mir,fir,norm,shape,up_check):
+    def Upanels_ratio(self,savestring,X,Y,Median,x,uv,mir,fir,norm,shape,up_check,field):
         b1 = (shape == 1)
         b2 = (shape == 2)
         b3 = (shape == 3)
@@ -3200,6 +3260,8 @@ class Plotter():
         y24 = y2[b4]
         y25 = y2[b5]
 
+        y3[y3 > 0.05] = np.nan
+
         y31 = y3[b1]
         y32 = y3[b2]
         y33 = y3[b3]
@@ -3211,6 +3273,12 @@ class Plotter():
         up_check3 = up_check[b3]
         up_check4 = up_check[b4]
         up_check5 = up_check[b5]
+
+        field1 = field[b1]
+        field2 = field[b2]
+        field3 = field[b3]
+        field4 = field[b4]
+        field5 = field[b5]
 
         x1med = np.nanmedian(x1)
         x2med = np.nanmedian(x2)
@@ -3300,17 +3368,23 @@ class Plotter():
 
         ax3 = plt.subplot(gs[2], aspect='equal', adjustable='box')
         if 'FIR' in Y:
-            ax3.scatter(x1[up_check1 == 1],y31[up_check1 == 1],c=c1,marker=2,rasterized=True,s=55,alpha=0.55)
-            ax3.scatter(x2[up_check2 == 1],y32[up_check2 == 1],c=c2,marker=2,rasterized=True,s=55,alpha=0.55)
-            ax3.scatter(x3[up_check3 == 1],y33[up_check3 == 1],c=c3,marker=2,rasterized=True,s=55,alpha=0.55)
-            ax3.scatter(x4[up_check4 == 1],y34[up_check4 == 1],c=c4,marker=2,rasterized=True,s=55,alpha=0.55)
-            ax3.scatter(x5[up_check5 == 1],y35[up_check5 == 1],c=c5,marker=2,rasterized=True,s=55,alpha=0.55)
+            ax3.scatter(x1[up_check1 == 1][field1[up_check1 == 1] == 'S82X'],y31[up_check1 == 1][field1[up_check1 == 1] == 'S82X'],c=c1,marker='x',rasterized=True,s=55,alpha=0.5)
+            ax3.scatter(x2[up_check2 == 1][field2[up_check2 == 1] == 'S82X'],y32[up_check2 == 1][field2[up_check2 == 1] == 'S82X'],c=c2,marker='x',rasterized=True,s=55,alpha=0.5)
+            ax3.scatter(x3[up_check3 == 1][field3[up_check3 == 1] == 'S82X'],y33[up_check3 == 1][field3[up_check3 == 1] == 'S82X'],c=c3,marker='x',rasterized=True,s=55,alpha=0.5)
+            ax3.scatter(x4[up_check4 == 1][field4[up_check4 == 1] == 'S82X'],y34[up_check4 == 1][field4[up_check4 == 1] == 'S82X'],c=c4,marker='x',rasterized=True,s=55,alpha=0.5)
+            ax3.scatter(x5[up_check5 == 1][field5[up_check5 == 1] == 'S82X'],y35[up_check5 == 1][field5[up_check5 == 1] == 'S82X'],c=c5,marker='x',rasterized=True,s=55,alpha=0.5)
 
-            ax3.scatter(x1[up_check1 == 1],y31[up_check1 == 1],c=c1,marker=11,rasterized=True,s=55,alpha=0.5)
-            ax3.scatter(x2[up_check2 == 1],y32[up_check2 == 1],c=c2,marker=11,rasterized=True,s=55,alpha=0.5)
-            ax3.scatter(x3[up_check3 == 1],y33[up_check3 == 1],c=c3,marker=11,rasterized=True,s=55,alpha=0.5)
-            ax3.scatter(x4[up_check4 == 1],y34[up_check4 == 1],c=c4,marker=11,rasterized=True,s=55,alpha=0.5)
-            ax3.scatter(x5[up_check5 == 1],y35[up_check5 == 1],c=c5,marker=11,rasterized=True,s=55,alpha=0.5)
+            ax3.scatter(x1[up_check1 == 1][field1[up_check1 == 1] != 'S82X'],y31[up_check1 == 1][field1[up_check1 == 1] != 'S82X'],c=c1,marker=2,rasterized=True,s=55,alpha=0.65)
+            ax3.scatter(x2[up_check2 == 1][field2[up_check2 == 1] != 'S82X'],y32[up_check2 == 1][field2[up_check2 == 1] != 'S82X'],c=c2,marker=2,rasterized=True,s=55,alpha=0.65)
+            ax3.scatter(x3[up_check3 == 1][field3[up_check3 == 1] != 'S82X'],y33[up_check3 == 1][field3[up_check3 == 1] != 'S82X'],c=c3,marker=2,rasterized=True,s=55,alpha=0.65)
+            ax3.scatter(x4[up_check4 == 1][field4[up_check4 == 1] != 'S82X'],y34[up_check4 == 1][field4[up_check4 == 1] != 'S82X'],c=c4,marker=2,rasterized=True,s=55,alpha=0.65)
+            ax3.scatter(x5[up_check5 == 1][field5[up_check5 == 1] != 'S82X'],y35[up_check5 == 1][field5[up_check5 == 1] != 'S82X'],c=c5,marker=2,rasterized=True,s=55,alpha=0.65)
+
+            ax3.scatter(x1[up_check1 == 1][field1[up_check1 == 1] != 'S82X'],y31[up_check1 == 1][field1[up_check1 == 1] != 'S82X'],c=c1,marker=11,rasterized=True,s=55,alpha=0.65)
+            ax3.scatter(x2[up_check2 == 1][field2[up_check2 == 1] != 'S82X'],y32[up_check2 == 1][field2[up_check2 == 1] != 'S82X'],c=c2,marker=11,rasterized=True,s=55,alpha=0.65)
+            ax3.scatter(x3[up_check3 == 1][field3[up_check3 == 1] != 'S82X'],y33[up_check3 == 1][field3[up_check3 == 1] != 'S82X'],c=c3,marker=11,rasterized=True,s=55,alpha=0.65)
+            ax3.scatter(x4[up_check4 == 1][field4[up_check4 == 1] != 'S82X'],y34[up_check4 == 1][field4[up_check4 == 1] != 'S82X'],c=c4,marker=11,rasterized=True,s=55,alpha=0.65)
+            ax3.scatter(x5[up_check5 == 1][field5[up_check5 == 1] != 'S82X'],y35[up_check5 == 1][field5[up_check5 == 1] != 'S82X'],c=c5,marker=11,rasterized=True,s=55,alpha=0.65)
 
             ax3.scatter(x1[up_check1 == 0],y31[up_check1 == 0],c=c1,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 1')
             ax3.scatter(x2[up_check2 == 0],y32[up_check2 == 0],c=c2,marker='P',lw=0,rasterized=True,s=55,alpha=0.8,label='Panel 2')
