@@ -6,7 +6,7 @@ from scipy import integrate
 
 
 
-inf = ascii.read('/Users/connor_auge/Desktop/A10_templates.txt')
+inf = ascii.read('/Users/connor_auge/Desktop/templets/A10_templates.txt')
 
 wave = np.asarray(inf['Wave'])
 wave_cgs = wave*1E-4
