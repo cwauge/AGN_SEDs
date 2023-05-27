@@ -55,8 +55,9 @@ class AGN():
         self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove flux values with frac error > 50%
         
         if data_replace_filt != 'None':
-            value_replace = self.data_replace([data_replace_filt])
-            self.flux_jy[self.filter_name == data_replace_filt] =  value_replace
+            for i in range(len(data_replace_filt)):
+                value_replace = self.data_replace([data_replace_filt[i]])
+                self.flux_jy[self.filter_name == data_replace_filt[i]] =  value_replace
 
         # convert flux from frequency space to wavelength
         self.Fnu = self.flux_jy*1E-23 # convert flux from Jy to cgs: erg s^-1 cm^-2 Hz^-1
@@ -169,25 +170,25 @@ class AGN():
 
         return slope
 
-    def SED_shape(self,Uv1=0.15,Uv2=1.0,Mir11=1.0,Mir12=6.5,Mir21=6.5,Mir22=10):
+    def SED_shape(self,Uv1=0.2,Uv2=1.0,Mir11=1.0,Mir12=6.,Mir21=6.0,Mir22=10):
         '''Find the "shape" of the SED as defined by 1 of 5 predefined bins'''
         uv_slope = self.Find_slope(Uv1, Uv2)  # Find the slope of the SED in the UV range
         mir_slope1 = self.Find_slope(Mir11, Mir12) # Find the slope of the SED in the NIR-MIR range
         mir_slope2 = self.Find_slope(Mir21, Mir22) # Find the slope of the SED in the MIR range
 
         # Pre-defined conditions. Check slope values to determine SED shape bin and return bin
-        if (uv_slope < -0.3) & (mir_slope1 >= -0.2):
+        if (uv_slope < -0.3) & (mir_slope1 >= -0.4):
             bin = 1
-        elif (uv_slope >= -0.3) & (uv_slope <= 0.2) & (mir_slope1 >= -0.2):
+        elif (uv_slope >= -0.3) & (uv_slope <= 0.21) & (mir_slope1 >= -0.4):
             bin = 2 
-        elif (uv_slope > 0.2) & (mir_slope1 >= -0.2):
+        elif (uv_slope > 0.21) & (mir_slope1 >= -0.4):
             bin = 3
-        elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 > 0.0):
+        elif (uv_slope > 0.21) & (mir_slope1 < -0.4) & (mir_slope2 > 0.0):
             bin = 4
-        elif (uv_slope >= -0.3) & (mir_slope1 < -0.2) & (mir_slope2 <= 0.0):
+        elif (uv_slope > 0.21) & (mir_slope1 < -0.4) & (mir_slope2 <= 0.0):
             bin = 5
         else:
-            bin = 6
+            bin = -99.
         self.shape = bin
         
         return bin
@@ -203,6 +204,11 @@ class AGN():
             norm_f = self.Find_value(norm_w) # Get normalization value
             # norm_lambdaL_lambda = self.lambdaL_lambda/norm_f # Normalize SED y values
             norm_lambdaL_lambda = self.nuL_nu/norm_f
+            for i in range(len(norm_lambdaL_lambda)):
+                if (self.rest_w_microns[i] > 0.25) & (self.rest_w_microns[i] < 1) & (norm_lambdaL_lambda[i] < 1E-2):
+                    norm_lambdaL_lambda[i] = np.nan
+                elif (self.rest_w_microns[i] > 0.5) & (self.rest_w_microns[i] < 1) & (norm_lambdaL_lambda[i] < 0.1):
+                    norm_lambdaL_lambda[i] = np.nan
         else: 
             # norm_lambdaL_lambda = self.lambdaL_lambda
             norm_lambdaL_lambda = self.nuL_nu
@@ -335,57 +341,83 @@ class AGN():
     def stack_FIR_set(self,fname):
         flux_upper = Filters('filter_list.dat').pull_filter(fname,'upper limit')*1E-6 # 3 sigma upper limits from the Filters read file
 
-        stack_bin1_ID = np.asarray([2667,   2700,   2731,   2803,   2846,   2873,   2960,   3015,   3029,   3092,
-                                    3131,   3171,   3318,   3335,   3398,   3485,   3504,   3739,   3783,   3840,
-                                    3851,   3854,   3939,   3976,   4007,   4034,   4053,   4214,   4222,   4290,
-                                    4295,   4387,   4414,   4592,   4596,   4739,   4898,   4964,   4991,   5062,
-                                    5089,   5135,   5143,   5172,    434,    514,    520,    521,  57494,  89316,
-                                    129885, 180988])
-        stack_bin2_ID = np.asarray([2387,   2446,   2471,   2522,   2635,   2673,   2675,   2693,   2716,   2728,
-                                    2782,   2811,   2831,   2886,   2906,   2935,   2940,   3053,   3106,   3232,
-                                    3241,   3246,   3264,   3312,   3327,   3354,   3427,   3488,   3540,   3547,
-                                    3626,   3647,   3708,   3763,   3810,   3831,   3846,   3861,   3872,   3921,
-                                    3979,   3982,   4010,   4021,   4028,   4029,   4051,   4073,   4087,   4139,
-                                    4179,   4194,   4236,   4272,   4278,   4407,   4418,   4422,   4424,   4437,
-                                    4512,   4558,   4747,   4758,   4853,   4867,   4877,   4913,   5087,   5151,
-                                    399,    418,    425,  15292,  15296,  57498, 129802, 129884, 180997])
-        stack_bin3_ID = np.asarray([2363,   2388,   2420,   2442,   2482,   2609,   2702,   2711,   2845,   2925,
-                                    2948,   2949,   3037,   3116,   3179,   3305,   3339,   3408,   3501,   3557,
-                                    3868,   3912,   3929,   3934,   3949,   3975,   3983,   4019,   4060,   4158,
-                                    4174,   4287,   4306,   4321,   4510,   4557,   4591,   4624,   4630,   4661,
-                                    4766,   4781,   4799,   4845,   4881,   4902,   4930,   4939,   5025,   5064,
-                                    5068,   5078,   5213,    411,    488,    491,  15306, 107987])
-        stack_bin4_ID = np.asarray([2379,   2407,   2413,   2524,   2587,   2741,   2871,   2971,   3005,   3147,
-                                    3194,   3209,   3211,   3219,   3316,   3603,   3636,   3652,   3654,   3719,
-                                    3808,   3903,   4001,   4054,   4096,   4134,   4136,   4220,   4235,   4329,
-                                    4398,   4495,   4544,   4625,   4626,   4645,   4666,   4771,   4920,   5043,
-                                    5076,   5093,   5094,   5163,  15297,  50021, 129821])
-        stack_bin5_ID = np.asarray([2517,   2814,   2893,  2901,   2914,   3027,   3274,   3306,   3361,   3381,
-                                    3482,   3492,   3511,  3711,   3816,   3835,   3837,   3853,   3880,   4020,
-                                    4211,   4212,   4231,  4258,   4284,   4303,   4365,   4420,   4446,   4746,
-                                    4825,   4832,   4870,  4884,   5158, 129814])
-        stack_bin6_ID = np.asarray([2368,   2445,   2470,   2476,   2545,   2570,   2606,   2637,   2707,   3076,
-                                    3099,   3249,   3268,   3487,   3517,   3552,   3726,   3766,   3822,   3862,
-                                    3865,   3937,   3967,   4111,   4147,   4241,   4676,   4704,   4735,   4784,
-                                    4793,   4865,   4980,   5106,   5211, 108045])
+        stack_bin1_ID = np.asarray([2387,   2667,   2700,   2731,   2803,   2832,   2846,   2850,   2868,   2873,
+                            2960,   3015,   3029,   3092,   3131,   3171,   3318,   3335,   3388,   3398,
+                            3485,   3504,   3739,   3783,   3840,   3851,   3854,   3936,   3939,   3976,
+                            4007,   4034,   4053,   4214,   4222,   4276,   4290,   4295,   4334,   4387,
+                            4409,   4414,   4592,   4596,   4602,   4739,   4747,   4898,   4964,   5028,
+                            5062,   5089,   5135,   5143,   5151,   5172,    417,    434,    492,    514,
+                            520,    521,  57494,  89316, 129876, 129885])
+        stack_bin2_ID = np.asarray([2360,   2463,   2471,   2525,   2563,   2598,   2635,   2693,   2728,   2782,
+                            2811,   2831,   2840,   2906,   3053,   3241,   3246,   3259,   3264,   3327,
+                            3427,   3488,   3540,   3547,   3626,   3628,   3647,   3708,   3763,   3810,
+                            3831,   3846,   3861,   3872,   3884,   3909,   3966,   3979,   3982,   4010,
+                            4028,   4031,   4051,   4073,   4087,   4139,   4159,   4264,   4272,   4407,
+                            4418,   4422,   4424,   4437,   4456,   4512,   4696,   4758,   4791,   4838,
+                            4867,   5031,   5087,    405,    425,  57498, 129884, 129887])
+        stack_bin3_ID = np.asarray([2363,   2388,   2420,   2442,   2446,   2482,   2522,   2536,   2673,   2675,
+                            2702,   2711,   2753,   2845,   2878,   2886,   2925,   2935,   2940,   2948,
+                            2949,   3037,   3106,   3116,   3179,   3232,   3291,   3304,   3305,   3312,
+                            3339,   3354,   3408,   3868,   3912,   3921,   3929,   3934,   3949,   3975,
+                            3983,   4019,   4021,   4029,   4060,   4158,   4174,   4273,   4278,   4287,
+                            4306,   4321,   4442,   4467,   4510,   4557,   4558,   4591,   4624,   4630,
+                            4766,   4781,   4799,   4816,   4833,   4836,   4845,   4853,   4877,   4881,
+                            4902,   4913,   4939,   4957,   4991,   5005,   5025,   5064,   5068,   5078,
+                            5213,    411,    418,    488,    491,  15292,  15296,  15306,  42255,  50025,
+                            107987, 129802, 180997])
+        stack_bin4_ID = np.asarray([2379,   2407,   2413,   2469,   2524,   2587,   2741,   2871,   2971,   3005,
+                            3085,   3147,   3194,   3209,   3211,   3219,   3316,   3555,   3557,   3603,
+                            3636,   3652,   3654,   3719,   3808,   4001,   4054,   4096,   4134,   4136,
+                            4194,   4220,   4235,   4292,   4329,   4398,   4495,   4544,   4625,   4626,
+                            4645,   4666,   4771,   4920,   5043,   5076,   5079,   5093,   5094,   5163,
+                            399,    505,  15297,  50021, 129821])
+        stack_bin5_ID = np.asarray([2458,   2474,   2521,   2542,   2555,   2600,   2622,   2627,   2686,   2691,
+                            2788,   2793,   2847,   2893,   2895,   2901,   2974,   2988,   3050,   3059,
+                            3185,   3258,   3274,   3281,   3306,   3322,   3361,   3381,   3382,   3410,
+                            3482,   3492,   3511,   3608,   3627,   3705,   3711,   3744,   3761,   3794,
+                            3816,   3823,   3835,   3837,   3853,   3859,   3873,   3880,   3908,   3914,
+                            3937,   4020,   4074,   4112,   4118,   4122,   4127,   4196,   4211,   4212,
+                            4217,   4231,   4258,   4260,   4267,   4284,   4303,   4342,   4365,   4395,
+                            4420,   4441,   4449,   4488,   4585,   4692,   4707,   4716,   4728,   4778,
+                            4807,   4810,   4811,   4824,   4825,   4831,   4832,   4870,   4884,   4918,
+                            4934,   4940,   4982,   5007,   5012,   5041,   5100,   5139,   5148,   5155,
+                            489,  89309, 105728, 129814, 180999])
+        stack_bin6_ID = np.asarray([2368,  2476,  2570,  2606,  2660,  2707,  2708,  2808,  2909,  3027,  3212,  3228,
+                            3268,  3376,  3487,  3544,  3610,  3633,  3660,  3709,  3726,  3862,  3865,  3915,
+                            4111,  4225,  4421,  4446,  4531,  4598,  4615,  4676,  4678,  4784,  4793,  4850,
+                            4851,  4915,  5106,   503, 50029])
+        stack_bin7_ID = np.asarray([2445,   2516,   2533,   2637,   2654,   2706,   2729,   2829,   2936,   3070,
+                            3076,   3099,   3168,   3247,   3249,   3517,   3552,   3674,   3692,   3766,
+                            3768,   3800,   3803,   3822,   3836,   3946,   3953,   3965,   3967,   4059,
+                            4147,   4241,   4304,   4448,   4476,   4504,   4704,   4705,   4735,   4865,
+                            4998,   5101,   5158,   5162,   5211,    493,  89310, 107991, 129819])
+        stack_bin8_ID = np.asarray([2685,   2748,   2774,   2795,   2931,   2964,   3129,   3201,   3296,   3451,
+                            3531,   4349,   4435,   4453,   4490,   4857,   4872,   5136,   5142,   5178,
+                            5185, 105703])
         if self.ID in stack_bin1_ID:
-            F250_upper_out = 10.59/1000
+            F250_upper_out = 7.98/1000
             # print('yes 1')
         elif self.ID in stack_bin2_ID:
-            F250_upper_out = 9.31/1000
+            F250_upper_out = 10.17/1000
             # print('yes 2')
         elif self.ID in stack_bin3_ID:
-            F250_upper_out = 8.38/1000
+            F250_upper_out = 6.12/1000
             # print('yes 3')        
         elif self.ID in stack_bin4_ID:
-            F250_upper_out = 8.10/1000
+            F250_upper_out = 9.14/1000
             # print('yes 4')
         elif self.ID in stack_bin5_ID:
-            F250_upper_out = 7.18/1000
+            F250_upper_out = 4.26/1000
             # print('yes 5')
         elif self.ID in stack_bin6_ID:
-            F250_upper_out = 13.93/1000
+            F250_upper_out = 14.93/1000
             # print('yes 6')
+        elif self.ID in stack_bin7_ID:
+            F250_upper_out = 9.92/1000
+            # print('yes 7')
+        elif self.ID in stack_bin8_ID:
+            F250_upper_out = 15.74/1000
+            # print('yes 8')
         else:
             F250_upper_out = flux_upper
 
@@ -519,7 +551,7 @@ class AGN():
     def check_SED(self,check_w,check_span=None):
         # Check for an observational data popint within check_span microns of a desired wavelength value (check_w)
         # If check span is not specified use 2 microns
-        max_w = check_w + 2 # 15 microns
+        max_w = check_w + 2.75 # 15 microns
         if check_span is None:
             min_w = check_w - 3 # 2 microns
         else:
@@ -528,6 +560,32 @@ class AGN():
         wave_range = (self.rest_w_microns <= max_w) & (self.rest_w_microns >= min_w)
         check_flux = self.flux_jy[wave_range] # get flux values in specified wavelength range
         
+        # Check for good data in wavelength range
+        if len(check_flux[np.isnan(check_flux)]) == len(check_flux):
+            check_return = 'BAD'
+        elif any(check_flux) > 0:
+            check_return = 'GOOD'
+        elif any(self.flux_jy_err[wave_range]) > 0:
+            check_return == 'GOOD'
+        else:
+            check_return == 'BAD'
+
+        return check_return
+    
+    def check_SED10(self, check_w, check_span=None):
+            # Check for an observational data popint within check_span microns of a desired wavelength value (check_w)
+            # If check span is not specified use 2 microns
+        max_w = check_w + 15  # 15 microns
+        if check_span is None:
+            min_w = check_w - 3  # 2 microns
+        else:
+            min_w = check_w - check_span
+
+        wave_range = (self.rest_w_microns <= max_w) & (
+            self.rest_w_microns >= min_w)
+        # get flux values in specified wavelength range
+        check_flux = self.flux_jy[wave_range]
+
         # Check for good data in wavelength range
         if len(check_flux[np.isnan(check_flux)]) == len(check_flux):
             check_return = 'BAD'
@@ -625,14 +683,15 @@ class AGN():
             RA
             DEC
             Lx
+            z
             Nh
             Lbol
             SED Shape
         '''
-        cols = ['Field','x_ID','phot_id','RAJ2000','DEJ2000','L0510_c','Nh','Lbol','SED_shape']
-        data = [field,xid,self.ID,ra,dec,Lx,Nh,self.Lbol,self.shape]
-
-        return cols, data
+        cols = ['Field','x_ID','phot_id','RAJ2000','DEJ2000','L0510_c','z_spec','Nh','Lbol','SED_shape']
+        data = [field,xid,int(self.ID),ra,dec,round(np.log10(Lx),3),self.z,round(np.log10(Nh),3),round(np.log10(self.Lbol),3),self.shape]
+        dtype_out = ['str','str','str','str','str','float','float','float','float','float']
+        return cols, data, dtype_out
 
     def output_phot(self,field,filtername_tot,filtername_field):
         '''
@@ -642,7 +701,7 @@ class AGN():
             Flux measurements and errors for all possible photometry bands 
         '''
         cols = np.asarray(['Field','phot_id'])
-        data = np.asarray([field,self.ID])
+        data = np.asarray([field,int(self.ID)])
         tot_flux_err_name = np.asarray([i+'_err' for i in filtername_tot])
         field_flux_err_name = np.asarray([i+'_err' for i in filtername_field])
         col_names = np.empty(filtername_tot.size+tot_flux_err_name.size, dtype=tot_flux_err_name.dtype)
@@ -657,8 +716,8 @@ class AGN():
         field_names[1::2] = field_flux_err_name
         # field_names = np.append(cols,field_names)
 
-        flux_err_data[0::2] = self.flux_jy
-        flux_err_data[1::2] = self.flux_jy_err
+        flux_err_data[0::2] = self.flux_jy*1E6
+        flux_err_data[1::2] = self.flux_jy_err*1E6
         # data = np.append(data,flux_err_data)
 
         data_in = np.zeros(col_names.size)
@@ -669,8 +728,17 @@ class AGN():
         data_out = self.match_filters(field_names, col_names, flux_err_data, data_in)
         cols_out = np.append(cols,col_names)
         data_out = np.append(data,data_out)
+        dtyps = []
+        for i in range(len(cols_out)):
+            if cols_out[i] == 'Field':
+                dtyps.append('str')
+            elif cols_out[i] == 'phot_id':
+                dtyps.append('str')
+            else:
+                dtyps.append('float')
+        dtype_out = np.asarray(dtyps)
 
-        return cols_out, data_out
+        return cols_out, data_out, dtype_out
 
     def match_filters(self,filter1,filter2,data1,data2):
         '''
@@ -689,12 +757,13 @@ class AGN():
 
         return data2
 
-    def write_output_file(self,fname,data_in,cols,opt='w'):
+    def write_output_file(self,fname,data_in,cols,dtype_in,opt='w'):
         '''
         Function to wirte a fits file of the data contained in the output functions
         '''
         cols = np.asarray(cols,dtype=str)
         data_in = np.asarray(data_in,dtype=str)
+        # print(cols)
         t = Table(data=data_in,names=cols)
 
         if 'w' in opt:
@@ -703,7 +772,8 @@ class AGN():
                 fdata = fin[1].data
                 fcols = fin[1].columns.names
                 fin.close()
-                tin = Table(data=fdata,names=fcols)
+                # print(np.shape(fdata),np.shape(fcols),np.shape(data_in))
+                tin = Table(data=fdata, names=fcols, dtype=(dtype_in))
                 tin.add_row(data_in)
 
                 tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
@@ -716,7 +786,7 @@ class AGN():
             fdata = fin[1].data
             fcols = fin[1].columns.names
             fin.close()
-            tin = Table(data=fdata,names=fcols)
+            tin = Table(data=fdata,names=fcols,dtype=(dtype_in))
             tin.add_row(data_in)
 
             tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
