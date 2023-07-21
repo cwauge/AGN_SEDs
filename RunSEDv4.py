@@ -363,7 +363,9 @@ chandra_cosmos_fx_full_match_mjy_int = chandra_cosmos_Fx_full_match_mjy/abs_corr
 chandra_cosmos_Fx_hard_match_mjy_int = chandra_cosmos_Fx_hard_match_mjy/abs_corr_use_h_match
 chandra_cosmos_Fx_soft_match_mjy_int = chandra_cosmos_Fx_soft_match_mjy/abs_corr_use_s_match
 
-cosmos_Fx_int_array = np.array([chandra_cosmos_Fx_hard_match_mjy, chandra_cosmos_Fx_soft_match_mjy]).T
+# cosmos_Fx_int_array = np.array([chandra_cosmos_Fx_hard_match_mjy.int, chandra_cosmos_Fx_soft_match_mjy.int]).T
+cosmos_Fx_int_array = np.array([chandra_cosmos_Fx_hard_match_mjy_int])
+
 # Create a 1D array of NaN that is the length of the number of COSMOS sources - used to create "blank" values in flux array
 cosmos_nan_array = np.zeros(np.shape(cosmos_laigle_id_match))
 cosmos_nan_array[cosmos_nan_array == 0] = np.nan
@@ -478,7 +480,7 @@ with fits.open(path+'Peca_S82X_full.fit') as hdul:
     peca2_data = hdul[1].data
 
 # WISE catalog with forced photometry on SLOAN sources
-unwise = ascii.read('/Users/connor_auge/Desktop/desktop_catalogs/unwise_matches.csv')
+unwise = ascii.read('/Users/connor_auge/Research/desktop_catalogs/unwise_matches.csv')
 unwise_ID = np.asarray(unwise['ID'])
 unwise_W1 = np.asarray(unwise['unW1'])
 unwise_W2 = np.asarray(unwise['unW2'])
@@ -1069,7 +1071,7 @@ plt.show()
 
 
 #### Read in Galaxy Templates ####
-temp = ascii.read('/Users/connor_auge/Desktop/templets/A10_templates.txt')
+temp = ascii.read('/Users/connor_auge/Research/templets/A10_templates.txt')
 temp_wave = np.asarray(temp['Wave'])
 temp_flux = np.asarray(temp['E'])*1E-16  # erg/s/cm^-2/Hz
 temp_wave_cgs = temp_wave*1E-8
@@ -1083,6 +1085,13 @@ temp_lum = temp_nuFnu*4*np.pi*dl_cgs**2
 scale_array = [1.12E44, 1.72E44, 2.27E44]
 ###################################
 
+#### Read in M82 Templates ####
+m82 = ascii.read('/Users/connor_auge/Research/templets/M82.csv')
+m82_wave = np.asarray(m82['wave'])
+m82_lum = np.asarray(m82['lum'])
+###################################
+
+
 
 # Print time taken to read in all files
 tfl = time.perf_counter()
@@ -1092,6 +1101,9 @@ print(f'Done with file reading ({tfl - ti:0.4f} second)')
 # Filters used in COSMOS field 
 COSMOS_filters = np.array(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'JVHS', 'H_FLUX_APER2',
                           'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+COSMOS_CIGALE_filters = np.array(['Fx_hard', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'JVHS', 'H_FLUX_APER2',
+                                  'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 
 # COSMOS_filters = np.array(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'G', 'R', 'I', 'Z', 'yHSC_FLUX_APER2', 'J_FLUX_APER2', 'H_FLUX_APER2',
 #                           'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500',
@@ -1121,11 +1133,11 @@ filter_GOODSS_total = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F
 filter_GOODS_total  = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F850LP', 'F098M','F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
 ###############################################################################
 ############################## Start CIGALE File ##############################
-cigale_name = 'AHA_sample_6/AHA_COSMOS_shape4_2.mag'
+cigale_name = 'AHA_sample_FINAL2/AHA_COSMOS_shape5_3.mag'
 # cigale_name = 'test_FIR_cosmos3.mag'
 inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
 header = np.asarray(['# id', 'redshift'])
-cigale_filters = Filters('filter_list.dat').pull_filter(COSMOS_filters, 'xcigale name')
+cigale_filters = Filters('filter_list.dat').pull_filter(COSMOS_CIGALE_filters, 'xcigale name')
 for i in range(len(cigale_filters)):
     header = np.append(header, cigale_filters[i])
     header = np.append(header, cigale_filters[i]+'_err')
@@ -1184,20 +1196,28 @@ check_sed6 = []
 F24_out = []
 F100_ratio =[]
 stack_bin = []
+
+Lbol_sf_sub_out = []
 ###############################################################################
 ###############################################################################
 ############################### Run COSMOS SEDs ###############################
 # '''
+nustar_id = np.asarray(
+    [215929, 317570, 338071, 348646, 397900, 420912, 450055, 452180, 486971, 487826, 494577, 508074, 529855, 567452, 572088, 589540, 609017, 635561, 662467, 859808, 919147])
+
 fill_nan = np.zeros(len(GOODSS_auge_filters)-len(COSMOS_filters))
 fill_nan[fill_nan == 0] = np.nan
 cigale_count = 0
 for i in range(len(chandra_cosmos_phot_id_match)):
 # for i in range(50):
-    # if chandra_cosmos_phot_id_match[i] == 222544:
+    # if chandra_cosmos_phot_id_match[i] in nustar_id:
         source = AGN(chandra_cosmos_phot_id_match[i], chandra_cosmos_z_match[i], COSMOS_filters, cosmos_flux_array[i], cosmos_flux_err_array[i])
         source.MakeSED(data_replace_filt=['FLUX_24'])
         source.FIR_extrap(['FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 
+        cosmos_flux_dict = source.MakeDict(COSMOS_filters,cosmos_flux_array[i])
+        cosmos_flux_err_dict = source.MakeDict(COSMOS_filters,cosmos_flux_err_array[i])
+        
         Lcheck = source.Lum_filter('FLUX_24')
         F24_out.append(Lcheck)
         stack_bin.append(7)
@@ -1237,7 +1257,14 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         f65 = source.Find_value(6.5)
 
         lbol = source.Find_Lbol()
-        lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
+        lbol_sub = source.Find_Lbol(sub=True,Lscale=scale_array, Lnorm=f1, temp_x=temp_wave, temp_y=temp_lum)
+        lbol_sf_sub = source.Find_Lbol(sub=True,Lscale=scale_array, Lnorm=f1, temp_x=m82_wave, temp_y=m82_lum)
+        # lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
+        # lbol_sf_sub = source.Find_Lbol_temp_sub(scale_array, f1, m82_wave, m82_lum)
+        # print(lbol,lbol_sub,lsbol_sf_sub)
+        # lbol_sf_sub = source.Find_Lbol(xmax=30)
+        # lbol_sf_sub, tx, ty, xsub, ysub = source.Find_Lbol_temp_sub(scale_array, f1, m82_wave, m82_lum,sed=True)
+        # print(np.log10(lbol),np.log10(lbol_sub),np.log10(lbol_sf_sub))
         # lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum, xmax=50)
         shape = source.SED_shape()
 
@@ -1279,6 +1306,7 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         # F2kev_boot.append(f2kev_boot)
         Lbol_out.append(lbol)
         Lbol_sub_out.append(lbol_sub)
+        Lbol_sf_sub_out.append(lbol_sf_sub)
         Nh.append(chandra_cosmos_Nh_match[i])
         Nh_check.append(cosmos_Nh_check[i])
         abs_check.append(check_abs_match[i])
@@ -1307,10 +1335,10 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         spec_class.append(chandra_cosmos_spec_type_match[i])
 
         # if check6 == 'GOOD':
-        # # # # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
-        # #     if shape == 3:
-        #         print(Id,check6,shape,up_check,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
-        #         plot.PlotSED(point_x=[0.2,1.0,6.,10,100],point_y=[f015/f1,f1/f1,f6/f1,f10/f1,f100/f1],fir_x = wfir, fir_y = ffir)
+        # # # # # #     print(shape, source.Find_slope(uv1,uv2), source.Find_slope(mir11, mir12), source.Find_slope(mir21, mir22))
+        # # #     if shape == 3:
+        # # print(Id,check6,shape,up_check,source.Find_slope(uv1, uv2),source.Find_slope(mir11, mir12),mir_slope2[i])
+        #     plot.PlotSED(point_x=[0.2,1.0,6.,10,100],point_y=[f015/f1,f1/f1,f6/f1,f10/f1,f100/f1],fir_x = wfir, fir_y = ffir,temp_x=tx,temp_y=ty)
 
 
         # if check6 == 'GOOD':
@@ -1354,23 +1382,41 @@ for i in range(len(chandra_cosmos_phot_id_match)):
             # source.Find_Lbol()
 
         if check6 == 'GOOD':
-            if shape == 4:
+            if shape == 5:
                 cigale_count += 1
-                if (cigale_count > 30) & (cigale_count <= 60):
+                if (cigale_count > 60) & (cigale_count <= 90):
                 # if cigale_count <= 30:
-                    # source.write_cigale_file(cigale_name,COSMOS_filters)
-                    source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
+                    source.write_cigale_file2(cigale_name, COSMOS_CIGALE_filters, cosmos_flux_dict, cosmos_flux_err_dict, int_fx=cosmos_Fx_int_array[0][i])
+                    # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
                 else:
                     continue
             else:
                 continue
         else:
-            continue    
+            continue
+
+        # if check6 == 'GOOD':
+        #     if shape == 4:
+        #         cigale_count += 1
+        #         if (cigale_count > 150) & (cigale_count <= 180):
+                # if cigale_count <= 30:
+                    # source.write_cigale_file(cigale_name,COSMOS_filters)
+                    # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
+        #         else:
+        #             continue
+        #     else:
+        #         continue
+        # else:
+            # continue
+
+    # else:
+        # continue    
     
 
 # '''
 tc = time.perf_counter()
 print(f'Done with COSMOS sources ({tc - tfl:0.4f} second)')
+
 
 ###############################################################################
 ###############################################################################
@@ -1437,7 +1483,11 @@ for i in range(len(s82x_id)):
             mix_y.append(hao_y)
 
             lbol = source.Find_Lbol()
-            lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
+            lbol_sub = source.Find_Lbol(sub=True,Lscale=scale_array, Lnorm=f1, temp_x=temp_wave, temp_y=temp_lum)
+            lbol_sf_sub = source.Find_Lbol(sub=True,Lscale=scale_array, Lnorm=f1, temp_x=m82_wave, temp_y=m82_lum)
+            # lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
+            # lbol_sf_sub = source.Find_Lbol_temp_sub(scale_array, f1, m82_wave, m82_lum)
+            # lbol_sf_sub = source.Find_Lbol(xmax=30)
             # lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum, xmax=50)
             shape = source.SED_shape()
 
@@ -1473,6 +1523,7 @@ for i in range(len(s82x_id)):
             # F2kev_boot.append(f2kev_boot)
             Lbol_out.append(lbol)
             Lbol_sub_out.append(lbol_sub)
+            Lbol_sf_sub_out.append(lbol_sf_sub)
             Nh.append(s82x_Nh[i])
             Nh_check.append(s82x_Nh_check[i])
             abs_check.append(0)
@@ -1514,7 +1565,7 @@ for i in range(len(s82x_id)):
             # if check6 == 'GOOD':
             #     if shape == 2:
             #         cigale_count += 1
-            #         if (cigale_count > 120) & (cigale_count <= 150):
+            #         if (cigale_count > 30) & (cigale_count <= 60):
             #         # if cigale_count <= 30:
             #             source.write_cigale_file(cigale_name, int_fx=s82x_Fx_int_array[i], use_int_fx=True)
             #         else:
@@ -1535,7 +1586,6 @@ for i in range(len(s82x_id)):
             #     source.write_output_file('AGN_photometry_s82x7.fits',data,cols,dtyp,'w')
 
             
-    
         except ValueError:
             continue
     # else:
@@ -1594,7 +1644,11 @@ for i in range(len(goodsN_auge_ID_match)):
 
 
     lbol = source.Find_Lbol()
-    lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
+    lbol_sub = source.Find_Lbol(sub=True,Lscale=scale_array, Lnorm=f1, temp_x=temp_wave, temp_y=temp_lum)
+    lbol_sf_sub = source.Find_Lbol(sub=True,Lscale=scale_array, Lnorm=f1, temp_x=m82_wave, temp_y=m82_lum)
+    # lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
+    # lbol_sf_sub = source.Find_Lbol_temp_sub(scale_array, f1, m82_wave, m82_lum)
+    # lbol_sf_sub = source.Find_Lbol(xmax=30)
     # lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum, xmax=50)
     shape = source.SED_shape()
 
@@ -1634,6 +1688,7 @@ for i in range(len(goodsN_auge_ID_match)):
     # F2kev_boot.append(f2kev_boot)
     Lbol_out.append(lbol)
     Lbol_sub_out.append(lbol_sub)
+    Lbol_sf_sub_out.append(lbol_sf_sub)
     Nh.append(goodsN_auge_Nh_match[i])
     Nh_check.append(goodsN_Nh_check[i])
     abs_check.append(0)
@@ -1749,8 +1804,12 @@ for i in range(len(goodsS_auge_ID_match)):
             mix_y.append(hao_y)
 
             lbol = source.Find_Lbol()
-            lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
-            lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum, xmax=50)
+            lbol_sub = source.Find_Lbol(sub=True,Lscale=scale_array, Lnorm=f1, temp_x=temp_wave, temp_y=temp_lum)
+            lbol_sf_sub = source.Find_Lbol(sub=True,Lscale=scale_array, Lnorm=f1, temp_x=m82_wave, temp_y=m82_lum)
+            # lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
+            # lbol_sf_sub = source.Find_Lbol_temp_sub(scale_array, f1, m82_wave, m82_lum)
+            # lbol_sf_sub = source.Find_Lbol(xmax=30)
+            # lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum, xmax=50)
             shape = source.SED_shape()
 
             Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
@@ -1782,6 +1841,7 @@ for i in range(len(goodsS_auge_ID_match)):
             # F2kev_boot.append(f2kev_boot)
             Lbol_out.append(lbol)
             Lbol_sub_out.append(lbol_sub)
+            Lbol_sf_sub_out.append(lbol_sf_sub)
             Nh.append(goodsS_auge_Nh_match[i])
             Nh_check.append(goodsS_Nh_check[i])
             abs_check.append(0)
@@ -1926,6 +1986,15 @@ check_sed6 = np.asarray(check_sed6)
 F24_out = np.asarray(F24_out)
 stack_bin = np.asarray(stack_bin)
 F100_ratio = np.asarray(F100_ratio)
+
+Lbol_sf_sub_out = np.asarray(Lbol_sf_sub_out)
+
+print(out_y)
+print(out_y.shape)
+print('check dtype: ',out_y.dtype)
+
+
+
 # values, base = np.histogram(FIR_lum_out[FIR_upper_lims == 1]/Lbol_out[FIR_upper_lims == 1], bins=40)
 # #evaluate the cumulative
 # cumulative = np.cumsum(values)
@@ -2045,16 +2114,20 @@ for i in range(len(out_ID)):
 # print(bin_stack_out)
 bin_stack_out = np.asarray(bin_stack_out)
 # print(len(bin_stack_out))
+print('Here: ')
+print(out_x)
+print('Check 1: ',type(out_ID),type(field),type(out_Lx),type(out_Lx[0]))
+print('Check 2: ',type(out_x),print(type(out_x[0])),print(out_x.dtype))
 
 h = np.asarray(['ID','field','shape','z','x','y','frac_err','Lx','Lx_hard','wfir','ffir','int_x','int_y','norm','FIR_upper_lims',
                 'F025','F025_boot','F1','F1_boot','F6','F6_boot','F10','F10_boot','F100','F100_boot','F2','F2_boot','uv_slope','mir_slope1','mir_slope2',
-                'Lbol','Lbol_sub','Nh','UV_lum','OPT_lum','MIR_lum','FIR_lum','FIR_R_lum','Nh_check','abs_check','mix_x','mix_y','spec_class','sed_check','F24_lum','stack_bin','F100_ratio','check6'])
+                'Lbol','Lbol_sub','Lbol_sf_sub','Nh','UV_lum','OPT_lum','MIR_lum','FIR_lum','FIR_R_lum','Nh_check','abs_check','mix_x','mix_y','spec_class','sed_check','F24_lum','stack_bin','F100_ratio','check6'])
 t = Table([ out_ID,field,out_SED_shape,out_z,out_x,out_y,out_frac_error,
             out_Lx,out_Lx_hard,wfir_out,ffir_out,int_x,int_y,norm,FIR_upper_lims,
             F025,F025_boot,F1,F1_boot,F6,F6_boot,F10,F10_boot,F100,F100_boot,F2,F2_boot,uv_slope,mir_slope1,mir_slope2,
-            Lbol_out,Lbol_sub_out,Nh,UV_lum_out,OPT_lum_out,MIR_lum_out,FIR_lum_out,FIR_R_lum,Nh_check,abs_check,mix_x,mix_y,spec_class,check_sed,F24_out,bin_stack_out,F100_ratio,check_sed6],names=(h))
+            Lbol_out,Lbol_sub_out,Lbol_sf_sub_out,Nh,UV_lum_out,OPT_lum_out,MIR_lum_out,FIR_lum_out,FIR_R_lum,Nh_check,abs_check,mix_x,mix_y,spec_class,check_sed,F24_out,bin_stack_out,F100_ratio,check_sed6],names=(h))
 
-t.write('/Users/connor_auge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6_FINAL2.fits',format='fits',overwrite=True)
+t.write('/Users/connor_auge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6_FINAL3.fits',format='fits',overwrite=True)
 
 
 
