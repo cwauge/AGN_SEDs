@@ -16,12 +16,12 @@ from match import match
 path = '/Users/connor_auge/Research/Disertation/catalogs/'
 # AHA_SEDs_out_good_1sig
 # AHA_SEDs_out_ALL
-with fits.open(path+'AHA_SEDs_out_ALL_F6_FINAL2.fits') as hdul:
+with fits.open(path+'AHA_SEDs_out_ALL_F6_FINAL3.fits') as hdul:
     cols = hdul[1].columns
     data = hdul[1].data 
 
 
-temps = ascii.read('/Users/connor_auge/Desktop/templets/A10_templates.txt')
+temps = ascii.read('/Users/connor_auge/Research/templets/A10_templates.txt')
 temp_wave = np.asarray(temps['Wave'])
 temp_flux_agn = np.asarray(temps['AGN2'])*1E-14
 temp_freq = 3E10/temp_wave
@@ -77,6 +77,7 @@ check_sed6 = data['check6']
 shape = data['shape'] #[field == 'S82X']
 Lbol = data['Lbol'] #[field == 'S82X']
 Lbol_sub = data['Lbol_sub'] #[field == 'S82X']
+Lbol_sf_sub = data['Lbol_sf_sub']
 
 Nh = data['Nh'] #[field == 'S82X']
 Nh_upper = data['Nh_check'] #[field == 'S82X']
@@ -112,6 +113,7 @@ FIR_upper_lims = FIR_upper_lims[sort]
 shape = shape[sort]
 Lbol = Lbol[sort]
 Lbol_sub = Lbol_sub[sort]
+Lbol_sf_sub = Lbol_sf_sub[sort]
 F025 = F025[sort]
 F1 = F1[sort]
 F6 = F6[sort]
@@ -390,7 +392,39 @@ def stern(mir):
 # plot.L_hist('a_six/a_final/Lbol_hist',np.log10(Lbol[GOOD_6]),r'Total log $L_{\rm bol}/({\rm erg \; s^{-1}})$',[43,47],[43,47,0.25],std=True,top_label=True,xlabel2=r'Total log $L_{\rm bol}/\rm{L_\odot}$')
 
 # Fig 11 (Lbol/Lx scatter)
-# plot.L_ratio_1panel('a_six/a_final/Lx_Lbol','Lbol','Lbol/Lx','X-axis',F1[GOOD_6],F025[GOOD_6],F6[GOOD_6],F100[GOOD_6],shape[GOOD_6],np.log10(Lbol_sub[GOOD_6]))
+# plt.figure(figsize=(6,6))
+# plt.plot(np.log10(Lbol[GOOD_6]), np.log10(Lbol_sub[GOOD_6]), '.')
+# plt.plot(np.arange(42,48),np.arange(42,48),color='k')
+# plt.xlabel('Lbol')
+# plt.ylabel('Lbol sub')
+# plt.show()
+
+# plt.figure(figsize=(6, 6))
+# plt.plot(np.log10(Lbol[GOOD_6]), np.log10(Lbol_sf_sub[GOOD_6]), '.')
+# plt.plot(np.arange(42, 48), np.arange(42, 48), color='k')
+# plt.xlabel('Lbol')
+# plt.ylabel('Lbol sub')
+# plt.show()
+
+# plt.figure(figsize=(6, 6))
+# plt.plot(np.log10(Lbol_sub[GOOD_6]), np.log10(Lbol_sf_sub[GOOD_6]), '.')
+# plt.plot(np.arange(42, 48), np.arange(42, 48), color='k')
+# plt.xlabel('Lbol')
+# plt.ylabel('Lbol sub')
+# plt.show()
+
+lbol_med2x = np.array([44.25, 44.75, 45.25, 45.75, 46.25])
+lbol_med2y = np.array([0.81489127, 1.0489582, 1.228792, 1.37900561, 1.98974862])
+lbol_med2xerr = np.array([0.25, 0.25, 0.25, 0.25, 0.25])
+lbol_med2yerr = np.array([0.34876941, 0.35842915, 0.40963542, 0.39048596, 1.47821504])
+
+plot.L_ratio_1panel('a_six/a_final/Lx_Lbol_full','Lbol','Lbol/Lx','X-axis',F1[GOOD_6],F025[GOOD_6],F6[GOOD_6],F100[GOOD_6],shape[GOOD_6],np.log10(Lbol[GOOD_6]))
+plot.L_ratio_1panel('a_six/a_final/Lx_Lbol_sub','Lbol','Lbol/Lx','X-axis',F1[GOOD_6],F025[GOOD_6],F6[GOOD_6],F100[GOOD_6],shape[GOOD_6],np.log10(Lbol_sub[GOOD_6]))
+plot.L_ratio_1panel('a_six/a_final/Lx_Lbol_sf_sub3','Lbol','Lbol/Lx','X-axis',F1[GOOD_6],F025[GOOD_6],F6[GOOD_6],F100[GOOD_6],shape[GOOD_6],np.log10(Lbol_sf_sub[GOOD_6]))
+plot.L_ratio_1panel('a_six/a_final/Lx_Lbol_both_sub','Lbol','Lbol/Lx','X-axis',F1[GOOD_6],F025[GOOD_6],F6[GOOD_6],F100[GOOD_6],shape[GOOD_6],np.log10(Lbol_sub[GOOD_6]),med2x=lbol_med2x,med2y=lbol_med2y,med2xerr=lbol_med2xerr,med2yerr=lbol_med2yerr)
+
+# plot.L_ratio_1panel('a_six/a_final/Lx_Lbol_cut','Lbol','Lbol/Lx','X-axis',F1[GOOD_6],F025[GOOD_6],F6[GOOD_6],F100[GOOD_6],shape[GOOD_6],np.log10(Lbol[GOOD_6]))
+
 # plot.L_ratio_1panel('a_new/Lx_Lbol_spec_type','Lbol','Lbol/Lx','X-axis',F1,F025,F6,F100,shape,np.log10(Lbol_sub),sample=True,spec_type=spec_type)
 
 # Fig 12
