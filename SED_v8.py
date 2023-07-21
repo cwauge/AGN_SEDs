@@ -34,6 +34,10 @@ class AGN():
 
         self.obs_w = Filters('filter_list.dat').pull_filter(self.filter_name,'central wavelength')
 
+    def MakeDict(self,list1,list2):
+        out_dict = {list1[i]:list2[i] for i in range(len(list1))}
+        return out_dict
+
     def MakeSED(self,data_replace_filt='None'):
         '''Function to make the SED in the restframe'''
         self.c = const.c.to('cm/s').value #speed of light in cgs
@@ -214,13 +218,11 @@ class AGN():
             norm_lambdaL_lambda = self.nuL_nu
 
         try:
-            # print('yes: ',self.ID)
             return self.ID, self.z, self.rest_w_microns, norm_lambdaL_lambda, self.flux_jy_err/self.flux_jy, self.upper_check
         except AttributeError:
-            # print('no: ', self.ID)
             return self.ID, self.z, self.rest_w_microns, norm_lambdaL_lambda, self.flux_jy_err/self.flux_jy
 
-    def Find_Lbol(self,xin=None,yin=None,xmax=None):
+    def calc_Lbol(self,xin=None,yin=None,xmax=None,sub=False,Lscale=None,Lnorm=None,temp_x=None,temp_y=None,Data=True):
         if xin is None:
             x = self.rest_w_microns*1E-4
             y = self.nuL_nu
@@ -228,42 +230,68 @@ class AGN():
             x = xin*1E-4
             y = yin
 
-        x = np.append(x, self.FIR_wave*1E-4)
-        y = np.append(y, self.FIR_lambdaL_lambda)
+        if Data:
+            x = np.append(x, self.FIR_wave*1E-4)
+            y = np.append(y, self.FIR_lambdaL_lambda)
         sort = x.argsort()
         x,y = x[sort], y[sort]
 
         if xmax != None:
             y = y[x < xmax*1E-4]
-            x = x[x < xmax*1E-4]        
+            x = x[x < xmax*1E-4]    
 
+        if sub:
+            y_sub = self.Find_Lbol_temp_sub(Lscale,Lnorm,temp_x,temp_y,x,y)
+            y = y_sub
+            
         x = np.log10(x[~np.isnan(y)])
         y = np.log10(y[~np.isnan(y)])
 
-        self.Lbol_interp = interpolate.interp1d(x,y,kind='linear',fill_value='extrapolate')
+        self.Lbol_interp = interpolate.interp1d(x[y>0],y[y>0],kind='linear',fill_value='extrapolate')
 
         x_interp = np.linspace(min(x),max(x))
         y_interp = 10**self.Lbol_interp(x_interp)
 
-        # plt.figure(figsize=(8,8))
-        # plt.title(self.ID)
-        # plt.plot(10**x_interp*1E4,y_interp)
-        # plt.xscale('log')
-        # plt.yscale('log')
-        # plt.show()
+        # if ~sub:
+        #     plt.figure(figsize=(8,8))
+        #     plt.title(self.ID)
+        #     plt.plot(10**x_interp*1E4,y_interp)
+        #     plt.xscale('log')
+        #     plt.yscale('log')
+        #     plt.show()
 
         x_interp, y_interp = x_interp[::-1], y_interp[::-1]
 
         freq = self.c/10**x_interp
         y_interp = y_interp/freq
 
-        self.Lbol = integrate.trapz(y_interp,freq)
-        # print(self.Lbol)
+        Lbol = integrate.trapz(y_interp,freq)
+        # if sub:
+        #     return Lbol_sub
+        # else:
+        return Lbol
 
-        return self.Lbol
+    def Find_Lbol(self, xmax=None, xin=None, yin=None, sub=False, Lscale=None, Lnorm=None, temp_x=None, temp_y=None, Data=True):
+        if xmax == None:
+            if sub:
+                Lbol = self.calc_Lbol(Lscale=Lscale,Lnorm=Lnorm,temp_x=temp_x,temp_y=temp_y,sub=True)
+                return Lbol
+            else:
+                self.Lbol = self.calc_Lbol()
+                return self.Lbol
+        else:
+            if sub:
+                Lbol = self.calc_Lbol(Lscale=Lscale,Lnorm=Lnorm,temp_x=temp_x,temp_y=temp_y,sub=True)
+                return Lbol
+            else:
+                self.Lbol = self.calc_Lbol(xmax=xmax)
+                return self.Lbol
 
-    def Find_Lbol_temp_sub(self,scale_L,Lnorm,temp_x,temp_y,xmax=None):
-        Lone_temp = temp_y[temp_x == 1.0050][0]
+    def Find_Lbol_temp_sub(self,scale_L,Lnorm,temp_x,temp_y,x,y,xmax=None, sed=False, redshift=False):
+        try:
+            Lone_temp = temp_y[temp_x == 1.0050][0]
+        except IndexError:
+            Lone_temp = temp_y[np.round(temp_x, 5) == 1.0][0]
         if self.z <= 0.6:
             if Lnorm < scale_L[0]:
                 scale = Lnorm/Lone_temp
@@ -279,17 +307,30 @@ class AGN():
                 scale = Lnorm/Lone_temp
             else:
                 scale = scale_L[2]/Lone_temp
+        
+            # if redshift:
+            #     scale = 1
+            #     flux_y = self.Lum_to_Flux(temp_y,0.0009)
+            #     temp_y = self.Flux_to_Lum(flux_y, self.z)
+            # else:
+                
+                # scale = Lnorm/Lone_temp
         scale_y = temp_y*scale
 
-        temp_interp = interpolate.interp1d(np.log10(temp_x), np.log10(scale_y),kind='linear',fill_value='extrapolate')
-        y_interp = 10**temp_interp(np.log10(self.rest_w_microns))
+        temp_interp = interpolate.interp1d(np.log10(temp_x*1E-4), np.log10(scale_y),kind='linear',fill_value='extrapolate')
+        y_interp = 10**temp_interp(np.log10(x))
+        # Lbol_temp = self.calc_Lbol(xin=self.rest_w_microns[y_interp > 0],yin=y_interp[y_interp > 0],Data=False)
+        # return self.Lbol - Lbol_temp
 
-        y_sub = self.nuL_nu - y_interp
-
-        if xmax is None:
-            return self.Find_Lbol(xin=self.rest_w_microns[y_sub > 0], yin=y_sub[y_sub > 0])
-        else:
-            return self.Find_Lbol(xin=self.rest_w_microns[y_sub > 0], yin=y_sub[y_sub > 0],xmax=xmax)
+        y_sub = y - y_interp
+        return y_sub
+        # return self.calc_Lbol(xin=x[y_sub > 0], yin=y_sub[y_sub > 0])
+        # if sed:
+        #     return self.Find_Lbol(xin=x[y_sub > 0], yin=y_sub[y_sub > 0]), temp_x, scale_y, self.rest_w_microns, y_sub
+        # # if xmax is None:
+        #     # return self.Find_Lbol(xin=self.rest_w_microns[y_sub > 0], yin=y_sub[y_sub > 0])
+        # else:
+        #     return self.Find_Lbol(xin=x[y_sub > 0], yin=y_sub[y_sub > 0],xmax=xmax)
 
     def find_Lum_range(self,xmin,xmax):
         x = np.log10(self.rest_w_cgs[~np.isnan(self.lambdaL_lambda)])
@@ -652,6 +693,18 @@ class AGN():
         L = F*4*np.pi*dl_cgs**2
 
         return L
+    
+    def Lum_to_Flux(self, L, z):
+        '''Function to convert flux to luminosity'''
+        cosmo = FlatLambdaCDM(H0=70, Om0=0.29, Tcmb0=2.725)
+
+        dl = cosmo.luminosity_distance(z).value  # Distance in Mpc
+        dl_cgs = dl*(3.0856E24)  # Distance from Mpc to cm
+
+        # convert flux to luminosity
+        F = L/(4*np.pi*dl_cgs**2)
+
+        return F
 
     def mix_loc(self,xrange,yrange):
         fi_x = self.Find_value(xrange[0])
@@ -763,7 +816,6 @@ class AGN():
         '''
         cols = np.asarray(cols,dtype=str)
         data_in = np.asarray(data_in,dtype=str)
-        # print(cols)
         t = Table(data=data_in,names=cols)
 
         if 'w' in opt:
@@ -790,6 +842,40 @@ class AGN():
             tin.add_row(data_in)
 
             tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
+
+    def write_cigale_file2(self,fname,filts,flux_dict,flux_dict_err,int_fx=[np.nan]):
+        upper_lims = Filters('filter_list.dat').pull_filter(filts,'upper limit')/1E3
+        region = Filters('filter_list.dat').pull_filter(filts,'wavelength range')
+
+        header = np.asarray(['# id','redshift'])
+
+        data = np.asarray([str(self.ID),self.z])
+        for i in range(len(filts)):
+            if filts[i] == 'Fx_hard':
+                data = np.append(data, int_fx)
+                data = np.append(data, flux_dict_err[filts[i]]/1E3)
+            elif flux_dict[filts[i]] > 0:
+                data = np.append(data, flux_dict[filts[i]]/1E3)
+                data = np.append(data, flux_dict_err[filts[i]]/1E3)
+
+            elif flux_dict[filts[i]] <= 1E-20:
+                data = np.append(data, upper_lims[i])
+                data = np.append(data, -9000.)
+
+            elif np.isnan(flux_dict[filts[i]]):
+                if region[i] == 'FIR':
+                    data = np.append(data, upper_lims[i])
+                    data = np.append(data, -9000.)
+                else:
+                    data = np.append(data, -9999.)
+                    data = np.append(data, -9999.)
+            else:
+                data = np.append(data, -9999.)
+                data = np.append(data, -9999.)
+
+        with open(f'../xcigale/data_input/{fname}', 'ab') as f:
+            f.write(b'\n')
+            np.savetxt(f, data, fmt='%s', delimiter='    ', newline=' ')
 
     def write_cigale_file(self,fname,int_fx=[np.nan,np.nan],use_int_fx=True,use_upper=False):
         upper_lims = Filters('filter_list.dat').pull_filter(self.filter_name,'upper limit')/1E3
