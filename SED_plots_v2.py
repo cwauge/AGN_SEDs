@@ -167,7 +167,7 @@ class Plotter():
         if fill:
             plt.fill_between(x_out, y_out_25, y_out_75, color=color, alpha=0.15)
    
-    def PlotSED(self,point_x=np.nan,point_y=np.nan,fir_x=[np.nan],fir_y=[np.nan],save=False):
+    def PlotSED(self,point_x=np.nan,point_y=np.nan,fir_x=[np.nan],fir_y=[np.nan],temp_x=[np.nan],temp_y=[np.nan],xsub=[np.nan],ysub=[np.nan],save=False):
         fig, ax = plt.subplots(figsize=(12,8))
         ax.plot(self.wavelength,self.Lum,color='b',lw=2.5)
 
@@ -177,6 +177,10 @@ class Plotter():
         if any(fir_y) != np.nan:
             ax.plot(fir_x, fir_y/self.norm, color='gray',lw=4)
             ax.plot(fir_x, fir_y, 'o',color='b')
+        ax.plot(temp_x,temp_y/self.norm,color='orange')
+        ax.plot(xsub,ysub/self.norm,color='black')
+        # print(xsub)
+        # print(ysub/self.norm)
 
         ax.set_xlabel(r'Rest Wavelength [$\mu$m]',fontsize=22)
         ax.set_ylabel(r'$\lambda$L$_\lambda$',fontsize=22)
@@ -1262,7 +1266,7 @@ class Plotter():
         plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
         plt.show()
 
-    def L_ratio_1panel(self,savestring,X,Y,median,F1,uv,mir,fir,shape,L=None,compare=False,comp_x=None,comp_y=None,sample=False,spec_type=[np.nan]):
+    def L_ratio_1panel(self,savestring,X,Y,median,F1,uv,mir,fir,shape,L=None,compare=False,comp_x=None,comp_y=None,sample=False,spec_type=[np.nan],med2x=[np.nan],med2y=[np.nan],med2xerr=[np.nan],med2yerr=[np.nan]):
         '''Function to plot the ratio of two luminosites as a function of the denominator'''
         bs1 = shape == 1
         bs2 = shape == 2
@@ -1423,6 +1427,10 @@ class Plotter():
         if median == 'X-axis' or median == 'Both':
             ax1.plot(xmed, ymed, marker='s', color='k', ms=12, linestyle='')
             ax1.errorbar(xmed, ymed, xerr=xstd, yerr=y1std, color='k', linestyle='')
+
+            ax1.plot(med2x, med2y, marker='o', color='k', ms=12, linestyle='',alpha=0.5)
+            ax1.errorbar(med2x, med2y, xerr=med2xerr, yerr=med2yerr, color='k', linestyle='',alpha=0.5)
+
             # plot_fit(xmed,ymed,2,44,46.5)
 
         if compare:
@@ -1433,7 +1441,7 @@ class Plotter():
         ax1.legend(fontsize=15)
 
         # plt.tight_layout()
-        plt.savefig(f'/Users/connor_auge/Desktop/Final_Plots/{savestring}.pdf')
+        plt.savefig(f'/Users/connor_auge/Research/Disertation/AGN_SEDs/AHA_SED_paper1/Final_Plots/{savestring}.pdf')
         plt.show()
 
     def L_scatter_3panels(self, savestring, X, Y, median, F1, uv, mir, fir, shape, L=None, uv_err=None, mir_err=None, fir_err=None, error=False, compare=False, comp_L=None, comp_uv=None, comp_mir=None, comp_fir=None, stack_color=False, stack_bins=None, F100_ratio=None, field=None, fir_field=False):
