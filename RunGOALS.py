@@ -98,10 +98,10 @@ goals_nan_array = np.zeros(np.shape(U_phot_data['HX'][iy]))
 goals_nan_array[goals_nan_array == 0] = np.nan
 
 U_goals_flux = np.asarray([
-    # ricci_Fx_hard_match_mjy_U*1000,
-    # ricci_Fx_soft_match_mjy_U*1000,
-    U_phot_data['HX'][iy]*1E6,
-    U_phot_data['SX'][iy]*1E6,
+    ricci_Fx_hard_match_mjy_U*1000,
+    ricci_Fx_soft_match_mjy_U*1000,
+    # U_phot_data['HX'][iy]*1E6,
+    # U_phot_data['SX'][iy]*1E6,
     goals_nan_array,
     U_phot_data['FUV'][iy]*1E6,
     U_phot_data['NUV'][iy]*1E6,
@@ -133,10 +133,10 @@ U_goals_flux = np.asarray([
 ])
 
 U_goals_flux_err = np.asarray([
-    # ricci_Fx_hard_match_mjy_U*1000*0.2,
-    # ricci_Fx_soft_match_mjy_U*1000*0.2,
-    U_phot_data['HXerr'][iy]*1E6,
-    U_phot_data['SXerr'][iy]*1E6,
+    ricci_Fx_hard_match_mjy_U*1000*0.2,
+    ricci_Fx_soft_match_mjy_U*1000*0.2,
+    # U_phot_data['HXerr'][iy]*1E6,
+    # U_phot_data['SXerr'][iy]*1E6,
     goals_nan_array,
     U_phot_data['FUVerr'][iy]*1E6,
     U_phot_data['NUVerr'][iy]*1E6,
@@ -198,10 +198,10 @@ goals_nan_array[goals_nan_array == 0] = np.nan
 # print(Ned_phot_data['Fx_h'][iy])
 
 Ned_goals_flux = np.asarray([
-    # ricci_Fx_hard_match_mjy_Ned*1000,
-    # ricci_Fx_soft_match_mjy_Ned*1000,
-    np.asarray(Ned_phot_data['Fx_h'][iy],dtype=float)*1E6,
-    np.asarray(Ned_phot_data['Fx_s'][iy],dtype=float)*1E6,
+    ricci_Fx_hard_match_mjy_Ned*1000,
+    ricci_Fx_soft_match_mjy_Ned*1000,
+    # np.asarray(Ned_phot_data['Fx_h'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['Fx_s'][iy],dtype=float)*1E6,
     goals_nan_array,
     np.asarray(Ned_phot_data['FUV'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['NUV'][iy],dtype=float)*1E6,
@@ -233,10 +233,10 @@ Ned_goals_flux = np.asarray([
 ])
 
 Ned_goals_flux_err = np.asarray([
-    # ricci_Fx_hard_match_mjy_Ned*1000*0.2,
-    # ricci_Fx_soft_match_mjy_Ned*1000*0.2,
-    np.asarray(Ned_phot_data['Fx_h'][iy],dtype=float)*1E6*0.2,
-    np.asarray(Ned_phot_data['Fx_s'][iy],dtype=float)*1E6*0.2,
+    ricci_Fx_hard_match_mjy_Ned*1000*0.2,
+    ricci_Fx_soft_match_mjy_Ned*1000*0.2,
+    # np.asarray(Ned_phot_data['Fx_h'][iy],dtype=float)*1E6*0.2,
+    # np.asarray(Ned_phot_data['Fx_s'][iy],dtype=float)*1E6*0.2,
     goals_nan_array,
     np.asarray(Ned_phot_data['FUVerr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['NUVerr'][iy],dtype=float)*1E6,
@@ -273,7 +273,7 @@ Ned_goals_flux_err = Ned_goals_flux_err.T
 
 
 #### Read in Galaxy Templates ####
-temp = ascii.read('/Users/connor_auge/Desktop/templets/A10_templates.txt')
+temp = ascii.read('/Users/connor_auge/Research/templets/A10_templates.txt')
 temp_wave = np.asarray(temp['Wave'])
 temp_flux = np.asarray(temp['E'])*1E-16  # erg/s/cm^-2/Hz
 temp_wave_cgs = temp_wave*1E-8
@@ -443,7 +443,8 @@ for i in range(len(ricci_ID_match_Ned)):
         f2kev = source.Find_value(6.1992e-4)
 
         lbol = source.Find_Lbol()
-        lbol_sub = source.Find_Lbol_temp_sub(scale_array, f1, temp_wave, temp_lum)
+        lbol_sub = source.Find_Lbol(sub=True, Lscale=scale_array, Lnorm=f1, temp_x=temp_wave, temp_y=temp_lum)
+
         shape = source.SED_shape()
 
         Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
@@ -602,22 +603,22 @@ cigale_Lx_goals = np.asarray([2.80337802e+43, 1.84189379e+44, 2.29516011e+43, 2.
 
 # AHA_plot2.Upanels_ratio_plots('GOALS_figs/Lum_Lbol','Lbol','UV-MIR-FIR/Lbol','Bins',aha_Nh,aha_Lx,np.log10(aha_Lbol),np.log10(aha_UV_lum),np.log10(aha_MIR_lum),np.log10(aha_FIR_lum),np.log10(aha_F025),np.log10(aha_F6),np.log10(aha_F100),np.log10(aha_F10),aha_F1,aha_field,aha_z,aha_uv_slope,aha_mir_slope1,aha_mir_slope2,aha_FIR_upper_lims,shape=aha_shape,Nh_upper=aha_Nh_check,compare=True,comp_L=np.log10(Lbol_ulirg_sub),comp_UV=np.log10(uv_lum_ulirg),comp_MIR=np.log10(mir_lum_ulirg),comp_FIR=np.log10(fir_lum_ulirg))
 
-# fig = plt.figure(figsize=(10, 8))
-# ax1 = plt.subplot(111, aspect='equal', adjustable='box')
-# pts = plt.scatter(np.log10(ulirg_Nh_out),ulirg_Lx_corr_out-ulirg_Lx_out, c=ulirg_LIR_out, edgecolor='k', s=100)
-# axcb = fig.colorbar(pts)  # make colorbar
-# axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits Lir
-# axcb.set_label(label=r'log $L_{\rm IR}/L_{\odot}$')
-# plt.xlabel(r'log $N_{\rm H}$ [cm$^{-2}$]')
-# plt.ylabel(r'log $K_{\rm corr}$')
-# # plt.plot(np.arange(40, 47), np.arange(40, 47), color='k')
-# plt.xlim(22, 25.5)
-# plt.ylim(-0.25, 3.25)
-# ax1.set_xticks([22, 23, 24, 25])
-# ax1.set_yticks([0.0, 1.0, 2.0, 3.0])
-# plt.grid()
-# plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/GOALS_figs/Kcorr_Nh.pdf')
-# plt.show()
+fig = plt.figure(figsize=(10, 8))
+ax1 = plt.subplot(111, aspect='equal', adjustable='box')
+pts = plt.scatter(np.log10(ulirg_Nh_out[np.log10(ulirg_Nh_out) > 23]),ulirg_Lx_corr_out[np.log10(ulirg_Nh_out) > 23]-ulirg_Lx_out[np.log10(ulirg_Nh_out) > 23], c=ulirg_LIR_out[np.log10(ulirg_Nh_out) > 23], edgecolor='k', s=100)
+axcb = fig.colorbar(pts)  # make colorbar
+axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits Lir
+axcb.set_label(label=r'log $L_{\rm IR}/L_{\odot}$')
+plt.xlabel(r'log $N_{\rm H}$ [cm$^{-2}$]')
+plt.ylabel(r'log L$_{\rm X,int}$/L$_{\rm X,obs}$')
+# plt.plot(np.arange(40, 47), np.arange(40, 47), color='k')
+plt.xlim(22, 25.5)
+plt.ylim(-0.25, 3.25)
+ax1.set_xticks([22, 23, 24, 25])
+ax1.set_yticks([0.0, 1.0, 2.0, 3.0])
+plt.grid()
+plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/GOALS_figs/Lx_correction_Nh.pdf')
+plt.show()
 
 
 print(ulirg_Lx_corr_out)
@@ -626,27 +627,28 @@ print(len(ulirg_Lx_corr_out))
 print(len(ulirg_Lx_hard_corr_out))
 
 
-plt.figure(figsize=(10,10),facecolor='w')
-# plt.hist(ulirg_LIR_out/(ulirg_Lx_corr_out-np.log10(3.8E33)),bins=np.arange(-0.5,3,0.25),alpha=0.75,label='GOALS (U)LIRGs AGN')
-plt.hist(ulirg_LIR_out/(ulirg_Lx_hard_corr_out-np.log10(3.8E33)),bins=np.arange(-0.5,3,0.25),alpha=0.75,label='GOALS (U)LIRGs AGN')
-# plt.hist(np.log10(aha_FIR_lum[aha_FIR_lum > 1E45])-aha_Lx[aha_FIR_lum > 1E45],color='gray',alpha=0.5,bins=np.arange(-0.5,3,0.25),label=r'High $L_{\rm IR}$ AHA AGN')
-plt.hist(np.log10(aha_FIR_lum[aha_FIR_lum > 1E45])-aha_Lx_hard[aha_FIR_lum > 1E45],color='gray',alpha=0.5,bins=np.arange(-0.5,3,0.25),label=r'High $L_{\rm IR}$ AHA AGN')
-plt.axvline(46.7-45.2, c='r', lw=3,label='IRAS 09104+4109')
-plt.xlabel(r'log $L_{\rm IR}$/log $L_{\rm X}$',fontsize=18)
-plt.legend()
-plt.show()
+# plt.figure(figsize=(10,10),facecolor='w')
+# # plt.hist(ulirg_LIR_out/(ulirg_Lx_corr_out-np.log10(3.8E33)),bins=np.arange(-0.5,3,0.25),alpha=0.75,label='GOALS (U)LIRGs AGN')
+# plt.hist(ulirg_LIR_out/(ulirg_Lx_hard_corr_out-np.log10(3.8E33)),bins=np.arange(-0.5,3,0.25),alpha=0.75,label='GOALS (U)LIRGs AGN')
+# # plt.hist(np.log10(aha_FIR_lum[aha_FIR_lum > 1E45])-aha_Lx[aha_FIR_lum > 1E45],color='gray',alpha=0.5,bins=np.arange(-0.5,3,0.25),label=r'High $L_{\rm IR}$ AHA AGN')
+# plt.hist(np.log10(aha_FIR_lum[aha_FIR_lum > 1E45])-aha_Lx_hard[aha_FIR_lum > 1E45],color='gray',alpha=0.5,bins=np.arange(-0.5,3,0.25),label=r'High $L_{\rm IR}$ AHA AGN')
+# plt.axvline(46.7-45.2, c='r', lw=3,label='IRAS 09104+4109')
+# plt.xlabel(r'log $L_{\rm IR}$/log $L_{\rm X}$',fontsize=18)
+# plt.legend()
+# plt.show()
 
 # plt.scatter((ulirg_Lx_corr_out-np.log10(3.8E33)), ulirg_LIR_out)
 # plt.plot(np.arange(9,13),np.arange(9,13),color='k')
 # plt.show()
 
-plt.scatter(aha_Lx,aha_Lx_hard)
-plt.plot(np.arange(41,48),np.arange(41,48),color='k')
-plt.show()
+# plt.scatter(aha_Lx,aha_Lx_hard)
+# plt.plot(np.arange(41,48),np.arange(41,48),color='k')
+# plt.show()
 
 # ulirg_plot.multi_SED('ULIRG_n',ulirg_x,ulirg_y,ulirg_Lx_out,median_x_ulirg,median_y_ulirg,suptitle='SEDs of ULIRGs',norm=norm_ulirg,mark=ulirg_field,spec_z=ulirg_z,wfir=None,ffir=None,up_check=ulirg_up_check,med_x_fir=median_fir_x_ulirg,med_y_fir=median_fir_y_ulirg)
-# plot.multi_SED('GOALS_figs/SEDs_obsFx',median_x=median_x_ulirg,median_y=median_y_ulirg,wfir=WFIR_ulirg,ffir=FFIR_ulirg,Median_line=True,FIR_upper='data only')
-# plot.L_scatter_comp('GOALS_figs/Lx_comp_Nh',ulirg_Lx_out,ulirg_Lx_corr_out,color_array=np.log10(ulirg_Nh_out),xlabel=r'Observed log L$_{\rm X}$ [erg/s]', ylabel=r'Intrinsic log L$_{\rm X}$ [erg/s]',colorbar_label=r'log N$_{\rm H}$ [cm$^{-2}$]')
+# plot.multi_SED('GOALS_figs/SEDs_intFx',median_x=median_x_ulirg,median_y=median_y_ulirg,wfir=WFIR_ulirg,ffir=FFIR_ulirg,Median_line=True,FIR_upper='data only',GOALS=True)
+#
+#  plot.L_scatter_comp('GOALS_figs/Lx_comp_Nh',ulirg_Lx_out,ulirg_Lx_corr_out,color_array=np.log10(ulirg_Nh_out),xlabel=r'Observed log L$_{\rm X}$ [erg/s]', ylabel=r'Intrinsic log L$_{\rm X}$ [erg/s]',colorbar_label=r'log N$_{\rm H}$ [cm$^{-2}$]')
 # plot.IR_colors('GOALS_figs/IR_colors',IRx,IRy,ulirg_LIR_out,colorbar=True,colorbar_label=r'log L$_{\rm IR}$ [L$_\odot$]',Lacy=True,agn=IRagn,select_sources=True)
 
 # AHA_plot.L_scatter_3panels('GOALS_figs/AGN_Lx_scatter_fit_comp','UV-MIR-FIR', 'Lx', 'X-axis', aha_F1, aha_F025, aha_F6, aha_F100, shape=aha_shape, L=aha_Lbol, compare=True, comp_L=ulirg_Lx_corr_out, comp_uv=F025_ulirg, comp_mir=F6_ulirg, comp_fir=F100_ulirg)
