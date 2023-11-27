@@ -10,7 +10,7 @@ class SED_shape_Plotter(Plotter):
         super().__init__(ID, z, wavelength, Lum, L, norm, up_check)
         self.shape = shape
 
-        plt.rcParams['font.size'] = 18
+        plt.rcParams['font.size'] = 22
         plt.rcParams['axes.linewidth'] = 3
         plt.rcParams['xtick.major.size'] = 5
         plt.rcParams['xtick.major.width'] = 4
@@ -292,12 +292,18 @@ class SED_shape_Plotter(Plotter):
         cmap = 'rainbow_r'  # set colormap
 
         # remove sources with L outside colorbar range
-        x = self.wavelength[self.L >= clim1-0.1]
-        y = self.Lum[self.L >= clim1-0.1]
-        L = self.L[self.L >= clim1-0.1]
+        # x = self.wavelength[self.L >= clim1-0.1]
+        # y = self.Lum[self.L >= clim1-0.1]
+        # L = self.L[self.L >= clim1-0.1]
+
+        x = self.wavelength
+        y = self.Lum
+        L = self.L
 
         wfir_seg = np.delete(wfir, 0, 1)
         ffir_seg = np.delete(ffir_norm, 0, 1)
+
+        print(np.shape(x),np.shape(y),np.shape(self.shape),np.shape(b1))
 
         x1, x2, x3, x4, x5 = x[b1], x[b2], x[b3], x[b4], x[b5]
         y1, y2, y3, y4, y5 = y[b1], y[b2], y[b3], y[b4], y[b5]
@@ -318,8 +324,8 @@ class SED_shape_Plotter(Plotter):
         xticks_labels = ['-4', ' ', '-2', ' ', '0', ' ', '2']
         yticklabels = [-2, -1, 0, 1]
 
-        fig = plt.figure(figsize=(16,35))
-        gs = fig.add_gridspec(nrows=5, ncols=2, left=0.2, right=0.75, hspace=0.05,wspace=-0.05,width_ratios=[3,0.25])
+        fig = plt.figure(figsize=(15,33))
+        gs = fig.add_gridspec(nrows=5, ncols=2, left=0.2, right=0.75, hspace=0.05,wspace=0.05,width_ratios=[3,0.25])
 
         ax1 = fig.add_subplot(gs[0, 0], aspect='equal', adjustable='box')
         ax1.set_xscale('log')
@@ -488,6 +494,7 @@ class SED_shape_Plotter(Plotter):
         # cb.ax.xaxis.set_ticks_position('right')
         # cb.ax.xaxis.set_label_position('right')
 
+        # plt.savefig(f'/Users/connor_auge/Research/Disertation/AGN_SEDs/AHA_SED_paper1/Final_plots/{savestring}.pdf')
         plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
     
@@ -1025,7 +1032,7 @@ class SED_shape_Plotter(Plotter):
         # elif xlabel == r'log N$_{\rm H}$':
         #     ax5.set_xlabel(xlabel+r' [cm$^{-2}$]')
         # else:
-        ax5.set_xlabel(xlabel+r'/(erg s$^ {-1}$)')
+        ax5.set_xlabel(xlabel+r'/(erg s$^{-1}$)')
         ax10.set_xlabel(r'log $L_{\rm bol-gal,e}$/$L_{\rm X}$')
 
         ax1.set_ylim(0, max(n)+max(n)*0.1)

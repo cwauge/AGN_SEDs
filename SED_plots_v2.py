@@ -247,6 +247,9 @@ class Plotter():
         ax.set_xticklabels([r'10$^{-4}$',r'10$^{-3}$','0.01','0.1','1.0','10','100'])
         ax.set_xticks([1E-4,1E-3,1E-2,1E-1,1E0,1E1,1E2])
         ax.text(0.15, 0.85, f'n = {len(L)}', transform=ax.transAxes)
+        # ax.text(0.15, 0.824, f'S82X n = 529', transform=ax.transAxes)
+        # ax.text(0.15, 0.798, f'COSMOS n = 624', transform=ax.transAxes)
+        # ax.text(0.15, 0.772, f'GOODS n = 93', transform=ax.transAxes)
 
         if wave_labels:
             font = matplotlib.font_manager.FontProperties()
@@ -343,7 +346,7 @@ class Plotter():
             b3 = self.L > 44.5
             t1 = r'43 < log L$_{\rm X}$ < 43.75'
             t2 = r'43.75 < log L$_{\rm X}$ < 44.5'
-            t3 = r'log L$_{\rm X}$ < 44.5'
+            t3 = r'44.5 < log L$_{\rm X}$'
             z1 = self.z[b1]
             z2 = self.z[b2]
             z3 = self.z[b3]
@@ -838,7 +841,6 @@ class Plotter():
             print('Invalid bins option. Options are:   shape,    Lx_5,    Lx_3')
             return
         
-
         median_x1 = median_x[b1]
         median_x2 = median_x[b2]
         median_x3 = median_x[b3]
@@ -881,12 +883,12 @@ class Plotter():
         # norm4 = self.norm[b4]
         # norm5 = self.norm[b5] 
 
-        yticks = [42, 43, 44, 45, 46]
-        # xticks = [1E-4, 1E-3, 1E-2, 1E-1, 1E0, 1E1, 1E2]
-        xticks = [1E-1, 1E0, 1E1, 1E2]
-        ytick_labels = ['42', '43', '44', '45', '46']
-        # xticks_labels = [r'10$^{-4}$', '', r'10$^{-2}$', '', r'10$^{0}$', '', r'10$^{2}$']
-        xticks_labels = [r'10$^{-1}$', r'10$^{0}$', r'10$^{1}$', r'10$^{2}$']
+        # yticks = [42, 43, 44, 45, 46]
+        # # xticks = [1E-4, 1E-3, 1E-2, 1E-1, 1E0, 1E1, 1E2]
+        # xticks = [1E-1, 1E0, 1E1, 1E2]
+        # ytick_labels = ['42', '43', '44', '45', '46']
+        # # xticks_labels = [r'10$^{-4}$', '', r'10$^{-2}$', '', r'10$^{0}$', '', r'10$^{2}$']
+        # xticks_labels = [r'10$^{-1}$', r'10$^{0}$', r'10$^{1}$', r'10$^{2}$']
 
         fig = plt.figure(figsize=(18,12))
         gs = fig.add_gridspec(nrows=1, ncols=1)
@@ -895,7 +897,7 @@ class Plotter():
 
         # median_y1[-1] = median_y1[-1]*0.9
 
-        ax1 = plt.subplot(gs[0], aspect='equal', adjustable='box')
+        ax1 = plt.subplot(gs[0])#, aspect='equal', adjustable='box')
 
         if plot_temp:
             print(temp_y)
@@ -936,15 +938,15 @@ class Plotter():
         ax1.set_xscale('log')
         ax1.set_yscale('log')
         # ax1.set_ylim(3E41, 3E46)
-        ax1.set_ylim(1E42,1E46)
-        ax1.set_xlim(5E-2, 450)
-        ax1.set_xticks(xticks)
-        ax1.set_xticklabels(xticks_labels)
+        # ax1.set_ylim(1E42,1E46)
+        # ax1.set_xlim(5E-2, 450)
+        # ax1.set_xticks(xticks)
+        # ax1.set_xticklabels(xticks_labels)
         ax1.set_ylabel(r'$\lambda$ L$_\lambda$ [erg/s]')
         ax1.set_xlabel(r'Rest Wavelength [$\mu$m]')
-        secax1 = ax1.secondary_yaxis('right', functions=(self.solar, self.ergs))
+        # secax1 = ax1.secondary_yaxis('right', functions=(self.solar, self.ergs))
         # secax1.set_yticks([9, 10, 11, 12, 13])
-        secax1.set_ylabel(r'$\lambda$ L$_\lambda$ [L$_{\odot}$]')
+        # secax1.set_ylabel(r'$\lambda$ L$_\lambda$ [L$_{\odot}$]')
         ax1.grid()
         ax1.legend(loc='lower right',fontsize=21)
 
@@ -1406,6 +1408,7 @@ class Plotter():
         print('x med: ',xmed)
         print('y med: ',ymed)
         print('y std: ', y1std)
+        print('Duras: ',np.log10(Lit_functions.Durras_Lbol(xmed,typ='Lbol')))
 
         fig = plt.figure(figsize=(10, 10))
         ax1 = plt.subplot(111)#, aspect='equal', adjustable='box')

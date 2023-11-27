@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 import astropy.constants as const
@@ -57,7 +58,7 @@ class AGN():
         self.flux_jy_err[self.flux_jy_err <= 0] = np.nan # replace negative or zero error values with nan
         self.flux_jy[np.isnan(self.flux_jy_err)] = np.nan # replace flux values with no errors with nan
         self.flux_jy[self.flux_jy_err/self.flux_jy >= 0.5] = np.nan # Remove flux values with frac error > 50%
-        
+        self.flux_jy_err[np.isnan(self.flux_jy)] = np.nan
         if data_replace_filt != 'None':
             for i in range(len(data_replace_filt)):
                 value_replace = self.data_replace([data_replace_filt[i]])
@@ -100,7 +101,7 @@ class AGN():
     def Find_value(self,wave,limit_factor=2,boot=False):
         '''
         Function to find the value of the SED at a given wavelength (wave in microns)
-        limit_factor is a scale factor to look for nearby data in Check_nearest functin. 
+        limit_factor is a scale factor to look for nearby data in Check_nearest function. 
         If no nearby data is found, then no interpolated value is returned. 
         Default factor is twice the wavelength
         '''
@@ -183,11 +184,11 @@ class AGN():
         # Pre-defined conditions. Check slope values to determine SED shape bin and return bin
         if (uv_slope < -0.3) & (mir_slope1 >= -0.4):
             bin = 1
-        elif (uv_slope >= -0.3) & (uv_slope <= 0.21) & (mir_slope1 >= -0.4):
+        elif (uv_slope >= -0.3) & (uv_slope <= 0.21) & (mir_slope1 >= -0.42):
             bin = 2 
         elif (uv_slope > 0.21) & (mir_slope1 >= -0.4):
             bin = 3
-        elif (uv_slope > 0.21) & (mir_slope1 < -0.4) & (mir_slope2 > 0.0):
+        elif (uv_slope >= 0.2) & (mir_slope1 < -0.4) & (mir_slope2 > 0.0):
             bin = 4
         elif (uv_slope > 0.21) & (mir_slope1 < -0.4) & (mir_slope2 <= 0.0):
             bin = 5
@@ -274,15 +275,15 @@ class AGN():
     def Find_Lbol(self, xmax=None, xin=None, yin=None, sub=False, Lscale=None, Lnorm=None, temp_x=None, temp_y=None, Data=True):
         if xmax == None:
             if sub:
-                Lbol = self.calc_Lbol(Lscale=Lscale,Lnorm=Lnorm,temp_x=temp_x,temp_y=temp_y,sub=True)
-                return Lbol
+                self.Lbol_sub = self.calc_Lbol(Lscale=Lscale,Lnorm=Lnorm,temp_x=temp_x,temp_y=temp_y,sub=True)
+                return self.Lbol_sub
             else:
                 self.Lbol = self.calc_Lbol()
                 return self.Lbol
         else:
             if sub:
-                Lbol = self.calc_Lbol(Lscale=Lscale,Lnorm=Lnorm,temp_x=temp_x,temp_y=temp_y,sub=True)
-                return Lbol
+                self.Lbol_sub = self.calc_Lbol(Lscale=Lscale,Lnorm=Lnorm,temp_x=temp_x,temp_y=temp_y,sub=True)
+                return self.Lbol_sub
             else:
                 self.Lbol = self.calc_Lbol(xmax=xmax)
                 return self.Lbol
@@ -742,7 +743,7 @@ class AGN():
             SED Shape
         '''
         cols = ['Field','x_ID','phot_id','RAJ2000','DEJ2000','L0510_c','z_spec','Nh','Lbol','SED_shape']
-        data = [field,xid,int(self.ID),ra,dec,round(np.log10(Lx),3),self.z,round(np.log10(Nh),3),round(np.log10(self.Lbol),3),self.shape]
+        data = [field,xid,int(self.ID),ra,dec,round(np.log10(Lx),3),self.z,round(np.log10(Nh),3),round(np.log10(self.Lbol_sub),3),self.shape]
         dtype_out = ['str','str','str','str','str','float','float','float','float','float']
         return cols, data, dtype_out
 
@@ -771,6 +772,8 @@ class AGN():
 
         flux_err_data[0::2] = self.flux_jy*1E6
         flux_err_data[1::2] = self.flux_jy_err*1E6
+        # flux_err_data[0::2] = self.flux_jy
+        # flux_err_data[1::2] = self.flux_jy_err
         # data = np.append(data,flux_err_data)
 
         data_in = np.zeros(col_names.size)
@@ -810,7 +813,7 @@ class AGN():
 
         return data2
 
-    def write_output_file(self,fname,data_in,cols,dtype_in,opt='w'):
+    def write_output_file(self,fname,data_in,cols,dtype_in,opt='w',phot=False):
         '''
         Function to wirte a fits file of the data contained in the output functions
         '''
@@ -820,18 +823,35 @@ class AGN():
 
         if 'w' in opt:
             try:
-                fin = fits.open(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}')
-                fdata = fin[1].data
-                fcols = fin[1].columns.names
-                fin.close()
+                # fin = fits.open(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}')
+                # fdata = fin[1].data
+                # fcols = fin[1].columns.names
+                # fin.close()
+                fin = pd.read_csv(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}')
+                fdata = fin.values
+                fcols = fin.columns
+                # print(fcols)
                 # print(np.shape(fdata),np.shape(fcols),np.shape(data_in))
                 tin = Table(data=fdata, names=fcols, dtype=(dtype_in))
+                if phot:
+                    for i in range(len(fcols)-2):
+                        if '_err' in fcols[i+2]:
+                        # print(fcols[i+2],fdata[i+2])
+                            tin[fcols[i+2]].format = '{:.4g}'
+                        else:
+                            if fcols[i+2] == 'Fxh':
+                                tin[fcols[i+2]].format = '{:.3e}'
+                            elif fcols[i+2] == 'Fxs':
+                                tin[fcols[i+2]].format = '{:.3e}'
+                            else:
+                                tin[fcols[i+2]].format = '{:.5g}'
                 tin.add_row(data_in)
+                # print(tin)
 
-                tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
+                tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='ascii.csv',overwrite=True)
 
             except FileNotFoundError:
-                t.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
+                t.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='ascii.csv',overwrite=True)
 
         elif 'a' in opt:
             fin = fits.open(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}')
@@ -843,7 +863,7 @@ class AGN():
 
             tin.write(f'/Users/connor_auge/Research/Disertation/catalogs/output/{fname}',format='fits',overwrite=True)
 
-    def write_cigale_file2(self,fname,filts,flux_dict,flux_dict_err,int_fx=[np.nan]):
+    def write_cigale_file2(self,fname,filts,flux_dict,flux_dict_err,int_fx=[np.nan],int_fx_err=np.nan):
         upper_lims = Filters('filter_list.dat').pull_filter(filts,'upper limit')/1E3
         region = Filters('filter_list.dat').pull_filter(filts,'wavelength range')
 
@@ -853,7 +873,10 @@ class AGN():
         for i in range(len(filts)):
             if filts[i] == 'Fx_hard':
                 data = np.append(data, int_fx)
-                data = np.append(data, flux_dict_err[filts[i]]/1E3)
+                if ~np.isnan(int_fx_err):
+                    data = np.append(data,int_fx_err)
+                else:
+                    data = np.append(data, flux_dict_err[filts[i]]/1E3)
             elif flux_dict[filts[i]] > 0:
                 data = np.append(data, flux_dict[filts[i]]/1E3)
                 data = np.append(data, flux_dict_err[filts[i]]/1E3)
