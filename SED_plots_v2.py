@@ -27,7 +27,7 @@ class Plotter():
         self.norm = np.asarray(norm)
         self.up_check = np.asarray(up_check)
 
-        plt.rcParams['font.size'] = 18
+        plt.rcParams['font.size'] = 20
         plt.rcParams['axes.linewidth'] = 3.5
         plt.rcParams['xtick.major.size'] = 5
         plt.rcParams['xtick.major.width'] = 4
@@ -211,21 +211,26 @@ class Plotter():
             clim2 = 44.25
             fir_ls = '-'
         else:
-            clim1 = 43
-            clim2 = 45.5
+            clim1 = 45.2 + np.log10(12)
+            clim2 = 46 + np.log10(12)
             fir_ls = '--'
-        cmap = 'rainbow_r' # set colormap
+        # cmap = 'rainbow_r' # set colormap
+        # cmap = 'YlGnBu' # set colormap
+        cmap = 'winter' # set colormap
 
-        x = self.wavelength[self.L >= clim1-0.1] # remove sources with L outside colorbar range
-        y = self.Lum[self.L >= clim1-0.1] 
-        L = self.L[self.L >= clim1-0.1]
+        self.L += np.log10(12)
+
+
+        x = self.wavelength[self.L >= clim1] # remove sources with L outside colorbar range
+        y = self.Lum[self.L >= clim1] 
+        L = self.L[self.L >= clim1]
+        z = self.z[self.L >= clim1]
 
         median_x = np.asarray(median_x)
         median_y = np.asarray(median_y)
         wfir = np.asarray(wfir)
         ffir = np.asarray(ffir)
-        
-        
+                
         # Normalize the FIR luminosity
         if  len(self.norm) == len(ffir):
             ffir_norm = ffir.T/self.norm
@@ -239,9 +244,9 @@ class Plotter():
 
         # Begin plot
         fig, ax = plt.subplots(figsize=(20,15))
-        ax.set_aspect(1)
-        ax.set_xlabel(r'Rest Wavelength [$\mu$m]',fontsize=22)
-        ax.set_ylabel(r'Normalized $\lambda$ L$_\lambda$',fontsize=22)
+        # ax.set_aspect(1)
+        ax.set_xlabel(r'Rest Wavelength [$\mu$m]',fontsize=26)
+        ax.set_ylabel(r'Normalized $\lambda$ L$_\lambda$',fontsize=26)
         ax.set_xscale('log')
         ax.set_yscale('log')
         ax.set_xticklabels([r'10$^{-4}$',r'10$^{-3}$','0.01','0.1','1.0','10','100'])
@@ -251,26 +256,29 @@ class Plotter():
         # ax.text(0.15, 0.798, f'COSMOS n = 624', transform=ax.transAxes)
         # ax.text(0.15, 0.772, f'GOODS n = 93', transform=ax.transAxes)
 
+
+
         if wave_labels:
             font = matplotlib.font_manager.FontProperties()
             font.set_weight('bold')
-            ax.text(1.2E-4, 2.3E2, 'X-ray', fontproperties=font)
-            ax.text(0.065,2.3E2,'UV', fontproperties=font)
-            ax.text(0.2,2.3E2,'Optical', fontproperties=font)
-            ax.text(3.5,2.3E2,'MIR', fontproperties=font)
-            ax.text(65, 2.3E2, 'FIR', fontproperties=font)
+            ax.text(1.E-4, 1.15E2, 'X-ray', fontproperties=font)
+            ax.text(0.065,1.15E2,'UV', fontproperties=font)
+            ax.text(0.2,1.15E2,'Optical', fontproperties=font)
+            ax.text(3.5,1.15E2,'MIR', fontproperties=font)
+            ax.text(65, 1.15E2, 'FIR', fontproperties=font)
         
         # Plot the FIR upper limit segments 
         upper_seg = np.stack((wfir_seg, ffir_seg), axis=2)
-        upper_all = LineCollection(upper_seg,color='gray',alpha=0.3) 
-        if ~GOALS:
-            ax.add_collection(upper_all)
+        # upper_all = LineCollection(upper_seg,color='gray',alpha=0.3) 
+        # if ~GOALS:
+            # ax.add_collection(upper_all)
 
         # use multilines function to plot all SEDs mapped to colorbar based on L
-        lc = self.multilines(x, y, L, lw=2.5, cmap=cmap, alpha=0.75, rasterized=True) 
+        lc = self.multilines(x, y, L, lw=2.5, cmap=cmap, alpha=0.5, rasterized=True) 
         axcb1 = fig.colorbar(lc, fraction=0.046, pad=0.04)  # make colorbar
         axcb1.mappable.set_clim(clim1,clim2) # initialize colorbar limits
-        axcb1.set_label(r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]',fontsize=22)
+        # axcb1.set_label(r'log L$_{0.5-10\mathrm{keV}}$ [erg s$^{-1}$]',fontsize=22)
+        axcb1.set_label(r'log L$_{\rm bol}$ [erg s$^{-1}$]',fontsize=24)
 
         # plot data points for indvidual filters and optional point
         # ax.plot(x, y, 'x', color='k')
@@ -294,6 +302,9 @@ class Plotter():
         if temp_comp:
             ax.plot(temp_comp_x,temp_comp_y,'--',color='r',lw=6)
 
+        plt.axvline(x=6,color='k',ls='--',lw=2.8)
+        plt.axvline(x=5.1660E-5,color='k',ls='--',lw=2.8)
+
         # plt.axvline(0.11,color='b',lw=3)
         # plt.axvline(0.5,color='b',lw=3)
         # plt.fill_between([0.11,0.5],[1E-2,1E-2],[1E2,1E2],color='b',alpha=0.3)
@@ -313,8 +324,8 @@ class Plotter():
         # ax.text(0.69, 0.8, f'Dust', transform=ax.transAxes,fontsize=30, weight='bold')
 
         # plt.axvline(6.0,color='k')
-        plt.ylim(5E-4,2E2)
-        plt.xlim(7E-5,700)
+        plt.ylim(1E-2,100)
+        plt.xlim(2E-5,550)
         plt.grid()
         plt.tight_layout()
         
@@ -944,9 +955,9 @@ class Plotter():
         # ax1.set_xticklabels(xticks_labels)
         ax1.set_ylabel(r'$\lambda$ L$_\lambda$ [erg/s]')
         ax1.set_xlabel(r'Rest Wavelength [$\mu$m]')
-        # secax1 = ax1.secondary_yaxis('right', functions=(self.solar, self.ergs))
-        # secax1.set_yticks([9, 10, 11, 12, 13])
-        # secax1.set_ylabel(r'$\lambda$ L$_\lambda$ [L$_{\odot}$]')
+        secax1 = ax1.secondary_yaxis('right', functions=(self.solar, self.ergs))
+        secax1.set_yticks([9, 10, 11, 12, 13])
+        secax1.set_ylabel(r'$\lambda$ L$_\lambda$ [L$_{\odot}$]')
         ax1.grid()
         ax1.legend(loc='lower right',fontsize=21)
 
@@ -2779,19 +2790,23 @@ class Plotter():
 
         arp220 = (self.ID == 'UGC 09913')
         mrk231 = (self.ID == 'UGC 08058')
+        print('here')
+        print(L)
 
         fig = plt.figure(figsize=(15,13))
         ax = plt.subplot(111, aspect='equal', adjustable='box')
         if colorbar:
-            pts = plt.scatter(x[~agn],y[~agn],c=L[~agn],edgecolor='k',s=175)
+            # pts = plt.scatter(x[~agn],y[~agn],c=L[~agn],edgecolor='k',s=175)
             agn_pts = plt.scatter(x[agn],y[agn],c=L[agn],marker='*',edgecolor='k',s=175)
             # plt.colorbar(label=colorbar_label)
             axcb = fig.colorbar(agn_pts)  # make colorbar
-            axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits
-            axcb.remove()
-            axcb2 = fig.colorbar(pts)  # make colorbar
-            axcb2.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits
-            axcb2.set_label(label=colorbar_label)
+            # axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits
+            axcb.mappable.set_clim(43, 46)  # initialize colorbar limits
+            # axcb.remove()
+            # axcb2 = fig.colorbar(pts)  # make colorbar
+            # axcb2.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits
+            # axcb2.mappable.set_clim(43, 46)
+            # axcb2.set_label(label=colorbar_label)
         else:
             plt.plot(x,y,'.',ms=15,color='r')
         if donley:
@@ -2818,7 +2833,7 @@ class Plotter():
         plt.ylabel(r'log $\frac{f_{8.0}}{f_{4.5}}$',fontsize=26)
         plt.grid()
         plt.legend(fontsize=13)
-        plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
+        # plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/{savestring}.pdf')
         plt.show()
 
     def L_ratio_1panel_GOALS(self,savestring,X,Y,median,F1,uv,mir,fir,shape,L=None,goals_Lx=[np.nan],goals_Lbol=[np.nan]):

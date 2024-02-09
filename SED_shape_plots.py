@@ -300,6 +300,9 @@ class SED_shape_Plotter(Plotter):
         y = self.Lum
         L = self.L
 
+        xlim = [8E-3, 7E2]
+        ylim = [1E-3, 75]
+
         wfir_seg = np.delete(wfir, 0, 1)
         ffir_seg = np.delete(ffir_norm, 0, 1)
 
@@ -334,7 +337,7 @@ class SED_shape_Plotter(Plotter):
         ax1.set_yticks(yticks)
         ax1.set_yticklabels(yticklabels)
         ax1.set_xticklabels([])
-        ax1.text(0.05, 0.72, f'n = {len(x1)}', transform=ax1.transAxes)
+        ax1.text(0.05, 0.08, f'n = {len(x1)}', transform=ax1.transAxes)
         ax1.text(0.05, 0.835, '1', transform=ax1.transAxes, fontsize=40, weight='bold')
         ax1.text(0.73, 0.08, str((len(x1)/len(x))*100)[0:4]+'%', transform=ax1.transAxes, weight='bold')
         ax1.grid()
@@ -358,8 +361,8 @@ class SED_shape_Plotter(Plotter):
                 # self.median_FIR_sed(wfir1, ffir1, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False,lw=4,ls='--')
             else:
                 self.median_sed(median_x1, median_y1,Bin=True, bin_in = b1, lw=3)
-        plt.ylim(1E-3, 75)
-        plt.xlim(8E-5, 7E2)
+        plt.ylim(ylim[0],ylim[1])
+        plt.xlim(xlim[0],xlim[1])
 
         ax2 = fig.add_subplot(gs[1, 0], aspect='equal', adjustable='box')
         ax2.set_xscale('log')
@@ -368,7 +371,7 @@ class SED_shape_Plotter(Plotter):
         ax2.set_yticks(yticks)
         ax2.set_yticklabels(yticklabels)
         ax2.set_xticklabels([])
-        ax2.text(0.05, 0.72, f'n = {len(x2)}', transform=ax2.transAxes)
+        ax2.text(0.05, 0.08, f'n = {len(x2)}', transform=ax2.transAxes)
         ax2.text(0.05, 0.835, '2', transform=ax2.transAxes, fontsize=40, weight='bold')
         ax2.text(0.73, 0.08, str((len(x2)/len(x))*100)[0:4]+'%', transform=ax2.transAxes, weight='bold')
         ax2.grid()
@@ -389,8 +392,8 @@ class SED_shape_Plotter(Plotter):
                 self.median_FIR_sed(wfir2, ffir2, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b2, lw=3,ls='--')
             else:
                 self.median_sed(median_x2, median_y2,Bin=True, bin_in = b2, lw=3)
-        plt.ylim(1E-3, 75)
-        plt.xlim(8E-5, 7E2)
+        plt.ylim(ylim[0],ylim[1])
+        plt.xlim(xlim[0],xlim[1])
 
         ax3 = fig.add_subplot(gs[2, 0], aspect='equal', adjustable='box')
         ax3.set_xscale('log')
@@ -399,8 +402,8 @@ class SED_shape_Plotter(Plotter):
         ax3.set_yticks(yticks)
         ax3.set_yticklabels(yticklabels)
         ax3.set_xticklabels([])
-        ax3.set_ylabel(r'Normalized log ($\lambda$ L$_\lambda$)')
-        ax3.text(0.05, 0.72, f'n = {len(x3)}', transform=ax3.transAxes)
+        ax3.set_ylabel(r'Normalized log ($\lambda$ L$_\lambda$)',fontsize=40)
+        ax3.text(0.05, 0.08, f'n = {len(x3)}', transform=ax3.transAxes)
         ax3.text(0.05, 0.835, '3', transform=ax3.transAxes, fontsize=40, weight='bold')
         ax3.text(0.73, 0.08, str((len(x3)/len(x))*100)[0:4]+'%', transform=ax3.transAxes, weight='bold')
         ax3.grid()
@@ -421,8 +424,8 @@ class SED_shape_Plotter(Plotter):
                 self.median_FIR_sed(wfir3, ffir3, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b3, lw=3,ls='--')
             else:
                 self.median_sed(median_x3, median_y3, Bin=True, bin_in = b3, lw=3)
-        plt.ylim(1E-3, 75)
-        plt.xlim(8E-5, 7E2)
+        plt.ylim(ylim[0],ylim[1])
+        plt.xlim(xlim[0],xlim[1])
 
         ax4 = fig.add_subplot(gs[3, 0], aspect='equal', adjustable='box')
         ax4.set_xscale('log')
@@ -431,7 +434,7 @@ class SED_shape_Plotter(Plotter):
         ax4.set_yticks(yticks)
         ax4.set_yticklabels(yticklabels)
         ax4.set_xticklabels([])
-        ax4.text(0.05, 0.72, f'n = {len(x4)}', transform=ax4.transAxes)
+        ax4.text(0.05, 0.08, f'n = {len(x4)}', transform=ax4.transAxes)
         ax4.text(0.05, 0.835, '4', transform=ax4.transAxes, fontsize=40, weight='bold')
         ax4.text(0.73, 0.08, str((len(x4)/len(x))*100)[0:4]+'%', transform=ax4.transAxes, weight='bold')
         ax4.grid()
@@ -452,8 +455,8 @@ class SED_shape_Plotter(Plotter):
                 self.median_FIR_sed(wfir4, ffir4, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b4, lw=3,ls='--')
             else:
                 self.median_sed(median_x4, median_y4, Bin=True, bin_in = b4, lw=3)
-        plt.ylim(1E-3, 75)
-        plt.xlim(8E-5, 7E2)
+        plt.ylim(ylim[0],ylim[1])
+        plt.xlim(xlim[0],xlim[1])
 
         ax5 = fig.add_subplot(gs[4, 0], aspect='equal', adjustable='box')
         ax5.set_xscale('log')
@@ -462,8 +465,8 @@ class SED_shape_Plotter(Plotter):
         ax5.set_yticks(yticks)
         ax5.set_yticklabels(yticklabels)
         ax5.set_xticklabels(xticks_labels)
-        ax5.set_xlabel(r'log ($\lambda_{\rm rest}/\mu$m)')
-        ax5.text(0.05, 0.72, f'n = {len(x5)}', transform=ax5.transAxes)
+        ax5.set_xlabel(r'log ($\lambda_{\rm rest}/\mu$m)',fontsize=40)
+        ax5.text(0.05, 0.08, f'n = {len(x5)}', transform=ax5.transAxes)
         ax5.text(0.05, 0.835, '5', transform=ax5.transAxes, fontsize=40, weight='bold')
         ax5.text(0.73, 0.08, str((len(x5)/len(x))*100)[0:4]+'%', transform=ax5.transAxes, weight='bold')
         ax5.grid()
@@ -484,12 +487,12 @@ class SED_shape_Plotter(Plotter):
                 self.median_FIR_sed(wfir5, ffir5, connect=[x_connect, y_connect], upper=FIR_upper, Norm=False, Bin=True, bin_in=b5, lw=3,ls='--')
             else:
                 self.median_sed(median_x5, median_y5, Bin=True, bin_in = b5, lw=3)
-        plt.ylim(1E-3, 75)
-        plt.xlim(8E-5, 7E2)
+        plt.ylim(ylim[0],ylim[1])
+        plt.xlim(xlim[0],xlim[1])
 
         cbar_ax = fig.add_subplot(gs[:,-1:])
         cb = fig.colorbar(lc1, cax=cbar_ax, orientation='vertical')
-        cb.set_label(r'log L$_{\mathrm{X}}$ (0.5-10kev) [erg/s]')
+        cb.set_label(r'log L$_{\mathrm{X}}$ (0.5-10kev) [erg/s]',fontsize=40)
         cb.mappable.set_clim(clim1, clim2)
         # cb.ax.xaxis.set_ticks_position('right')
         # cb.ax.xaxis.set_label_position('right')
