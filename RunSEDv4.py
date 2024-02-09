@@ -1161,16 +1161,16 @@ filter_GOODSS_total = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F
 filter_GOODS_total  = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F850LP', 'F098M','F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
 ###############################################################################
 ############################## Start CIGALE File ##############################
-cigale_name = 'AHA_sample_FINAL2/AHA_COSMOS_shape5_2_high_z3.mag'
-# cigale_name = 'test_FIR_cosmos3.mag'
-inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
-header = np.asarray(['# id', 'redshift'])
-cigale_filters = Filters('filter_list.dat').pull_filter(COSMOS_CIGALE_filters, 'xcigale name')
-for i in range(len(cigale_filters)):
-    header = np.append(header, cigale_filters[i])
-    header = np.append(header, cigale_filters[i]+'_err')
-np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
-inf.close()
+# cigale_name = 'AHA_sample_FINAL2/AHA_COSMOS_shape5_1.mag'
+# # cigale_name = 'test_FIR_cosmos3.mag'
+# inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
+# header = np.asarray(['# id', 'redshift'])
+# cigale_filters = Filters('filter_list.dat').pull_filter(COSMOS_CIGALE_filters, 'xcigale name')
+# for i in range(len(cigale_filters)):
+#     header = np.append(header, cigale_filters[i])
+#     header = np.append(header, cigale_filters[i]+'_err')
+# np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
+# inf.close()
 ###############################################################################
 
 
@@ -1415,22 +1415,22 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         #     plot.PlotSED(point_x=100, point_y=f100/f1)
             # source.Find_Lbol()
 
-        if check6 == 'GOOD':
-            if shape == 5:
-                if chandra_cosmos_z_match[i] > 0.5: 
-                    cigale_count += 1
-                    if (cigale_count > 80) & (cigale_count <= 160):
+        # if check6 == 'GOOD':
+            # if shape == 5:
+                # if chandra_cosmos_z_match[i] <=0.5: 
+                    # cigale_count += 1
+                    # if (cigale_count > 240) & (cigale_count <= 320):
                     # if cigale_count <= 80:
-                        source.write_cigale_file2(cigale_name, COSMOS_CIGALE_filters, cosmos_flux_dict, cosmos_flux_err_dict, int_fx=cosmos_Fx_int_array[0][i])
-                    # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-                    else:
-                        continue
-                else:
-                    continue
-            else:
-                continue
-        else:
-            continue
+                        # source.write_cigale_file2(cigale_name, COSMOS_CIGALE_filters, cosmos_flux_dict, cosmos_flux_err_dict, int_fx=cosmos_Fx_int_array[0][i])
+        #             # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
+                    # else:
+                        # continue
+                # else:
+                    # continue
+        #     else:
+        #         continue
+        # else:
+        #     continue
 
 
     # # else:
@@ -1594,10 +1594,10 @@ for i in range(len(s82x_id)):
             #     source.write_cigale_file(cigale_name,S82X_filters,int_fx=s82x_Fx_int_array[i],use_int_fx=True)
 
             # if check6 == 'GOOD':
-            #     if shape == 5:
+            #     if shape == 2:
             #         cigale_count += 1
-            #         # if (cigale_count > 30) & (cigale_count <= 60):
-            #         if cigale_count <= 30:
+            #         if (cigale_count > 60) & (cigale_count <= 200):
+            #         # if cigale_count <= 30:
             #             source.write_cigale_file2(cigale_name, S82X_CIGALE_filters, s82x_flux_dict, s82x_flux_err_dict, int_fx=s82x_Fx_int_array[0][i])
             #             # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
             #         else:
@@ -1638,7 +1638,7 @@ for i in range(len(goodsN_auge_ID_match)):
         print(goodsN_flux_array_auge[i])
         print(goodsN_flux_err_array_auge[i])
     # for i in range(50):
-    source = AGN(goodsN_auge_phot_ID_match[i], goodsN_auge_z_match[i], GOODSN_auge_filters, goodsN_flux_array_auge[i], goodsN_flux_err_array_auge[i])
+    source = AGN(goodsN_auge_ID_match[i], goodsN_auge_z_match[i], GOODSN_auge_filters, goodsN_flux_array_auge[i], goodsN_flux_err_array_auge[i])
     source.MakeSED(data_replace_filt=['FLUX_24'])
     source.FIR_extrap(['FLUX_24', 'MIPS2', 'FLUX_100_goodsN', 'FLUX_160_goodsN', 'FLUX_250_goodsN', 'FLUX_350_goodsN', 'FLUX_500_goodsN'])
 
@@ -1781,17 +1781,16 @@ for i in range(len(goodsN_auge_ID_match)):
     #     source.write_output_file('AGN_photometry_GOODS_final.csv',data,cols,dtyp,'w',phot=True)
 
     # if check6 == 'GOOD':
-    #     if shape == 5:
-    #         cigale_count += 1
+    #     # if shape == 5:
+    #         # cigale_count += 1
     #         # if (cigale_count > 30) & (cigale_count <= 60):
-    #         if cigale_count <= 30:
-    #             source.write_cigale_file2(
-    #                 cigale_name, GOODSN_auge_CIGALE_filters, goodsN_flux_dict, goodsN_flux_err_dict, int_fx=s82x_Fx_int_array[0][i])
+    #         # if cigale_count <= 30:
+    #             source.write_cigale_file2(cigale_name, GOODSN_auge_CIGALE_filters, goodsN_flux_dict, goodsN_flux_err_dict, int_fx=s82x_Fx_int_array[0][i])
     #             # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-    #         else:
-    #             continue
-    #     else:
-    #         continue
+    #         # else:
+    #             # continue
+    #     # else:
+    #         # continue
     # else:
     #     continue
 
@@ -1941,18 +1940,18 @@ for i in range(len(goodsS_auge_ID_match)):
             #         plot.PlotSED(point_x=[0.25,1.0,6.5,10],point_y=[f025/f1,f1/f1,f6/f1,f10/f1],fir_x = wfir, fir_y = ffir)
 
             # if check6 == 'GOOD':
-            #     if shape == 3:
-            #         cigale_count += 1
-            #         if (cigale_count > 30) & (cigale_count <= 60):
+            #     # if shape == 3:
+            #         # cigale_count += 1
+            #         # if (cigale_count > 30) & (cigale_count <= 60):
             #         # if cigale_count <= 30:
             #             source.write_cigale_file2(cigale_name, GOODSS_auge_CIGALE_filters, goodsS_flux_dict, goodsS_flux_err_dict, int_fx=goodsS_Fx_int_array[0][i])
             #             # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-            #         else:
-            #             continue
-            #     else:
-            #         continue
+            #         # else:
+            #             # continue
+            #     # else:
+            #         # continue
             # else:
-                # continue
+            #     continue
             
             # if check6 == 'GOOD':
 
@@ -2207,7 +2206,7 @@ t = Table([ out_ID,field,out_SED_shape,out_z,out_x,out_y,out_frac_error,
             F025,F025_boot,F1,F1_boot,F6,F6_boot,F10,F10_boot,F100,F100_boot,F2,F2_boot,uv_slope,mir_slope1,mir_slope2,
             Lbol_out,Lbol_sub_out,Lbol_sf_sub_out,Nh,UV_lum_out,OPT_lum_out,MIR_lum_out,FIR_lum_out,FIR_R_lum,Nh_check,abs_check,mix_x,mix_y,spec_class,check_sed,F24_out,bin_stack_out,F100_ratio,check_sed6],names=(h))
 
-# t.write('/Users/connor_auge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6_FINAL7.fits',format='fits',overwrite=True)
+t.write('/Users/connor_auge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6_FINAL8.fits',format='fits',overwrite=True)
 
 
 

@@ -20,7 +20,6 @@ with fits.open(path+'AHA_SEDs_out_ALL_F6_FINAL5.fits') as hdul:
     cols = hdul[1].columns
     data = hdul[1].data 
 
-
 temps = ascii.read('/Users/connor_auge/Research/templets/A10_templates.txt')
 temp_wave = np.asarray(temps['Wave'])
 temp_flux_agn = np.asarray(temps['AGN2'])*1E-14
@@ -144,8 +143,10 @@ BAD_SED = check_sed == 'BAD'
 GOOD_6 = check_sed6 == 'GOOD'
 BAD_6 = check_sed6 == 'BAD'
 
-# field_condition = (field == 'S82X') | (field == 'COSMOS') | (field == 'GOODS-N') | (field == 'GOODS-S')
-field_condition = (field == 'S82X') 
+field_condition = (field == 'S82X') | (field == 'COSMOS') | (field == 'GOODS-N') | (field == 'GOODS-S')
+# field_condition = (field == 'S82X') 
+# field_condition = (shape == 3) 
+
 # field_condition = (field == 'COSMOS') 
 # field_condition = (field == 'GOODS-N') | (field == 'GOODS-S')
 
@@ -161,15 +162,23 @@ field_condition = (field == 'S82X')
 # plot2 = Plotter_Letter2(id, z, x, y, Lx, Lbol_sub)
 # plot_shape = SED_shape_Plotter(id, z, x, y, Lx, norm, FIR_upper_lims, shape)
 
+print('CHECK')
+print(len(norm),len(norm[GOOD_6]))
 
 # plot = Plotter(id[GOOD_SED], z[GOOD_SED], x[GOOD_SED], y[GOOD_SED], Lx[GOOD_SED], norm[GOOD_SED], FIR_upper_lims[GOOD_SED])
 # plot2 = Plotter_Letter2(id[GOOD_SED], z[GOOD_SED], x[GOOD_SED], y[GOOD_SED], Lx[GOOD_SED], Lbol_sub[GOOD_SED])
 # plot_shape = SED_shape_Plotter(id[GOOD_SED], z[GOOD_SED], x[GOOD_SED], y[GOOD_SED], Lx[GOOD_SED], norm[GOOD_SED], FIR_upper_lims[GOOD_SED], shape[GOOD_SED])
 
 
-plot = Plotter(id[field_condition][GOOD_6[field_condition]], z[field_condition][GOOD_6[field_condition]], x[field_condition][GOOD_6[field_condition]], y[field_condition][GOOD_6[field_condition]], Lx[field_condition][GOOD_6[field_condition]], norm[field_condition][GOOD_6[field_condition]], FIR_upper_lims[field_condition][GOOD_6[field_condition]])
+# plot = Plotter(id[field_condition][GOOD_6[field_condition]], z[field_condition][GOOD_6[field_condition]], x[field_condition][GOOD_6[field_condition]], y[field_condition][GOOD_6[field_condition]], Lx[field_condition][GOOD_6[field_condition]], norm[field_condition][GOOD_6[field_condition]], FIR_upper_lims[field_condition][GOOD_6[field_condition]])
+# plot = Plotter(id[GOOD_6][Lx[GOOD_6] > 45], z[GOOD_6][Lx[GOOD_6] > 45], x[GOOD_6][Lx[GOOD_6] > 45], y[GOOD_6][Lx[GOOD_6] > 45], Lx[GOOD_6][Lx[GOOD_6] > 45], norm[GOOD_6][Lx[GOOD_6] > 45], FIR_upper_lims[GOOD_6][Lx[GOOD_6] > 45])
+# plot2 = Plotter_Letter2(id[GOOD_6], z[GOOD_6], x[GOOD_6], y[GOOD_6], Lx[GOOD_6], Lbol_sub[GOOD_6])
+# plot_shape = SED_shape_Plotter(id[GOOD_6], z[GOOD_6], x[GOOD_6], y[GOOD_6], Lx[GOOD_6], norm[GOOD_6], FIR_upper_lims[GOOD_6], shape[GOOD_6])
+
+plot = Plotter(id[GOOD_6], z[GOOD_6], x[GOOD_6], y[GOOD_6], Lx[GOOD_6], norm[GOOD_6], FIR_upper_lims[GOOD_6])
 plot2 = Plotter_Letter2(id[GOOD_6], z[GOOD_6], x[GOOD_6], y[GOOD_6], Lx[GOOD_6], Lbol_sub[GOOD_6])
 plot_shape = SED_shape_Plotter(id[GOOD_6], z[GOOD_6], x[GOOD_6], y[GOOD_6], Lx[GOOD_6], norm[GOOD_6], FIR_upper_lims[GOOD_6], shape[GOOD_6])
+
 
 print('Total SEDs')
 print('Stripe82X: ', len(id[field == 'S82X']))
@@ -186,11 +195,11 @@ print('~~~~~~~~~~')
 # print('All: ', len(id[GOOD_SED]))
 # print('~~~~~~~~~~')
 print('Total GOOD 6 SEDs')
-print('Stripe82X: ', len(id[GOOD_6][field[GOOD_6] == 'S82X']))
-print('COSMOS: ', len(id[GOOD_6][field[GOOD_6] == 'COSMOS']))
-print('GOODS-N: ', len(id[GOOD_6][field[GOOD_6] == 'GOODS-N']))
-print('GOODS-S: ', len(id[GOOD_6][field[GOOD_6] == 'GOODS-S']))
-print('All: ', len(id[GOOD_6]))
+print('Stripe82X: ', len(id[GOOD_6][field[GOOD_6] == 'S82X']),'Lx: ',min(np.log10(Nh)[GOOD_6][field[GOOD_6] == 'S82X'][Nh[GOOD_6][field[GOOD_6] == 'S82X'] > 0]),max(np.log10(Nh)[GOOD_6][field[GOOD_6] == 'S82X']))
+print('COSMOS: ', len(id[GOOD_6][field[GOOD_6] == 'COSMOS']),'Lx: ',min(np.log10(Nh)[GOOD_6][field[GOOD_6] == 'COSMOS'][Nh[GOOD_6][field[GOOD_6] == 'COSMOS'] > 0]),max(np.log10(Nh)[GOOD_6][field[GOOD_6] == 'COSMOS']))
+print('GOODS-N: ', len(id[GOOD_6][field[GOOD_6] == 'GOODS-N']),'Lx: ',min(np.log10(Nh)[GOOD_6][field[GOOD_6] == 'GOODS-N'][Nh[GOOD_6][field[GOOD_6] == 'GOODS-N'] > 0]),max(np.log10(Nh)[GOOD_6][field[GOOD_6] == 'GOODS-N']))
+print('GOODS-S: ', len(id[GOOD_6][field[GOOD_6] == 'GOODS-S']),'Lx: ',min(np.log10(Nh)[GOOD_6][field[GOOD_6] == 'GOODS-S'][Nh[GOOD_6][field[GOOD_6] == 'GOODS-S'] > 0]),max(np.log10(Nh)[GOOD_6][field[GOOD_6] == 'GOODS-S']))
+print('All: ', len(id[GOOD_6]),'Lx: ',min(np.log10(Nh[GOOD_6][Nh[GOOD_6] > 0])),max(np.log10(Nh[GOOD_6])))
 print('~~~~~~~~~~')
 # print('Total BAD SEDs')
 # print('Stripe82X: ', len(id[BAD_SED][field[BAD_SED] == 'S82X']))
@@ -280,15 +289,58 @@ print('Total: ', len(sed_shape_check[sed_shape_check == 1])+len(sed_shape_check[
 # print('shape 4 + 5: ',len(id[GOOD_SED][shape[GOOD_SED] == 4])+len(id[GOOD_SED][shape[GOOD_SED] == 5]),(len(id[GOOD_SED][shape[GOOD_SED] == 4])+len(id[GOOD_SED][shape[GOOD_SED] == 5]))/len(id[GOOD_SED])*100)
 # print('~~~~~~~~~~')
 
-print('GOOD 6 shape break down')
+print('GOOD 6 shape break down Total')
 print('shape 1: ',len(id[GOOD_6][shape[GOOD_6] == 1]),len(id[GOOD_6][shape[GOOD_6] == 1])/len(id[GOOD_6])*100)
 print('shape 2: ',len(id[GOOD_6][shape[GOOD_6] == 2]),len(id[GOOD_6][shape[GOOD_6] == 2])/len(id[GOOD_6])*100)
 print('shape 3: ',len(id[GOOD_6][shape[GOOD_6] == 3]),len(id[GOOD_6][shape[GOOD_6] == 3])/len(id[GOOD_6])*100)
 print('shape 4: ',len(id[GOOD_6][shape[GOOD_6] == 4]),len(id[GOOD_6][shape[GOOD_6] == 4])/len(id[GOOD_6])*100)
 print('shape 5: ',len(id[GOOD_6][shape[GOOD_6] == 5]),len(id[GOOD_6][shape[GOOD_6] == 5])/len(id[GOOD_6])*100)
-print('Total: ', len(id[GOOD_6][shape[GOOD_6] == 1])+len(id[GOOD_6]
-      [shape[GOOD_6] == 2])+len(id[GOOD_6][shape[GOOD_6] == 3])+len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]))
+print('Total: ', len(id[GOOD_6][shape[GOOD_6] == 1])+len(id[GOOD_6][shape[GOOD_6] == 2])+len(id[GOOD_6][shape[GOOD_6] == 3])+len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]))
 print('shape 6: ',len(id[GOOD_6][shape[GOOD_6] == -99.]),len(id[GOOD_6][shape[GOOD_6] == -99.])/len(id[GOOD_6])*100)
+# print('shape 4 + 5: ',len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]),(len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]))/len(id[GOOD_6])*100)
+print('~~~~~~~~~~')
+
+print('GOOD 6 shape break down Stripe 82X')
+print('shape 1: ',len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 1]),len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 1])/len(id[GOOD_6][field[GOOD_6] == 'S82X'])*100)
+print('shape 2: ',len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 2]),len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 2])/len(id[GOOD_6][field[GOOD_6] == 'S82X'])*100)
+print('shape 3: ',len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 3]),len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 3])/len(id[GOOD_6][field[GOOD_6] == 'S82X'])*100)
+print('shape 4: ',len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 4]),len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 4])/len(id[GOOD_6][field[GOOD_6] == 'S82X'])*100)
+print('shape 5: ',len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 5]),len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 5])/len(id[GOOD_6][field[GOOD_6] == 'S82X'])*100)
+print('Total: ', len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 1])+len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 2])+len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 3])+len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 4])+len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == 5]))
+print('shape 6: ',len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == -99.]),len(id[GOOD_6][field[GOOD_6] == 'S82X'][shape[GOOD_6][field[GOOD_6] == 'S82X'] == -99.])/len(id[GOOD_6][field[GOOD_6] == 'S82X'])*100)
+# print('shape 4 + 5: ',len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]),(len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]))/len(id[GOOD_6])*100)
+print('~~~~~~~~~~')
+
+print('GOOD 6 shape break down COSMOS')
+print('shape 1: ',len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 1]),len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 1])/len(id[GOOD_6][field[GOOD_6] == 'COSMOS'])*100)
+print('shape 2: ',len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 2]),len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 2])/len(id[GOOD_6][field[GOOD_6] == 'COSMOS'])*100)
+print('shape 3: ',len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 3]),len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 3])/len(id[GOOD_6][field[GOOD_6] == 'COSMOS'])*100)
+print('shape 4: ',len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 4]),len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 4])/len(id[GOOD_6][field[GOOD_6] == 'COSMOS'])*100)
+print('shape 5: ',len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 5]),len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 5])/len(id[GOOD_6][field[GOOD_6] == 'COSMOS'])*100)
+print('Total: ', len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 1])+len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 2])+len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 3])+len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 4])+len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == 5]))
+print('shape 6: ',len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == -99.]),len(id[GOOD_6][field[GOOD_6] == 'COSMOS'][shape[GOOD_6][field[GOOD_6] == 'COSMOS'] == -99.])/len(id[GOOD_6][field[GOOD_6] == 'COSMOS'])*100)
+# print('shape 4 + 5: ',len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]),(len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]))/len(id[GOOD_6])*100)
+print('~~~~~~~~~~')
+
+print('GOOD 6 shape break down GOODS-N')
+print('shape 1: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 1]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 1])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'])*100)
+print('shape 2: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 2]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 2])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'])*100)
+print('shape 3: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 3]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 3])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'])*100)
+print('shape 4: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 4]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 4])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'])*100)
+print('shape 5: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 5]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 5])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'])*100)
+print('Total: ', len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 1])+len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 2])+len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 3])+len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 4])+len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == 5]))
+print('shape 6: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == -99.]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'][shape[GOOD_6][field[GOOD_6] == 'GOODS-N'] == -99.])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-N'])*100)
+# print('shape 4 + 5: ',len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]),(len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]))/len(id[GOOD_6])*100)
+print('~~~~~~~~~~')
+
+print('GOOD 6 shape break down GOODS-S')
+print('shape 1: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 1]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 1])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'])*100)
+print('shape 2: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 2]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 2])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'])*100)
+print('shape 3: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 3]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 3])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'])*100)
+print('shape 4: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 4]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 4])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'])*100)
+print('shape 5: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 5]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 5])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'])*100)
+print('Total: ', len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 1])+len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 2])+len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 3])+len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 4])+len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == 5]))
+print('shape 6: ',len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == -99.]),len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'][shape[GOOD_6][field[GOOD_6] == 'GOODS-S'] == -99.])/len(id[GOOD_6][field[GOOD_6] == 'GOODS-S'])*100)
 # print('shape 4 + 5: ',len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]),(len(id[GOOD_6][shape[GOOD_6] == 4])+len(id[GOOD_6][shape[GOOD_6] == 5]))/len(id[GOOD_6])*100)
 print('~~~~~~~~~~')
 
@@ -403,11 +455,16 @@ def stern(mir):
 # plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_six/a_final/Lx_sample.pdf')
 # plt.show()
 
-# Fig 3
-# plot.multi_SED('a_check/All_SEDs_temp',int_x,int_y,wfir,ffir,wave_labels=True,temp_comp=True,temp_comp_x=temp_wave,temp_comp_y=temp_nuFnu_norm)
-# plot.multi_SED('a_check/All_SEDs_sample_bad', int_x[GOOD_SED], int_y[GOOD_SED], wfir[GOOD_SED], ffir[GOOD_SED], wave_labels=True)
-plot.multi_SED('vision_slides/All_SEDs_S82X2', int_x[field_condition][GOOD_6[field_condition]], int_y[field_condition][GOOD_6[field_condition]], wfir[field_condition][GOOD_6[field_condition]], ffir[field_condition][GOOD_6[field_condition]], wave_labels=True)
 
+print(len(Lx[GOOD_6][Lx[GOOD_6] > 44.5]))
+# Fig 3
+# edits for proposal figs
+# plot.multi_SED('a_check/All_SEDs_temp4',int_x[GOOD_6][Lx[GOOD_6] > 45],int_y[GOOD_6][Lx[GOOD_6] > 45],wfir[GOOD_6][Lx[GOOD_6] > 45],ffir[GOOD_6][Lx[GOOD_6] > 45],wave_labels=True,temp_comp=False,temp_comp_x=temp_wave,temp_comp_y=temp_nuFnu_norm,FIR_upper='data only')
+
+
+# plot.multi_SED('a_check/All_SEDs_sample_bad', int_x[GOOD_SED], int_y[GOOD_SED], wfir[GOOD_SED], ffir[GOOD_SED], wave_labels=True)
+# plot.multi_SED('vision_slides/All_SEDs_S82X2', int_x[field_condition][GOOD_6[field_condition]], int_y[field_condition][GOOD_6[field_condition]], wfir[field_condition][GOOD_6[field_condition]], ffir[field_condition][GOOD_6[field_condition]], wave_labels=True)
+# plot.multi_SED('vision_slides/All_SEDs_panel3', int_x[field_condition][GOOD_6[field_condition]], int_y[field_condition][GOOD_6[field_condition]], wfir[field_condition][GOOD_6[field_condition]], ffir[field_condition][GOOD_6[field_condition]], wave_labels=True)
 # Fig 4
 # plot.L_hist('a_six/a_final/Lone_hist',np.log10(F1[GOOD_6]),r'log L (1 $\mu$m) [erg/s]',[41.5,46],[41.5,46,0.25],median=True,std=True)
 
@@ -419,7 +476,7 @@ plot.multi_SED('vision_slides/All_SEDs_S82X2', int_x[field_condition][GOOD_6[fie
 # plot_shape.L_hist_bins('a_six/Lone_hist_Lx_bins',np.log10(F1[GOOD_6]),r'log L (1 $\mu$m) [erg/s]',[41.5,46],[41.5,46,0.25],median=True,std=False,bins='Lx')
 
 # Fig 7 
-# plot.multi_SED_bins('a_six/a_final/All_Lx_bins_norm2',bin='Lx',field=field[GOOD_6],median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],Median_line=True,FIR_upper='upper lims',scale=True)
+# plot.multi_SED_bins('a_six/a_final/All_Lx_bins_norm2',bin='Lx',field=field[GOOD_6],median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],Median_line=True,FIR_upper='upper lims',scale=False)
 
 # Fig 8 
 # plot.L_scatter_3panels('a_new/AGN_emission_s82x_3sig','UV-MIR-FIR','Lx','X-axis',norm,F025,F6,F100,shape,Lx,uv_err=F025_err,mir_err=F6_err,fir_err=F100_err,error=False)
@@ -486,9 +543,9 @@ lbol_med2yerr = np.array([0.34876941, 0.35842915, 0.40963542, 0.39048596, 1.4782
 # plot.L_ratio_1panel('a_new/Lx_Lbol_spec_type','Lbol','Lbol/Lx','X-axis',F1,F025,F6,F100,shape,np.log10(Lbol_sub),sample=True,spec_type=spec_type)
 
 # Fig 12
-# plot_shape.shape_1bin_v('a_check/vertical_5_panel_check_all6',median_x=int_x,median_y=int_y,wfir=wfir,ffir=ffir,uv_slope=uv_slope,mir_slope1=mir_slope1,mir_slope2=mir_slope2,Median_line=True,FIR_upper='upper lims',bins='shape')
-# plot_shape.shape_1bin_v('a_six/a_final/vertical_5_panel_new',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
-# plot_shape.shape_1bin_h('a_six/horizontal_5_panel_check2',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
+# plot_shape.shape_1bin_v('a_check/vertical_5_panel_narrow',median_x=int_x,median_y=int_y,wfir=wfir,ffir=ffir,uv_slope=uv_slope,mir_slope1=mir_slope1,mir_slope2=mir_slope2,Median_line=True,FIR_upper='upper lims',bins='shape')
+plot_shape.shape_1bin_v('a_six/a_final/vertical_5_panel_new',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
+# plot_shape.shape_1bin_h('a_six/horizontal_5_panel_check3',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
 
 # Fig 13
 # plot_shape.L_hist_panels('a_six/a_final/Lone_hist_panels_update',np.log10(F1[GOOD_6]),r'log L (1 $\mu$m)/(erg s$^{-1}$)',[43.25,46],[43.25,46,0.25],z_label=True,top_label=True,xlabel2=r'log L (1 $\mu$m)/$\rm{L_\odot}$')
