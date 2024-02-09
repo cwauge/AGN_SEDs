@@ -64,16 +64,20 @@ kelly_id = np.asarray(kelly['ID'])
 kelly_z = np.asarray(kelly['z'])
 kelly_Lx = np.asarray(kelly['Lx'])
 kelly_group = np.asarray(kelly['Group'])
+kelly_type = np.zeros(np.shape(kelly_id))
+kelly_type[kelly_type == 0] = -999.9
 
-kelly2 = ascii.read('/Users/connor_auge/Research/REU/2022/Thresa/COSMOS_z_matches_new_test.csv')
+kelly2 = ascii.read('/Users/connor_auge/Research/REU/2022/Thresa/COSMOS_z_matches_new_test3.csv')
 kelly2_id = np.asarray(kelly2['ID'])
 kelly2_z = np.asarray(kelly2['z'])
+kelly2_type = np.asarray(kelly2['deimos_type'])
 
 for i in range(len(kelly_id)):
     ind = np.where(kelly2_id == kelly_id[i])[0]
     if len(ind) > 0:
         if kelly2_z[ind][0] > 0:
             kelly_z[i] = kelly2_z[ind][0]
+            kelly_type[i] = kelly2_type[ind][0]
         else:
             continue
     else:
@@ -81,14 +85,12 @@ for i in range(len(kelly_id)):
 
 
 # DEIMOS 10k Spec z cat
-deimos = ascii.read(
-    '/Users/connor_auge/Downloads/deimos_10k_March2018_new/deimos_redshifts.tbl')
+deimos = ascii.read('/Users/connor_auge/Downloads/deimos_10k_March2018_new/deimos_redshifts.tbl')
 deimos_id = np.asarray(deimos['ID'])
 deimos_z = np.asarray(deimos['zspec'])
 deimos_remarks = np.asarray(deimos['Remarks'])
 deimos_ID = np.asarray([int(i[1:]) for i in deimos_id if 'L' in i])
-deimos_z_spec = np.asarray(
-    [deimos_z[i] for i in range(len(deimos_z)) if 'L' in deimos_id[i]])
+deimos_z_spec = np.asarray([deimos_z[i] for i in range(len(deimos_z)) if 'L' in deimos_id[i]])
 
 # Gather all IDs
 chandra_cosmos_phot_id = chandra_cosmos_data['id_k_uv']
@@ -136,7 +138,7 @@ chandra_cosmos2_Lx_full = np.asarray(
     [(10**i)*1.64 for i in chandra_cosmos2_data['Lx_210']])
 
 # Other Chandra Data
-# Spec-type from hardness ratio
+# Spec-type from optical spectra reported in Marches et al. 2016
 chandra_cosmos_spec_type = chandra_cosmos_data['spec_type']  # spec type
 
 # Column Density
@@ -293,14 +295,22 @@ ix, iy = match(kelly_id,cosmos_laigle_id)
 
 cosmos_laigle_id_match = cosmos_laigle_id[iy]
 
+print(len(kelly_type),len(kelly_type[kelly_type > 0]))
 kelly_id_match = kelly_id[ix]
 kelly_z_match = kelly_z[ix]
 kelly_group_match = kelly_group[ix]
 kelly_Lx_match = kelly_Lx[ix]
+kelly_type_match = kelly_type[ix]
 Lx_match = []
 Nh_match = []
+# spec_type_match = []
+spec_type_match = kelly_type_match.copy()
 abs_corr_match = []
 abs_corr_check_match = []
+
+print('Check new type')
+print(len(spec_type_match))
+print(len(spec_type_match[spec_type_match > 0]))
 for i in range(len(kelly_id_match)):
     ind = np.where(chandra_cosmos_phot_id == kelly_id_match[i])[0]
     if len(ind > 0):
@@ -308,20 +318,30 @@ for i in range(len(kelly_id_match)):
         Nh_match.append(chandra_cosmos_Nh[ind][0])
         abs_corr_match.append(abs_corr_use_f[ind][0])
         abs_corr_check_match.append(check_abs[ind][0])
+
+        if spec_type_match[i] < 0:
+            spec_type_match[i] = chandra_cosmos_spec_type[ind][0]
+        else:
+            continue
     else:
         Lx_match.append(-999.9)
         Nh_match.append(-999.9)
         abs_corr_match.append(-999.9)
         abs_corr_check_match.append(-999.9)
+print(len(spec_type_match[spec_type_match > 0]))
 
 Lx_match = np.asarray(Lx_match)
 Nh_match = np.asarray(Nh_match)
 abs_corr_match = np.asarray(abs_corr_match)
 abs_corr_check_match = np.asarray(abs_corr_check_match)
+spec_type_match = np.asarray(spec_type_match)
 
 cosmos_ix, cosmos_iy = match(cosmos_laigle_id_match,cosmos2015_ID)
 
-
+ch1 = cosmos_data['splash_ch1_flux'][iy]
+ch2 = cosmos_data['splash_ch2_flux'][iy]
+ch3 = cosmos_data['splash_ch3_flux'][iy]
+ch4 = cosmos_data['splash_ch4_flux'][iy]
 
 # Create flux and flux error arrays for the COSMOS data. Matched to chandra data. NaN array separating the X-ray from the FUV data.
 cosmos_flux_array = np.array([
@@ -448,6 +468,11 @@ xval_out_boot, F2kev_boot = [], []
 spec_class = []
 check_sed6 = []
 absorption_corr = []
+
+irac_ch1 = []
+irac_ch2 = []
+irac_ch3 = []
+irac_ch4 = []
 
 F24_out = []
 F100_ratio = []
@@ -598,10 +623,15 @@ for i in range(len(kelly_id_match)):
     check_sed.append(check)
     check_sed6.append(check6)
     field.append('COSMOS')
-    spec_class.append(-999)
+    spec_class.append(spec_type_match[i])
 
     group.append(kelly_group_match[i])
     group_Lx.append(kelly_Lx_match[i])
+
+    irac_ch1.append(ch1[i])
+    irac_ch2.append(ch2[i])
+    irac_ch3.append(ch3[i])
+    irac_ch4.append(ch4[i])
 
     # if kelly_group_match[i] == 'RED':
     #     if kelly_z_match[i] < 1.0:
@@ -725,6 +755,8 @@ stack_bin = np.asarray(stack_bin)
 F100_ratio = np.asarray(F100_ratio)
 
 Lbol_sf_sub_out = np.asarray(Lbol_sf_sub_out)
+
+irac_ch1, irac_ch2, irac_ch3, irac_ch4 = np.asarray(irac_ch1), np.asarray(irac_ch2), np.asarray(irac_ch3), np.asarray(irac_ch4)
 
 print(out_y)
 print(out_y.shape)
@@ -864,11 +896,13 @@ print(len(out_ID), len(field), len(out_SED_shape), len(out_z), len(out_x), len(o
       len(Lbol_out), len(Lbol_sub_out), len(Lbol_sf_sub_out), len(Nh), len(UV_lum_out), len(OPT_lum_out), len(MIR_lum_out), len(FIR_lum_out), len(FIR_R_lum), len(Nh_check), len(abs_check), len(mix_x), len(mix_y), len(spec_class), len(check_sed), len(F24_out), len(bin_stack_out), len(F100_ratio), len(check_sed6))
 h = np.asarray(['ID', 'field', 'shape', 'z', 'x', 'y', 'frac_err', 'Lx', 'Lx_hard', 'wfir', 'ffir', 'int_x', 'int_y', 'norm', 'FIR_upper_lims',
                 'F025', 'F025_boot', 'F1', 'F1_boot', 'F6', 'F6_boot', 'F10', 'F10_boot', 'F100', 'F100_boot', 'F2', 'F2_boot', 'uv_slope', 'mir_slope1', 'mir_slope2',
-                'Lbol', 'Lbol_sub', 'Lbol_sf_sub', 'Nh', 'UV_lum', 'OPT_lum', 'MIR_lum', 'FIR_lum', 'FIR_R_lum', 'Nh_check', 'abs_check','abs_corr', 'mix_x', 'mix_y', 'spec_class', 'sed_check', 'F24_lum', 'stack_bin', 'F100_ratio', 'check6','group','kelly_Lx'])
+                'Lbol', 'Lbol_sub', 'Lbol_sf_sub', 'Nh', 'UV_lum', 'OPT_lum', 'MIR_lum', 'FIR_lum', 'FIR_R_lum', 'Nh_check', 'abs_check','abs_corr', 'mix_x', 'mix_y', 'spec_class', 'sed_check', 'F24_lum', 'stack_bin', 'F100_ratio', 'check6','group','kelly_Lx',
+                'irac_ch1','irac_ch2','irac_ch3','irac_ch4'])
 t = Table([out_ID, field, out_SED_shape, out_z, out_x, out_y, out_frac_error,
            out_Lx, out_Lx_hard, wfir_out, ffir_out, int_x, int_y, norm, FIR_upper_lims,
            F025, F025_boot, F1, F1_boot, F6, F6_boot, F10, F10_boot, F100, F100_boot, F2, F2_boot, uv_slope, mir_slope1, mir_slope2,
-           Lbol_out, Lbol_sub_out, Lbol_sf_sub_out, Nh, UV_lum_out, OPT_lum_out, MIR_lum_out, FIR_lum_out, FIR_R_lum, Nh_check, abs_corr_check_match, abs_corr_match, mix_x, mix_y, spec_class, check_sed, F24_out, bin_stack_out, F100_ratio, check_sed6, group, group_Lx], names=(h))
+           Lbol_out, Lbol_sub_out, Lbol_sf_sub_out, Nh, UV_lum_out, OPT_lum_out, MIR_lum_out, FIR_lum_out, FIR_R_lum, Nh_check, abs_corr_check_match, abs_corr_match, mix_x, mix_y, spec_class, check_sed, F24_out, bin_stack_out, F100_ratio, check_sed6, group, group_Lx,
+           irac_ch1, irac_ch2, irac_ch3, irac_ch4], names=(h))
 
-t.write('/Users/connor_auge/Research/Disertation/catalogs/Kelly_SEDs_out3_test.fits',
+t.write('/Users/connor_auge/Research/Disertation/catalogs/Kelly_SEDs_out5.fits',
         format='fits', overwrite=True)
