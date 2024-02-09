@@ -188,6 +188,9 @@ Ned_phot_ID_match = Ned_phot_ID[iy]
 ricci_Fx_hard_match_mjy_Ned = ricci_Fhx_match_Ned*4.136E8/(10-2)
 ricci_Fx_soft_match_mjy_Ned = ricci_Fsx_match_Ned*4.136E8/(2-0.5)
 
+goals_Fx_int_array = np.array([ricci_Fx_hard_match_mjy_Ned])
+goals_Fx_int_err_array = np.array([ricci_Fx_hard_match_mjy_Ned*0.3])
+
 print('Here')
 print(ricci_Fx_hard_match_mjy_Ned*1000)
 print(np.asarray(Ned_phot_data['Fx_h'][iy], dtype=float)*1E6)
@@ -292,20 +295,22 @@ scale_array = [1.87E44, 2.33E44, 3.93E44]
                                 # 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS2', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500', 'SCUBA2', 'VLA1', 'VLA2'])
 goals_filter_name = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
                                 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS2', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+GOALS_CIGALE_Filters = np.asarray(['Fx_hard', 'Fx_soft', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
+                                'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS2', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 
 
 ###############################################################################
 ############################## Start CIGALE File ##############################
-# cigale_name = 'GOALS.mag'
-# inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
-# header = np.asarray(['# id', 'redshift'])
-# cigale_filters = Filters('filter_list.dat').pull_filter(goals_filter_name, 'xcigale name')
-# for i in range(len(cigale_filters)):
-#     header = np.append(header, cigale_filters[i])
-#     header = np.append(header, cigale_filters[i]+'_err')
-# np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
-# print('header: ',np.shape(header))
-# inf.close()
+cigale_name = 'GOALS_new2.mag'
+inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
+header = np.asarray(['# id', 'redshift'])
+cigale_filters = Filters('filter_list.dat').pull_filter(GOALS_CIGALE_Filters, 'xcigale name')
+for i in range(len(cigale_filters)):
+    header = np.append(header, cigale_filters[i])
+    header = np.append(header, cigale_filters[i]+'_err')
+np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
+print('header: ',np.shape(header))
+inf.close()
 ###############################################################################
 
 
@@ -421,6 +426,9 @@ for i in range(len(ricci_ID_match_Ned)):
         med_flux.append(Ned_goals_flux[i])
         source.FIR_extrap(['FLUX_24','IRAS2', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 
+        goals_flux_dict = source.MakeDict(goals_filter_name,Ned_goals_flux[i])
+        goals_flux_err_dict = source.MakeDict(goals_filter_name,Ned_goals_flux_err[i])
+
         ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
         median_x_ulirg.append(ix)
         median_y_ulirg.append(iy)
@@ -487,10 +495,9 @@ for i in range(len(ricci_ID_match_Ned)):
         goals_irac_ch2.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_2_FLUX'][0])
         goals_irac_ch3.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_3_FLUX'][0])
         goals_irac_ch4.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_4_FLUX'][0])
-        
-        # source.write_cigale_file(cigale_name, goals_filter_name, use_int_fx=False)
+        # source.write_cigale_file2(cigale_name, GOALS_CIGALE_Filters, goals_flux_dict, goals_flux_err_dict, int_fx=goals_Fx_int_array[0][i],int_fx_err=goals_Fx_int_err_array[0][i])
+        source.write_cigale_file(cigale_name, goals_filter_name, use_int_fx=False)
         ulirg_field.append(5)
-
 
 # '''
 print('Done with ULIRGS')
