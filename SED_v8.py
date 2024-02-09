@@ -883,12 +883,12 @@ class AGN():
 
             elif flux_dict[filts[i]] <= 1E-20:
                 data = np.append(data, upper_lims[i])
-                data = np.append(data, -9000.)
+                data = np.append(data, upper_lims[i]*(-0.5))
 
             elif np.isnan(flux_dict[filts[i]]):
                 if region[i] == 'FIR':
                     data = np.append(data, upper_lims[i])
-                    data = np.append(data, -9000.)
+                    data = np.append(data, upper_lims[i]*(-0.5))
                 else:
                     data = np.append(data, -9999.)
                     data = np.append(data, -9999.)
