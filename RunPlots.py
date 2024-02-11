@@ -16,7 +16,7 @@ from match import match
 path = '/Users/connor_auge/Research/Disertation/catalogs/'
 # AHA_SEDs_out_good_1sig
 # AHA_SEDs_out_ALL
-with fits.open(path+'AHA_SEDs_out_ALL_F6_FINAL5.fits') as hdul:
+with fits.open(path+'AHA_SEDs_out_ALL_F6_FINAL8.fits') as hdul:
     cols = hdul[1].columns
     data = hdul[1].data 
 
@@ -41,6 +41,7 @@ z = data['z'] #[field == 'S82X']
 x = data['x'] #[field == 'S82X']
 y = data['y'] #[field == 'S82X']
 Lx = data['Lx'] #[field == 'S82X']
+Lx_hard = data['Lx_hard']
 norm = data['norm'] #[field == 'S82X']
 FIR_upper_lims = data['FIR_upper_lims'] #[field == 'S82X']
 frac_err = data['frac_err'] #[field == 'S82X']
@@ -93,8 +94,8 @@ stack_bin = data['stack_bin'] #[field == 'S82X']
 
 field = field #[field == 'S82X']
 s82x_z = z #[field == 'S82X']
-
-
+print('HERE ID')
+print(id)
 
 check_sed = data['sed_check']
 
@@ -107,6 +108,7 @@ z = z[sort]
 x = x[sort]
 y = y[sort]
 Lx = Lx[sort]
+Lx_hard = Lx_hard[sort]
 norm = norm[sort]
 FIR_upper_lims = FIR_upper_lims[sort]
 shape = shape[sort]
@@ -383,6 +385,26 @@ print(field[id_check],id[id_check],10**Lx[id_check],Nh[id_check],Lbol_sub[id_che
 print('~~~~~~~~~~')
 
 
+### Write output files for tonima
+with open('/Users/connor_auge/Desktop/Final_plots/Auge_sample.csv','w') as outf:
+    outf.writelines('Field,ID,L2_10,L05_10,z,N_H,group\n')
+    for i in range(len(field[GOOD_6])):
+        if field[GOOD_6][i] == 'S82X':
+            outf.writelines('%s,%d,%f,%f,%f,%f,%d\n' % (field[GOOD_6][i],id[GOOD_6][i],Lx_hard[GOOD_6][i],Lx[GOOD_6][i],z[GOOD_6][i],np.log10(Nh[GOOD_6][i]),shape[GOOD_6][i]))
+    for i in range(len(field[GOOD_6])):
+        if field[GOOD_6][i] == 'COSMOS':
+            outf.writelines('%s,%d,%f,%f,%f,%f,%d\n' % (field[GOOD_6][i],id[GOOD_6][i],Lx_hard[GOOD_6][i],Lx[GOOD_6][i],z[GOOD_6][i],np.log10(Nh[GOOD_6][i]),shape[GOOD_6][i]))
+    for i in range(len(field[GOOD_6])):
+        if field[GOOD_6][i] == 'GOODS-N':
+            outf.writelines('%s,%d,%f,%f,%f,%f,%d\n' % (field[GOOD_6][i],id[GOOD_6][i],Lx_hard[GOOD_6][i],Lx[GOOD_6][i],z[GOOD_6][i],np.log10(Nh[GOOD_6][i]),shape[GOOD_6][i]))
+    for i in range(len(field[GOOD_6])):
+        if field[GOOD_6][i] == 'GOODS-S':
+            outf.writelines('%s,%d,%f,%f,%f,%f,%d\n' % (field[GOOD_6][i],id[GOOD_6][i],Lx_hard[GOOD_6][i],Lx[GOOD_6][i],z[GOOD_6][i],np.log10(Nh[GOOD_6][i]),shape[GOOD_6][i]))
+
+
+
+
+
 ### 
 # Test Medians
 
@@ -544,7 +566,7 @@ lbol_med2yerr = np.array([0.34876941, 0.35842915, 0.40963542, 0.39048596, 1.4782
 
 # Fig 12
 # plot_shape.shape_1bin_v('a_check/vertical_5_panel_narrow',median_x=int_x,median_y=int_y,wfir=wfir,ffir=ffir,uv_slope=uv_slope,mir_slope1=mir_slope1,mir_slope2=mir_slope2,Median_line=True,FIR_upper='upper lims',bins='shape')
-plot_shape.shape_1bin_v('a_six/a_final/vertical_5_panel_new',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
+plot_shape.shape_1bin_v('a_six/a_final/vertical_5_panel_new_check',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
 # plot_shape.shape_1bin_h('a_six/horizontal_5_panel_check3',median_x=int_x[GOOD_6],median_y=int_y[GOOD_6],wfir=wfir[GOOD_6],ffir=ffir[GOOD_6],uv_slope=uv_slope[GOOD_6],mir_slope1=mir_slope1[GOOD_6],mir_slope2=mir_slope2[GOOD_6],Median_line=True,FIR_upper='upper lims',bins='shape')
 
 # Fig 13
