@@ -896,7 +896,7 @@ class AGN():
                 data = np.append(data, -9999.)
                 data = np.append(data, -9999.)
 
-        with open(f'../xcigale/data_input/{fname}', 'ab') as f:
+        with open(f'../xcigale/cigale-master/pcigale/data/AHA_input_final2/{fname}', 'ab') as f:
             f.write(b'\n')
             np.savetxt(f, data, fmt='%s', delimiter='    ', newline=' ')
 
