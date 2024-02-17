@@ -1161,16 +1161,15 @@ filter_GOODSS_total = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F
 filter_GOODS_total  = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F850LP', 'F098M','F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
 ###############################################################################
 ############################## Start CIGALE File ##############################
-# cigale_name = 'AHA_sample_FINAL2/AHA_COSMOS_shape5_1.mag'
-# # cigale_name = 'test_FIR_cosmos3.mag'
-# inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
-# header = np.asarray(['# id', 'redshift'])
-# cigale_filters = Filters('filter_list.dat').pull_filter(COSMOS_CIGALE_filters, 'xcigale name')
-# for i in range(len(cigale_filters)):
-#     header = np.append(header, cigale_filters[i])
-#     header = np.append(header, cigale_filters[i]+'_err')
-# np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
-# inf.close()
+cigale_name = 'S82X_shape3_low_z1.mag'
+inf = open(f'../xcigale/cigale-master/pcigale/data/AHA_input_final2/{cigale_name}', 'w')
+header = np.asarray(['# id', 'redshift'])
+cigale_filters = Filters('filter_list.dat').pull_filter(S82X_CIGALE_filters, 'xcigale name')
+for i in range(len(cigale_filters)):
+    header = np.append(header, cigale_filters[i])
+    header = np.append(header, cigale_filters[i]+'_err')
+np.savetxt(inf, header, fmt='%s', delimiter='    ', newline=' ')
+inf.close()
 ###############################################################################
 
 
@@ -1593,20 +1592,22 @@ for i in range(len(s82x_id)):
             #     plot.PlotSED(point_x=100,point_y=f100/f1)
             #     source.write_cigale_file(cigale_name,S82X_filters,int_fx=s82x_Fx_int_array[i],use_int_fx=True)
 
-            # if check6 == 'GOOD':
-            #     if shape == 2:
-            #         cigale_count += 1
-            #         if (cigale_count > 60) & (cigale_count <= 200):
-            #         # if cigale_count <= 30:
-            #             source.write_cigale_file2(cigale_name, S82X_CIGALE_filters, s82x_flux_dict, s82x_flux_err_dict, int_fx=s82x_Fx_int_array[0][i])
-            #             # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-            #         else:
-            #             continue
-            #     else:
-            #         continue
-            # else:
-            #     continue
-
+            if check6 == 'GOOD':
+                if shape == 3:
+                    if s82x_z[i] < 0.5: 
+                        cigale_count += 1
+                        # if (cigale_count > 80) & (cigale_count <= 160):
+                        if cigale_count <= 80:
+                            source.write_cigale_file2(cigale_name, S82X_CIGALE_filters, s82x_flux_dict, s82x_flux_err_dict, int_fx=s82x_Fx_int_array[0][i])
+                            # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
+                        else:
+                            continue
+                    else:
+                        continue
+                else:
+                    continue
+            else:
+                continue
 
             # if check6 == 'GOOD':
             #     c = SkyCoord(ra = s82x_ra[i]*u.degree, dec = s82x_dec[i]*u.degree)
