@@ -25,6 +25,23 @@ from mag_flux import mag_to_flux
 from mag_flux import magerr_to_fluxerr
 from PlotSED_Check import IntPlot
 from astropy.table import Table
+from astropy.cosmology import FlatLambdaCDM
+from scipy.constants import c
+
+def Lum_to_Flux(L,z):
+    '''Function to convert flux to luminosity'''
+    cosmo = FlatLambdaCDM(H0=70, Om0=0.29, Tcmb0=2.725)
+
+    dl = cosmo.luminosity_distance(z).value # Distance in Mpc
+    dl_cgs = dl*(3.0856E22) # Distance from Mpc to m
+    surf = 4*np.pi*dl_cgs**2
+    k_corr_SED = 1e-29 * surf * c / (2.0664e-4 * 1e-6)
+
+    # convert flux to luminosity 
+    L = L/1E7
+    F = L / k_corr_SED
+
+    return F
 
 
 ti = time.perf_counter() # Start timer
@@ -324,9 +341,8 @@ cosmos2015_ix, cosmos2015_iy = match(cosmos_laigle_id_match,cosmos2015_ID)
 cosmos_F24, cosmos_F100, cosmos_F160, cosmos_F250, cosmos_F350, cosmos_F500 = [], [], [], [], [], []
 cosmos_F24err, cosmos_F100err, cosmos_F160err, cosmos_F250err, cosmos_F350err, cosmos_F500err = [], [], [], [], [], []
 
-ix2,iy2 = match(cosmos_laigle_id_match,cosmos_fir_id)
-print('HERE: ')
-print(len(cosmos_fir_id[iy2]))
+# ix2,iy2 = match(cosmos_laigle_id_match,cosmos_fir_id)
+
 # for i in range(len(cosmos_laigle_id_match)):
 #     ind = np.where(cosmos_fir_id == cosmos_laigle_id_match[i])[0]
 #     print(ind)
@@ -373,8 +389,11 @@ chandra_cosmos_fx_full_match_mjy_int = chandra_cosmos_Fx_full_match_mjy/abs_corr
 chandra_cosmos_Fx_hard_match_mjy_int = chandra_cosmos_Fx_hard_match_mjy/abs_corr_use_h_match
 chandra_cosmos_Fx_soft_match_mjy_int = chandra_cosmos_Fx_soft_match_mjy/abs_corr_use_s_match
 
+chandra_cosmos_Fx_hard_match_mjy_int[chandra_cosmos_Fx_hard_match_mjy_int < 0] = chandra_cosmos_fx_full_match_mjy_int[chandra_cosmos_Fx_hard_match_mjy_int < 0]*1.64
+
 # cosmos_Fx_int_array = np.array([chandra_cosmos_Fx_hard_match_mjy.int, chandra_cosmos_Fx_soft_match_mjy.int]).T
 cosmos_Fx_int_array = np.array([chandra_cosmos_Fx_hard_match_mjy_int])
+
 
 # Create a 1D array of NaN that is the length of the number of COSMOS sources - used to create "blank" values in flux array
 cosmos_nan_array = np.zeros(np.shape(cosmos_laigle_id_match))
@@ -790,6 +809,8 @@ goodsN_auge_Nh_match = goodsN_auge_Nh[goodsN_auge_condition]
 goodsN_auge_Nh_lo_match = goodsN_auge_Nh_lo[goodsN_auge_condition]
 goodsN_auge_Nh_hi_match = goodsN_auge_Nh_hi[goodsN_auge_condition]
 
+goodsN_auge_Fx_hard_mjy_match = Lum_to_Flux(goodsN_auge_Lx_hard_match,goodsN_auge_z_match)
+
 goodsN_Nh_check = []
 for i in range(len(goodsN_auge_Nh_match)):
     if goodsN_auge_Nh_match[i] <= 0.0:
@@ -807,6 +828,10 @@ print('GOODS-N 2 match: ',len(goodsN_auge_ID_match))
 
 goodsN_auge_Fx_hard_match_mjy = goodsN_auge_data['Fx_hard'][goodsN_auge_condition]*4.136E8/(10-2)
 goodsN_auge_Fx_soft_match_mjy = goodsN_auge_data['Fx_soft'][goodsN_auge_condition]*4.136E8/(2-0.5)
+
+
+goodsN_Fx_int_array = np.array([goodsN_auge_Fx_hard_mjy_match])
+
 
 goodsN_nan_array = np.zeros(np.shape(goodsN_auge_ID_match)) # Create nan array with length == to the number of sources to be input to the photometry array
 goodsN_nan_array[goodsN_nan_array == 0] = np.nan
@@ -1161,10 +1186,10 @@ filter_GOODSS_total = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F
 filter_GOODS_total  = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F850LP', 'F098M','F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
 ###############################################################################
 ############################## Start CIGALE File ##############################
-cigale_name = 'S82X_shape3_low_z1.mag'
+cigale_name = 'GOODSN.mag'
 inf = open(f'../xcigale/cigale-master/pcigale/data/AHA_input_final2/{cigale_name}', 'w')
 header = np.asarray(['# id', 'redshift'])
-cigale_filters = Filters('filter_list.dat').pull_filter(S82X_CIGALE_filters, 'xcigale name')
+cigale_filters = Filters('filter_list.dat').pull_filter(GOODSN_auge_CIGALE_filters, 'xcigale name')
 for i in range(len(cigale_filters)):
     header = np.append(header, cigale_filters[i])
     header = np.append(header, cigale_filters[i]+'_err')
@@ -1238,7 +1263,7 @@ cigale_count = 0
 for i in range(len(chandra_cosmos_phot_id_match)):
 # for i in range(50):
     # if chandra_cosmos_phot_id_match[i] in treister_sample:
-
+        # print(chandra_cosmos_phot_id_match[i],chandra_cosmos_z_match[i],cosmos_flux_array[i][0])
         source = AGN(chandra_cosmos_phot_id_match[i], chandra_cosmos_z_match[i], COSMOS_filters, cosmos_flux_array[i], cosmos_flux_err_array[i])
         source.MakeSED(data_replace_filt=['FLUX_24'])
         source.FIR_extrap(['FLUX_24', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
@@ -1413,19 +1438,22 @@ for i in range(len(chandra_cosmos_phot_id_match)):
         #     # plot.Plot_FIR_SED(wfir, ffir/f1)
         #     plot.PlotSED(point_x=100, point_y=f100/f1)
             # source.Find_Lbol()
+        # print(chandra_cosmos_Lx_full_match[i],cosmos_Fx_int_array[0][i])
+ 
+        # print('---------------------')
 
         # if check6 == 'GOOD':
-            # if shape == 5:
-                # if chandra_cosmos_z_match[i] <=0.5: 
-                    # cigale_count += 1
-                    # if (cigale_count > 240) & (cigale_count <= 320):
-                    # if cigale_count <= 80:
-                        # source.write_cigale_file2(cigale_name, COSMOS_CIGALE_filters, cosmos_flux_dict, cosmos_flux_err_dict, int_fx=cosmos_Fx_int_array[0][i])
+        #     if shape == 5:
+        #         # if chandra_cosmos_z_match[i] > 0.5: 
+        #             # cigale_count += 1
+        #             # if (cigale_count > 240) & (cigale_count <= 320):
+        #             # if cigale_count <= 80:
+        #                 source.write_cigale_file2(cigale_name, COSMOS_CIGALE_filters, cosmos_flux_dict, cosmos_flux_err_dict, int_fx=cosmos_Fx_int_array[0][i])
         #             # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-                    # else:
-                        # continue
-                # else:
-                    # continue
+        #             # else:
+        #                 # continue
+        #         # else:
+        #             # continue
         #     else:
         #         continue
         # else:
@@ -1592,22 +1620,22 @@ for i in range(len(s82x_id)):
             #     plot.PlotSED(point_x=100,point_y=f100/f1)
             #     source.write_cigale_file(cigale_name,S82X_filters,int_fx=s82x_Fx_int_array[i],use_int_fx=True)
 
-            if check6 == 'GOOD':
-                if shape == 3:
-                    if s82x_z[i] < 0.5: 
-                        cigale_count += 1
-                        # if (cigale_count > 80) & (cigale_count <= 160):
-                        if cigale_count <= 80:
-                            source.write_cigale_file2(cigale_name, S82X_CIGALE_filters, s82x_flux_dict, s82x_flux_err_dict, int_fx=s82x_Fx_int_array[0][i])
-                            # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-                        else:
-                            continue
-                    else:
-                        continue
-                else:
-                    continue
-            else:
-                continue
+            # if check6 == 'GOOD':
+            #     if shape == 5:
+            #         # if s82x_z[i] < 0.5: 
+            #             cigale_count += 1
+            #             # if (cigale_count > 80) & (cigale_count <= 160):
+            #             if cigale_count <= 100:
+            #                 source.write_cigale_file2(cigale_name, S82X_CIGALE_filters, s82x_flux_dict, s82x_flux_err_dict, int_fx=s82x_Fx_int_array[0][i])
+            #                 # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
+            #             else:
+            #                 continue
+            #         # else:
+            #             # continue
+            #     else:
+            #         continue
+            # else:
+            #     continue
 
             # if check6 == 'GOOD':
             #     c = SkyCoord(ra = s82x_ra[i]*u.degree, dec = s82x_dec[i]*u.degree)
@@ -1780,6 +1808,20 @@ for i in range(len(goodsN_auge_ID_match)):
 
     #     cols, data, dtyp = source.output_phot('GOODS-N',filter_GOODS_total,filter_GOODSN_match)
     #     source.write_output_file('AGN_photometry_GOODS_final.csv',data,cols,dtyp,'w',phot=True)
+
+    # if check6 == 'GOOD':
+    #     # if shape == 3:
+    #                 # cigale_count += 1
+    #                 # if (cigale_count > 30) & (cigale_count <= 60):
+    #                 # if cigale_count <= 30:
+    #                     source.write_cigale_file2(cigale_name, GOODSN_auge_CIGALE_filters, goodsN_flux_dict, goodsN_flux_err_dict, int_fx=goodsN_Fx_int_array[0][i])
+    #                     # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
+    #                 # else:
+    #                     # continue
+    #             # else:
+    #                 # continue
+    # else:
+    #     continue
 
     # if check6 == 'GOOD':
     #     # if shape == 5:
