@@ -75,7 +75,7 @@ class AGN():
         self.lambdaL_lambda = self.Flux_to_Lum(self.lambdaF_lambda,self.z) # convert flux to luminosity [erg s^-1]
         self.lambdaL_lambda_err = self.Flux_to_Lum(self.lambdaF_lambda_err,self.z)
         self.nuF_nu = self.obs_freq*self.Fnu
-        self.nuF_nu_err = self.obs_freq*self.Fnu
+        self.nuF_nu_err = self.obs_freq*self.Fnu_err
         self.nuL_nu = self.Flux_to_Lum(self.nuF_nu,self.z)
         self.nuL_nu_err = self.Flux_to_Lum(self.nuF_nu_err,self.z)
 
@@ -897,6 +897,8 @@ class AGN():
                 data = np.append(data, -9999.)
 
         with open(f'../xcigale/cigale-master/pcigale/data/AHA_input_final2/{fname}', 'ab') as f:
+        # with open(f'../xcigale/data_input/{fname}', 'ab') as f:
+
             f.write(b'\n')
             np.savetxt(f, data, fmt='%s', delimiter='    ', newline=' ')
 
@@ -944,7 +946,8 @@ class AGN():
                     data = np.append(data,-9999.)
                     data = np.append(data,-9999.)
 
-        with open(f'../xcigale/data_input/{fname}','ab') as f:
+        # with open(f'../xcigale/data_input/{fname}','ab') as f:
+        with open(f'../xcigale/cigale-master/pcigale/data/AHA_input_final2/{fname}','ab') as f:
             f.write(b'\n')
             np.savetxt(f,data,fmt='%s',delimiter='    ',newline=' ')
 
