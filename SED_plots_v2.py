@@ -168,6 +168,9 @@ class Plotter():
             plt.fill_between(x_out, y_out_25, y_out_75, color=color, alpha=0.15)
    
     def PlotSED(self,point_x=np.nan,point_y=np.nan,fir_x=[np.nan],fir_y=[np.nan],temp_x=[np.nan],temp_y=[np.nan],xsub=[np.nan],ysub=[np.nan],save=False):
+        name = self.ID
+        name = name.tolist()
+        name = name.replace('/','-')
         fig, ax = plt.subplots(figsize=(12,8))
         ax.plot(self.wavelength,self.Lum,color='b',lw=2.5)
 
@@ -195,8 +198,9 @@ class Plotter():
         # plt.ylim(1E-4, 1E2)
         # plt.ylim(1E42,1E46)
         plt.grid()
+        plt.title(self.ID)
         if save:
-            plt.savefig(f'/Users/connor_auge/Desktop/{self.ID}_SED.pdf')
+            plt.savefig(f'/Users/connor_auge/Desktop/test_goals_data/{name}_SED_new.pdf')
         plt.show()
 
     def Plot_FIR_SED(self,wfir=[np.nan],ffir=[np.nan]):
@@ -206,6 +210,7 @@ class Plotter():
     def multi_SED(self, savestring, median_x=[np.nan], median_y=[np.nan], wfir=[[np.nan]], ffir=[[np.nan]],opt_p=[np.nan,np.nan],Median_line=True,FIR_med=True,FIR_upper='upper lims',percent=False,GOALS=False,wave_labels=False,temp_comp=False,temp_comp_x=[np.nan],temp_comp_y=[np.nan]):
         '''Function to overplot all normalized SEDs with each line mapping to a colorbar'''
         # Set colorbar limits
+        print(self.L)
         if GOALS:
             clim1 = 42.8
             clim2 = 44.25
@@ -214,11 +219,11 @@ class Plotter():
             clim1 = 45.2 + np.log10(12)
             clim2 = 46 + np.log10(12)
             fir_ls = '--'
-        # cmap = 'rainbow_r' # set colormap
+        cmap = 'rainbow_r' # set colormap
         # cmap = 'YlGnBu' # set colormap
-        cmap = 'winter' # set colormap
+        # cmap = 'winter' # set colormap
 
-        self.L += np.log10(12)
+        # self.L += np.log10(12)
 
 
         x = self.wavelength[self.L >= clim1] # remove sources with L outside colorbar range
@@ -302,8 +307,8 @@ class Plotter():
         if temp_comp:
             ax.plot(temp_comp_x,temp_comp_y,'--',color='r',lw=6)
 
-        plt.axvline(x=6,color='k',ls='--',lw=2.8)
-        plt.axvline(x=5.1660E-5,color='k',ls='--',lw=2.8)
+        # plt.axvline(x=6,color='k',ls='--',lw=2.8)
+        # plt.axvline(x=5.1660E-5,color='k',ls='--',lw=2.8)
 
         # plt.axvline(0.11,color='b',lw=3)
         # plt.axvline(0.5,color='b',lw=3)
@@ -324,7 +329,7 @@ class Plotter():
         # ax.text(0.69, 0.8, f'Dust', transform=ax.transAxes,fontsize=30, weight='bold')
 
         # plt.axvline(6.0,color='k')
-        plt.ylim(1E-2,100)
+        plt.ylim(1E-3,200)
         plt.xlim(2E-5,550)
         plt.grid()
         plt.tight_layout()
