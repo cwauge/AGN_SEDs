@@ -8,6 +8,7 @@ FLUX_GALEX_FUV    FLUXERR_GALEX_FUV    FUV    1539.78    nan    UV
 MAG_NUV    MAGERR_NUV    NUV    2313.89    nan    UV
 FLUX_GALEX_NUV    FLUXERR_GALEX_NUV    NUV    2313.89    nan    UV
 U    U_ERR    u_prime    3550.0    nan    UV
+U_JC    U_JC_ERR    vlt.wfi.U38    3660.0    nan    UV
 u_FLUX_APER2    u_FLUXERR_APER2    CFHT_u    3823.29    nan    UV
 IB427_FLUX    IB427_FLUXERR    subaru.suprime.IB427    4262.96    nan    UV  
 F435W    F435W_err    hst.wfc.F435W    4310.8    nan    Optical
@@ -26,6 +27,7 @@ IB598_FLUX    IB598_FLUXERR    nan    6000.0    nan    Optical
 IA624_FLUX_APER2    IA624_FLUXERR_APER2    subaru.suprime.IB624    6233.09    nan    Optical
 R    R_ERR    r_prime    6240.0    nan    Optical
 r_FLUX_APER2    r_FLUXERR_APER2    subaru.suprime.r    6288.71    nan    Optical
+R_JC    R_JC_ERR    RC    6500.0    nan    Optical
 IB651_FLUX    IB651_FLUXERR    nan    6502.0    nan    Optical
 IA679_FLUX_APER2    IA679_FLUXERR_APER2    subaru.suprime.IB679    6781.18    nan    Optical
 R_Johnson    R_Johnson_err    RJ    6810.0    nan    Optical
