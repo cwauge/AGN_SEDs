@@ -227,7 +227,6 @@ plt.xlabel(r'log L$_{\rm 6\mu m}$ [$\rm{erg\,s^{-1}}$]')
 plt.ylabel('Fraction of X-ray AGN identifed by IR')
 plt.show()
 
-
 plt.figure(figsize=(10,10))
 plt.bar(xxIR_bins[:-1],xxIR_values/xxtot_values,width=np.diff(xIR_bins), align='edge', color='gray')
 # plt.xlabel(r'L$_{\rm X(0.5 - 10keV)}[\rm{erg\,s^{-1}}]')
@@ -251,11 +250,17 @@ plt.ylabel('Number')
 plt.legend()
 plt.show()
 
-
 plt.figure(figsize=(10,10))
 plt.bar(xIR_bins[:-1],xIR_values/irtot_values,width=np.diff(xIR_bins), align='edge', color='gray')
 # plt.xlabel(r'L$_{\rm X(0.5 - 10keV)}[\rm{erg\,s^{-1}}]')
 plt.xlabel(r'log L$_{\rm 6\mu m}$ [$\rm{erg\,s^{-1}}$]')
+plt.ylabel('Fraction of IR AGN identifed by X-ray')
+plt.show()
+
+plt.figure(figsize=(10,10))
+plt.bar(xxIR_bins[:-1],xxIR_values/irtot_values,width=np.diff(xIR_bins), align='edge', color='gray')
+# plt.xlabel(r'L$_{\rm X(0.5 - 10keV)}[\rm{erg\,s^{-1}}]')
+plt.xlabel(r'log L$_{\rm X}$ [$\rm{erg\,s^{-1}}$]')
 plt.ylabel('Fraction of IR AGN identifed by X-ray')
 plt.show()
 
@@ -265,6 +270,14 @@ plt.bar(lbol_xIR_bins[:-1],lbol_xIR_values/lbol_irtot_values,width=np.diff(xIR_b
 plt.xlabel(r'log L$_{\rm bol}$ [$\rm{erg\,s^{-1}}$]')
 plt.ylabel('Fraction of IR AGN identifed by X-ray')
 plt.show()
+
+outf = open('/Users/connor_auge/Desktop/Completeness.csv','w')
+outf.writelines('Lx_bin_size,L6_bin_size,Frac_of_IR_IDby_Lx_L6,Frac_of_Xray_IDby_IR_Lx,Frac_of_Xray_IDby_IR_L6\n')
+for i in range(len(xIR_bins[:-1])):
+    outf.writelines('%f,%f,%f,%f,%f\n' % (xxIR_bins[:-1][i],xIR_bins[:-1][i],xIR_values[i]/irtot_values[i],xxIR_values[i]/xxtot_values[i],xIR_values[i]/xtot_values[i]))
+
+outf.close()
+
 
 # plt.figure(figsize=(10,10))
 # plt.plot(xIR_bins[:-1],xcumulative,color='b')

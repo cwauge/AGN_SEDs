@@ -7,6 +7,8 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.io import ascii
+from astropy.cosmology import FlatLambdaCDM
+from scipy.constants import c
 from SED_v8 import AGN
 from SED_plots_v2 import Plotter
 from filters import Filters
@@ -17,7 +19,50 @@ from match import match
 from mag_flux import mag_to_flux
 from mag_flux import magerr_to_fluxerr
 
+# def Lum_to_Flux(L,z):
+#     '''Function to convert flux to luminosity'''
+#     cosmo = FlatLambdaCDM(H0=70, Om0=0.29, Tcmb0=2.725)
 
+#     dl = cosmo.luminosity_distance(z).value # Distance in Mpc
+#     dl_cgs = dl*(3.0856E24) # Distance from Mpc to cm
+#     surf = 4*np.pi*dl_cgs**2
+#     k_corr_SED = 1e-26 * surf * c / (2.0664e-4 * 1e-6)
+
+#     # convert flux to luminosity 
+#     F = L / k_corr_SED
+
+#     return F
+
+
+def Lum_to_Flux(L,z):
+    '''Function to convert flux to luminosity'''
+    cosmo = FlatLambdaCDM(H0=70, Om0=0.29, Tcmb0=2.725)
+
+    dl = cosmo.luminosity_distance(z).value # Distance in Mpc
+    dl_cgs = dl*(3.0856E22) # Distance from Mpc to m
+    surf = 4*np.pi*dl_cgs**2
+    k_corr_SED = 1e-29 * surf * c / (2.0664e-4 * 1e-6)
+
+    # convert flux to luminosity 
+    L = L/1E7
+    F = L / k_corr_SED
+
+    return F
+
+def Flux_to_Lum(F,z):
+    '''Function to convert flux to luminosity'''
+    cosmo = FlatLambdaCDM(H0=70, Om0=0.29, Tcmb0=2.725)
+
+    dl = cosmo.luminosity_distance(z).value # Distance in Mpc
+    dl_cgs = dl*(3.0856E22) # Distance from Mpc to m
+    surf = 4*np.pi*dl_cgs**2
+    k_corr_SED = 1e-29 * surf * c / (2.0664e-4 * 1e-6)
+
+    # convert flux to luminosity 
+    L = F*k_corr_SED
+    L = L*1E7
+
+    return L
 
 ti = time.perf_counter() # Start timer
 path = '/Users/connor_auge/Research/Disertation/catalogs/' # Path for photometry catalogs
@@ -47,7 +92,7 @@ Ned_phot_ID = Ned_phot_data['ID']
 
 # Read in the X-ray data
 cgoals = ascii.read('../catalogs/CGOALS_Xray.txt',guess=False,delimiter=',',encoding='utf-8')
-ricci = ascii.read('../catalogs/ULIRG_Xray2.csv',guess=False,delimiter=',')
+ricci = ascii.read('../catalogs/ULIRG_Xray3.csv',guess=False,delimiter=',')
 
 cgoals_ID = cgoals['ID']
 cgoals_z = cgoals['z']
@@ -66,6 +111,12 @@ ricci_Fsx = np.asarray(ricci['Fx05_2'])
 ricci_Nh = np.asarray(ricci['Nh'])
 ricci_LIR = np.asarray(ricci['LIR'])
 
+ricci_Lx_har_flt = np.asarray([10**i for i in ricci_Lx_hard])
+ricci_Lx_har_obs_flt = np.asarray([10**i for i in ricci_Lx_hard_obs])
+correction = ricci_Lx_har_flt/ricci_Lx_har_obs_flt 
+
+Fxh_int_mjy = Lum_to_Flux(ricci_Lx_har_flt, ricci_z)
+
 
 goals_cond = ricci_Lx_full > Lx_min
 ricci_ID = ricci_ID[goals_cond]
@@ -75,8 +126,10 @@ ricci_Lx_full = ricci_Lx_full[goals_cond]
 ricci_Lx_hard_obs = ricci_Lx_hard_obs[goals_cond]
 ricci_Fhx = ricci_Fhx[goals_cond]
 ricci_Fsx = ricci_Fsx[goals_cond]
+Fxh_int_mjy = Fxh_int_mjy[goals_cond]
 ricci_Nh = ricci_Nh[goals_cond]
 ricci_LIR = ricci_LIR[goals_cond]
+correction = correction[goals_cond]
 
 ix, iy = match(ricci_ID,U_phot_ID)
 ricci_ID_match_U = ricci_ID[ix]
@@ -88,6 +141,7 @@ ricci_Fhx_match_U = ricci_Fhx[ix]
 ricci_Fsx_match_U = ricci_Fsx[ix]
 ricci_Nh_match_U = ricci_Nh[ix]
 ricci_LIR_match_U = ricci_LIR[ix]
+Fxh_int_mjy_match_U = Fxh_int_mjy[ix]
 
 U_phot_ID_match = U_phot_ID[iy]
 
@@ -182,18 +236,39 @@ ricci_Fhx_match_Ned = ricci_Fhx[ix]
 ricci_Fsx_match_Ned = ricci_Fsx[ix]
 ricci_Nh_match_Ned = ricci_Nh[ix]
 ricci_LIR_match_Ned = ricci_LIR[ix]
+correction_match_Ned = correction[ix]
+Fxh_int_mjy_match_Ned = Fxh_int_mjy[ix]
 
 Ned_phot_ID_match = Ned_phot_ID[iy]
 
 ricci_Fx_hard_match_mjy_Ned = ricci_Fhx_match_Ned*4.136E8/(10-2)
 ricci_Fx_soft_match_mjy_Ned = ricci_Fsx_match_Ned*4.136E8/(2-0.5)
 
-goals_Fx_int_array = np.array([ricci_Fx_hard_match_mjy_Ned])
-goals_Fx_int_err_array = np.array([ricci_Fx_hard_match_mjy_Ned*0.3])
+L_test = Flux_to_Lum(ricci_Fx_hard_match_mjy_Ned,ricci_z_match_Ned)
+L_test2 = Flux_to_Lum(Fxh_int_mjy_match_Ned,ricci_z_match_Ned)
 
-print('Here')
-print(ricci_Fx_hard_match_mjy_Ned*1000)
-print(np.asarray(Ned_phot_data['Fx_h'][iy], dtype=float)*1E6)
+for i in range(len(L_test)):
+     print(ricci_ID_match_Ned[i],ricci_Lx_hard_match_Ned[i],np.log10(L_test[i]),np.log10(L_test2[i]))
+
+
+plt.plot(ricci_Lx_hard_match_Ned,np.log10(L_test),'.',label='xspec')
+plt.plot(ricci_Lx_hard_match_Ned,np.log10(L_test2),'.',label='lum to flux')
+plt.plot(np.arange(42.5,45.5),np.arange(42.5,45.5),color='k')
+plt.legend()
+plt.grid()
+plt.show()
+
+
+# Fxh_int_mjy_match_Ned = ricci_Fx_hard_match_mjy_Ned#*correction_match_Ned
+
+# Fxh_int_match_Ned_mjy = Fxh_int_match_Ned*4.136E8/(10-2) 
+
+# goals_Fx_int_array = np.array([ricci_Fx_hard_match_mjy_Ned])
+# goals_Fx_int_err_array = np.array([ricci_Fx_hard_match_mjy_Ned*0.3])
+
+goals_Fx_int_array = np.array([Fxh_int_mjy_match_Ned])
+goals_Fx_int_err_array = np.array([Fxh_int_mjy_match_Ned*0.3])
+
 
 goals_nan_array = np.zeros(np.shape(Ned_phot_data['Fx_h'][iy]))
 goals_nan_array[goals_nan_array == 0] = np.nan
@@ -201,18 +276,23 @@ goals_nan_array[goals_nan_array == 0] = np.nan
 # print(Ned_phot_data['Fx_h'][iy])
 
 Ned_goals_flux = np.asarray([
-    ricci_Fx_hard_match_mjy_Ned*1000,
+    Fxh_int_mjy_match_Ned*1000,
     ricci_Fx_soft_match_mjy_Ned*1000,
     # np.asarray(Ned_phot_data['Fx_h'][iy],dtype=float)*1E6,
     # np.asarray(Ned_phot_data['Fx_s'][iy],dtype=float)*1E6,
     goals_nan_array,
     np.asarray(Ned_phot_data['FUV'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['NUV'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['u'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['U'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['B'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['g'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['V'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['r'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['R'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['i'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['I'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['z'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['J'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['H'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['Ks'][iy],dtype=float)*1E6,
@@ -220,34 +300,39 @@ Ned_goals_flux = np.asarray([
     np.asarray(Ned_phot_data['IRAC2'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['IRAC3'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['IRAC4'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['IRAS1'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['MIPS1'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['IRAS1'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['MIPS1'][iy],dtype=float)*1E6,
     # np.asarray(Ned_phot_data['IRAS2'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['IRAS3'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['MIPS2'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['PACS2'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['MIPS3'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['F250'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['F350'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['F500'][iy],dtype=float)*1E6,
-    np.asarray(Ned_phot_data['SCUBA2'][iy],dtype=float)*1E6,
-    np.asarray(Ned_phot_data['VLA1'][iy],dtype=float)*1E6,
-    np.asarray(Ned_phot_data['VLA2'][iy],dtype=float)*1E6
+    np.asarray(Ned_phot_data['IRAS3'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['MIPS2'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['PACS2'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['MIPS3'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['F250'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['F350'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['F500'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['SCUBA2'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['VLA1'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['VLA2'][iy],dtype=float)*1E6
 ])
 
 Ned_goals_flux_err = np.asarray([
-    ricci_Fx_hard_match_mjy_Ned*1000*0.2,
+    Fxh_int_mjy_match_Ned*1000*0.2,
     ricci_Fx_soft_match_mjy_Ned*1000*0.2,
     # np.asarray(Ned_phot_data['Fx_h'][iy],dtype=float)*1E6*0.2,
     # np.asarray(Ned_phot_data['Fx_s'][iy],dtype=float)*1E6*0.2,
     goals_nan_array,
     np.asarray(Ned_phot_data['FUVerr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['NUVerr'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['uerr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['Uerr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['Berr'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['gerr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['Verr'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['rerr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['Rerr'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['ierr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['Ierr'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['zerr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['Jerr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['Herr'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['Kserr'][iy],dtype=float)*1E6,
@@ -255,19 +340,19 @@ Ned_goals_flux_err = np.asarray([
     np.asarray(Ned_phot_data['IRAC2err'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['IRAC3err'][iy],dtype=float)*1E6,
     np.asarray(Ned_phot_data['IRAC4err'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['IRAS1err'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['MIPS1err'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['IRAS1err'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['MIPS1err'][iy],dtype=float)*1E6,
     # np.asarray(Ned_phot_data['IRAS2err'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['IRAS3err'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['MIPS2err'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['PACS2err'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['MIPS3err'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['F250err'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['F350err'][iy],dtype=float)*1E6,
-    # np.asarray(Ned_phot_data['F500err'][iy],dtype=float)*1E6,
-    np.asarray(Ned_phot_data['SCUBA2err'][iy],dtype=float)*1E6,
-    np.asarray(Ned_phot_data['VLA1err'][iy],dtype=float)*1E6,
-    np.asarray(Ned_phot_data['VLA2err'][iy],dtype=float)*1E6
+    np.asarray(Ned_phot_data['IRAS3err'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['MIPS2err'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['PACS2err'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['MIPS3err'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['F250err'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['F350err'][iy],dtype=float)*1E6,
+    np.asarray(Ned_phot_data['F500err'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['SCUBA2err'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['VLA1err'][iy],dtype=float)*1E6,
+    # np.asarray(Ned_phot_data['VLA2err'][iy],dtype=float)*1E6
 ])
 
 
@@ -293,19 +378,34 @@ scale_array = [1.87E44, 2.33E44, 3.93E44]
 
 # goals_filter_name = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
                                 # 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS2', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500', 'SCUBA2', 'VLA1', 'VLA2'])
-# goals_filter_name = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
-#                                 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500','SCUBA2', 'VLA1', 'VLA2'])
-# GOALS_CIGALE_Filters = np.asarray(['Fx_hard', 'Fx_soft', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
-#                                 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500','SCUBA2', 'VLA1', 'VLA2'])
 
-goals_filter_name = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
-                                'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX','SCUBA2', 'VLA1', 'VLA2'])
-GOALS_CIGALE_Filters = np.asarray(['Fx_hard', 'Fx_soft', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
-                                'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX','SCUBA2', 'VLA1', 'VLA2'])
+
+goals_filter_name = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U_JC', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R_JC', 'I_Cousins', 'J_FLUX_APER2', 'H_FLUX_APER2',
+                                'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+GOALS_CIGALE_Filters = np.asarray(['Fx_hard', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U_JC', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R_JC', 'I_Cousins', 'J_FLUX_APER2', 'H_FLUX_APER2',
+                                'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+# goals_filter_name = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
+#                                 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1','IRAS2', 'FLUX_24', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+# GOALS_CIGALE_Filters = np.asarray(['Fx_hard', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
+#                                 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1','IRAS2', 'FLUX_24', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+
+# goals_filter_name = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U','u_FLUX_APER2', 'B_FLUX_APER2', 'G', 'V_FLUX_APER2', 'R', 'r_FLUX_APER2', 'I', 'ip_FLUX_APER2','Z' , 'J_FLUX_APER2', 'H_FLUX_APER2',
+#                                 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+# GOALS_CIGALE_Filters = np.asarray(['Fx_hard', 'Fx_soft', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U','u_FLUX_APER2', 'B_FLUX_APER2', 'G', 'V_FLUX_APER2', 'R', 'r_FLUX_APER2', 'I', 'ip_FLUX_APER2','Z' ,'J_FLUX_APER2', 'H_FLUX_APER2',
+#                                 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX', 'IRAS1', 'FLUX_24', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
+
+
+# goals_filter_name = np.asarray(['Fx_hard', 'Fx_soft', 'nan', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
+#                                 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX','SCUBA2', 'VLA1', 'VLA2'])
+# GOALS_CIGALE_Filters = np.asarray(['Fx_hard', 'FLUX_GALEX_FUV', 'FLUX_GALEX_NUV', 'U', 'B_FLUX_APER2', 'V_FLUX_APER2', 'R', 'I', 'J_FLUX_APER2', 'H_FLUX_APER2',
+#                                 'Ks_FLUX_APER2', 'SPLASH_1_FLUX', 'SPLASH_2_FLUX', 'SPLASH_3_FLUX', 'SPLASH_4_FLUX','SCUBA2', 'VLA1', 'VLA2'])
 
 ###############################################################################
 ############################## Start CIGALE File ##############################
-cigale_name = 'GOALS_new3_noIR.mag'
+cigale_name = 'GOALS_new9.mag'
 inf = open(f'../xcigale/data_input/{cigale_name}', 'w')
 header = np.asarray(['# id', 'redshift'])
 cigale_filters = Filters('filter_list.dat').pull_filter(GOALS_CIGALE_Filters, 'xcigale name')
@@ -421,87 +521,89 @@ xout_ulirg = []
 
 # print(np.shape(ricci_ID_match_Ned))
 
-run_ids = ['IRAS F05189-2524','NGC 7674','NGC6240N','UGC 08058','UGC 09913']
+# run_ids = ['IRAS F05189-2524','NGC 7674','NGC6240N','UGC 08058','UGC 09913']
+
+print(np.shape(Ned_goals_flux),len(goals_filter_name),np.shape(Ned_goals_flux_err))
 for i in range(len(ricci_ID_match_Ned)):
     # if ricci_ID_match_Ned[i] == 'UGC 08058':
         # continue
     # if len(Ned_goals_flux[i][Ned_goals_flux[i] > 0]) > 1:
-    if ricci_ID_match_Ned[i] in run_ids:
-        print(i,ricci_ID_match_Ned[i], ricci_z_match_Ned[i], ricci_LIR_match_Ned[i])
+    # if ricci_ID_match_Ned[i] in run_ids:
+        # print(i,ricci_ID_match_Ned[i], ricci_z_match_Ned[i], ricci_LIR_match_Ned[i])
         source = AGN(ricci_ID_match_Ned[i],ricci_z_match_Ned[i],goals_filter_name,Ned_goals_flux[i],Ned_goals_flux_err[i])
         source.MakeSED()
-        # med_flux.append(Ned_goals_flux[i])
-        # source.FIR_extrap(['FLUX_24','IRAS2', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500','SCUBA2', 'VLA1', 'VLA2'])
+        med_flux.append(Ned_goals_flux[i])
+        source.FIR_extrap(['FLUX_24', 'IRAS3', 'MIPS2', 'FLUX_100', 'FLUX_160', 'FLUX_250', 'FLUX_350', 'FLUX_500'])
 
         goals_flux_dict = source.MakeDict(goals_filter_name,Ned_goals_flux[i])
         goals_flux_err_dict = source.MakeDict(goals_filter_name,Ned_goals_flux_err[i])
 
-        # ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
-        # median_x_ulirg.append(ix)
-        # median_y_ulirg.append(iy)
+        ix, iy = source.Int_SED(xmin=1E-1, xmax=1E1)
+        median_x_ulirg.append(ix)
+        median_y_ulirg.append(iy)
 
-        # wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0, discreet=True)
-        # WFIR_ulirg.append(wfir)
-        # FFIR_ulirg.append(ffir)
-        # F100_ulirg.append(f100)
+        wfir, ffir, f100 = source.Int_SED_FIR(Find_value=100.0, discreet=True)
+        WFIR_ulirg.append(wfir)
+        FFIR_ulirg.append(ffir)
+        F100_ulirg.append(f100)
 
-        # ir_x, ir_y, ir_agn = source.IR_colors('SPLASH_1_FLUX','SPLASH_2_FLUX','SPLASH_3_FLUX','SPLASH_4_FLUX')
-        # IRx.append(ir_x)
-        # IRy.append(ir_y)
-        # IRagn.append(ir_agn)
+        ir_x, ir_y, ir_agn = source.IR_colors('SPLASH_1_FLUX','SPLASH_2_FLUX','SPLASH_3_FLUX','SPLASH_4_FLUX')
+        IRx.append(ir_x)
+        IRy.append(ir_y)
+        IRagn.append(ir_agn)
 
-        # f1 = source.Find_value(1.0)
-        # xval = source.Find_value(3E-4)
-        # f6 = source.Find_value(6.0)
-        # f025 = source.Find_value(0.25)
-        # f10 = source.Find_value(10)
-        # f2kev = source.Find_value(6.1992e-4)
+        f1 = source.Find_value(1.0)
+        xval = source.Find_value(3E-4)
+        f6 = source.Find_value(6.0)
+        f025 = source.Find_value(0.25)
+        f10 = source.Find_value(10)
+        f2kev = source.Find_value(6.1992e-4)
 
-        # lbol = source.Find_Lbol()
-        # lbol_sub = source.Find_Lbol(sub=True, Lscale=scale_array, Lnorm=f1, temp_x=temp_wave, temp_y=temp_lum)
+        lbol = source.Find_Lbol()
+        lbol_sub = source.Find_Lbol(sub=True, Lscale=scale_array, Lnorm=f1, temp_x=temp_wave, temp_y=temp_lum)
 
-        # shape = source.SED_shape()
+        shape = source.SED_shape()
 
-        # Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
-        # ulirg_id.append(Id)
-        # ulirg_x.append(w)
-        # ulirg_y.append(f)
-        # ulirg_frac_error.append(frac_err)
-        # ulirg_FIR_upper_lims.append(up_check)
-        # ulirg_Lx_out.append(ricci_Lx_hard_obs_match_Ned[i])
-        # ulirg_Lx_corr_out.append(ricci_Lx_full_match_Ned[i])
-        # ulirg_Lx_hard_corr_out.append(ricci_Lx_hard_match_Ned[i])
-        # ulirg_Nh_out.append(ricci_Nh_match_Ned[i])
-        # ulirg_LIR_out.append(ricci_LIR_match_Ned[i])
-        # ulirg_z.append(ricci_z_match_Ned[i])
+        Id, redshift, w, f, frac_err, up_check = source.pull_plot_info(norm_w=1)
+        ulirg_id.append(Id)
+        ulirg_x.append(w)
+        ulirg_y.append(f)
+        ulirg_frac_error.append(frac_err)
+        ulirg_FIR_upper_lims.append(up_check)
+        ulirg_Lx_out.append(ricci_Lx_hard_obs_match_Ned[i])
+        ulirg_Lx_corr_out.append(ricci_Lx_full_match_Ned[i])
+        ulirg_Lx_hard_corr_out.append(ricci_Lx_hard_match_Ned[i])
+        ulirg_Nh_out.append(ricci_Nh_match_Ned[i])
+        ulirg_LIR_out.append(ricci_LIR_match_Ned[i])
+        ulirg_z.append(ricci_z_match_Ned[i])
         
-        # print(np.log10(xval), ricci_Lx_full_match_Ned[i])
-        # plot = Plotter(Id, redshift, w, f, 10**ricci_Lx_full_match_Ned[i],f1,up_check)
-        # # plot.PlotSED(point_x=[3E-4,0.25,6,100],point_y=[xval/f1,f025/f1,f6/f1,f100/f1])
+        print(np.log10(xval), ricci_Lx_full_match_Ned[i])
+        plot = Plotter(Id, redshift, w, f, 10**ricci_Lx_full_match_Ned[i],f1,up_check)
+        plot.PlotSED(point_x=[3E-4,0.25,6,100],point_y=[xval/f1,f025/f1,f6/f1,f100/f1])
 
-        # norm_ulirg.append(f1)
-        # xout_ulirg.append(xval)
-        # F025_ulirg.append(f025)
-        # F6_ulirg.append(f6)
-        # F10_ulirg.append(f10)
-        # # F100_ulirg.append(f100)
-        # Lbol_ulirg.append(lbol)
-        # Lbol_ulirg_sub.append(lbol_sub)
-        # ulirg_shape.append(shape)
+        norm_ulirg.append(f1)
+        xout_ulirg.append(xval)
+        F025_ulirg.append(f025)
+        F6_ulirg.append(f6)
+        F10_ulirg.append(f10)
+        # F100_ulirg.append(f100)
+        Lbol_ulirg.append(lbol)
+        Lbol_ulirg_sub.append(lbol_sub)
+        ulirg_shape.append(shape)
 
-        # UVslope_ulirg.append(source.Find_slope(0.15, 1.0))
-        # MIRslope1_ulirg.append(source.Find_slope(1.0, 6.5))
-        # MIRslope2_ulirg.append(source.Find_slope(6.5, 10))
+        UVslope_ulirg.append(source.Find_slope(0.15, 1.0))
+        MIRslope1_ulirg.append(source.Find_slope(1.0, 6.5))
+        MIRslope2_ulirg.append(source.Find_slope(6.5, 10))
 
-        # uv_lum_ulirg.append(source.find_Lum_range(0.1,0.35))
-        # opt_lum_ulirg.append(source.find_Lum_range(0.35,3))
-        # mir_lum_ulirg.append(source.find_Lum_range(3,30))
-        # fir_lum_ulirg.append(source.find_Lum_range(30,500/(1+ricci_z_match_Ned[i])))
+        uv_lum_ulirg.append(source.find_Lum_range(0.1,0.35))
+        opt_lum_ulirg.append(source.find_Lum_range(0.35,3))
+        mir_lum_ulirg.append(source.find_Lum_range(3,30))
+        fir_lum_ulirg.append(source.find_Lum_range(30,500/(1+ricci_z_match_Ned[i])))
 
-        # goals_irac_ch1.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_1_FLUX'][0])
-        # goals_irac_ch2.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_2_FLUX'][0])
-        # goals_irac_ch3.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_3_FLUX'][0])
-        # goals_irac_ch4.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_4_FLUX'][0])
+        goals_irac_ch1.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_1_FLUX'][0])
+        goals_irac_ch2.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_2_FLUX'][0])
+        goals_irac_ch3.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_3_FLUX'][0])
+        goals_irac_ch4.append(Ned_goals_flux[i][goals_filter_name == 'SPLASH_4_FLUX'][0])
         source.write_cigale_file2(cigale_name, GOALS_CIGALE_Filters, goals_flux_dict, goals_flux_err_dict, int_fx=goals_Fx_int_array[0][i],int_fx_err=goals_Fx_int_err_array[0][i])
         # source.write_cigale_file(cigale_name, goals_filter_name, use_int_fx=False)
         ulirg_field.append(5)
@@ -617,28 +719,28 @@ cigale_Lx_goals = np.asarray([2.80337802e+43, 1.84189379e+44, 2.29516011e+43, 2.
 
 # AHA_plot2.Upanels_ratio_plots('GOALS_figs/Lum_Lbol','Lbol','UV-MIR-FIR/Lbol','Bins',aha_Nh,aha_Lx,np.log10(aha_Lbol),np.log10(aha_UV_lum),np.log10(aha_MIR_lum),np.log10(aha_FIR_lum),np.log10(aha_F025),np.log10(aha_F6),np.log10(aha_F100),np.log10(aha_F10),aha_F1,aha_field,aha_z,aha_uv_slope,aha_mir_slope1,aha_mir_slope2,aha_FIR_upper_lims,shape=aha_shape,Nh_upper=aha_Nh_check,compare=True,comp_L=np.log10(Lbol_ulirg_sub),comp_UV=np.log10(uv_lum_ulirg),comp_MIR=np.log10(mir_lum_ulirg),comp_FIR=np.log10(fir_lum_ulirg))
 
-fig = plt.figure(figsize=(10, 8))
-ax1 = plt.subplot(111, aspect='equal', adjustable='box')
-pts = plt.scatter(np.log10(ulirg_Nh_out[np.log10(ulirg_Nh_out) > 23]),ulirg_Lx_corr_out[np.log10(ulirg_Nh_out) > 23]-ulirg_Lx_out[np.log10(ulirg_Nh_out) > 23], c=ulirg_LIR_out[np.log10(ulirg_Nh_out) > 23], edgecolor='k', s=100)
-axcb = fig.colorbar(pts)  # make colorbar
-axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits Lir
-axcb.set_label(label=r'log $L_{\rm IR}/L_{\odot}$')
-plt.xlabel(r'log $N_{\rm H}$ [cm$^{-2}$]')
-plt.ylabel(r'log L$_{\rm X,int}$/L$_{\rm X,obs}$')
-# plt.plot(np.arange(40, 47), np.arange(40, 47), color='k')
-plt.xlim(22, 25.5)
-plt.ylim(-0.25, 3.25)
-ax1.set_xticks([22, 23, 24, 25])
-ax1.set_yticks([0.0, 1.0, 2.0, 3.0])
-plt.grid()
-plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/GOALS_figs/Lx_correction_Nh.pdf')
-plt.show()
+# fig = plt.figure(figsize=(10, 8))
+# ax1 = plt.subplot(111, aspect='equal', adjustable='box')
+# pts = plt.scatter(np.log10(ulirg_Nh_out[np.log10(ulirg_Nh_out) > 23]),ulirg_Lx_corr_out[np.log10(ulirg_Nh_out) > 23]-ulirg_Lx_out[np.log10(ulirg_Nh_out) > 23], c=ulirg_LIR_out[np.log10(ulirg_Nh_out) > 23], edgecolor='k', s=100)
+# axcb = fig.colorbar(pts)  # make colorbar
+# axcb.mappable.set_clim(10.75, 12.25)  # initialize colorbar limits Lir
+# axcb.set_label(label=r'log $L_{\rm IR}/L_{\odot}$')
+# plt.xlabel(r'log $N_{\rm H}$ [cm$^{-2}$]')
+# plt.ylabel(r'log L$_{\rm X,int}$/L$_{\rm X,obs}$')
+# # plt.plot(np.arange(40, 47), np.arange(40, 47), color='k')
+# plt.xlim(22, 25.5)
+# plt.ylim(-0.25, 3.25)
+# ax1.set_xticks([22, 23, 24, 25])
+# ax1.set_yticks([0.0, 1.0, 2.0, 3.0])
+# plt.grid()
+# plt.savefig(f'/Users/connor_auge/Desktop/Final_plots/GOALS_figs/Lx_correction_Nh.pdf')
+# plt.show()
 
 
-print(ulirg_Lx_corr_out)
-print(ulirg_Lx_hard_corr_out)
-print(len(ulirg_Lx_corr_out))
-print(len(ulirg_Lx_hard_corr_out))
+# print(ulirg_Lx_corr_out)
+# print(ulirg_Lx_hard_corr_out)
+# print(len(ulirg_Lx_corr_out))
+# print(len(ulirg_Lx_hard_corr_out))
 
 
 # plt.figure(figsize=(10,10),facecolor='w')
@@ -659,11 +761,11 @@ print(len(ulirg_Lx_hard_corr_out))
 # plt.plot(np.arange(41,48),np.arange(41,48),color='k')
 # plt.show()
 
-# ulirg_plot.multi_SED('ULIRG_n',ulirg_x,ulirg_y,ulirg_Lx_out,median_x_ulirg,median_y_ulirg,suptitle='SEDs of ULIRGs',norm=norm_ulirg,mark=ulirg_field,spec_z=ulirg_z,wfir=None,ffir=None,up_check=ulirg_up_check,med_x_fir=median_fir_x_ulirg,med_y_fir=median_fir_y_ulirg)
-# plot.multi_SED('GOALS_figs/SEDs_intFx',median_x=median_x_ulirg,median_y=median_y_ulirg,wfir=WFIR_ulirg,ffir=FFIR_ulirg,Median_line=True,FIR_upper='data only',GOALS=True)
+# ulirg_plot.multi_SED('ULIRG_new',ulirg_x,ulirg_y,ulirg_Lx_out,median_x_ulirg,median_y_ulirg,suptitle='SEDs of ULIRGs',norm=norm_ulirg,mark=ulirg_field,spec_z=ulirg_z,wfir=None,ffir=None,up_check=ulirg_up_check,med_x_fir=median_fir_x_ulirg,med_y_fir=median_fir_y_ulirg)
+plot.multi_SED('GOALS_figs/SEDs_intFx_new',median_x=median_x_ulirg,median_y=median_y_ulirg,wfir=WFIR_ulirg,ffir=FFIR_ulirg,Median_line=True,FIR_upper='data only',GOALS=True)
 #
 #  plot.L_scatter_comp('GOALS_figs/Lx_comp_Nh',ulirg_Lx_out,ulirg_Lx_corr_out,color_array=np.log10(ulirg_Nh_out),xlabel=r'Observed log L$_{\rm X}$ [erg/s]', ylabel=r'Intrinsic log L$_{\rm X}$ [erg/s]',colorbar_label=r'log N$_{\rm H}$ [cm$^{-2}$]')
-# plot.IR_colors('GOALS_figs/IR_colors',IRx,IRy,ulirg_LIR_out,colorbar=True,colorbar_label=r'log L$_{\rm IR}$ [L$_\odot$]',Lacy=True,agn=IRagn,select_sources=True)
+plot.IR_colors('GOALS_figs/IR_colors',IRx,IRy,ulirg_LIR_out,colorbar=True,colorbar_label=r'log L$_{\rm IR}$ [L$_\odot$]',Lacy=True,agn=IRagn,select_sources=True)
 
 # AHA_plot.L_scatter_3panels('GOALS_figs/AGN_Lx_scatter_fit_comp','UV-MIR-FIR', 'Lx', 'X-axis', aha_F1, aha_F025, aha_F6, aha_F100, shape=aha_shape, L=aha_Lbol, compare=True, comp_L=ulirg_Lx_corr_out, comp_uv=F025_ulirg, comp_mir=F6_ulirg, comp_fir=F100_ulirg)
 # AHA_plot.median_SED_1panel('GOALS_figs/median_SEDs_shape_comp', median_x=aha_int_x, median_y=aha_int_y, wfir=aha_wfir, ffir=aha_ffir, shape=aha_shape, FIR_upper='upper lims', bins='shape',compare=True,comp_med_x=median_x_ulirg,comp_med_y=median_y_ulirg,comp_wfir=WFIR_ulirg,comp_ffir=FFIR_ulirg)
