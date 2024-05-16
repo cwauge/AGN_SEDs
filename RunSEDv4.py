@@ -46,7 +46,7 @@ def Lum_to_Flux(L,z):
 
 ti = time.perf_counter() # Start timer
 
-path = '/Users/connor_auge/Research/Disertation/catalogs/' # Path for photometry catalogs
+path = '/Users/connorauge/Research/Dissertation/catalogs/' # Path for photometry catalogs
 
 # set redshift and X-ray luminosity limits
 z_min = 0.0
@@ -99,7 +99,7 @@ chandra_cosmos_ct_data = chandra_cosmos_ct[1].data
 chandra_cosmos_ct.close()
 
 # DEIMOS 10k Spec z cat
-deimos = ascii.read('/Users/connor_auge/Downloads/deimos_10k_March2018_new/deimos_redshifts.tbl')
+deimos = ascii.read('/Users/connorauge/Downloads/deimos_10k_March2018_new/deimos_redshifts.tbl')
 deimos_id = np.asarray(deimos['ID'])
 deimos_z = np.asarray(deimos['zspec'])
 deimos_remarks = np.asarray(deimos['Remarks'])
@@ -509,7 +509,7 @@ with fits.open(path+'Peca_S82X_full.fit') as hdul:
     peca2_data = hdul[1].data
 
 # WISE catalog with forced photometry on SLOAN sources
-unwise = ascii.read('/Users/connor_auge/Research/desktop_catalogs/unwise_matches.csv')
+unwise = ascii.read('/Users/connorauge/Research/desktop_catalogs/unwise_matches.csv')
 unwise_ID = np.asarray(unwise['ID'])
 unwise_W1 = np.asarray(unwise['unW1'])
 unwise_W2 = np.asarray(unwise['unW2'])
@@ -705,6 +705,8 @@ s82x_Fxerr_soft_int_mjy = s82x_Fx_soft_int_mjy*0.2 # Place holder errors for X-r
 # s82x_Fx_int_array = np.array([s82x_Fx_hard_int_mjy,s82x_Fx_soft_int_mjy]).T
 
 s82x_Fx_hard_int_mjy[s82x_Fx_hard_int_mjy <= 0] = s82x_Fx_soft_int_mjy[s82x_Fx_hard_int_mjy <= 0]*1.64
+s82x_Fx_hard_int_mjy[s82x_Fx_hard_int_mjy <= 0] = s82x_Fx_full_int_mjy[s82x_Fx_hard_int_mjy <= 0]*0.611
+
 s82x_Fx_int_array = np.array([s82x_Fx_hard_int_mjy])
 
 for i in (s82x_Fx_int_array):
@@ -1115,14 +1117,14 @@ plt.legend()
 plt.xlim(-0.05,1.25)
 plt.grid()
 plt.tight_layout()
-plt.savefig('/Users/connor_auge/Desktop/Final_plots/a_new/Lx_z_spec3.pdf')
+plt.savefig('/Users/connorauge/Desktop/Final_plots/a_new/Lx_z_spec3.pdf')
 plt.show()
 '''
 ####################
 
 
 #### Read in Galaxy Templates ####
-temp = ascii.read('/Users/connor_auge/Research/templets/A10_templates.txt')
+temp = ascii.read('/Users/connorauge/Research/templets/A10_templates.txt')
 temp_wave = np.asarray(temp['Wave'])
 temp_flux = np.asarray(temp['E'])*1E-16  # erg/s/cm^-2/Hz
 temp_wave_cgs = temp_wave*1E-8
@@ -1137,7 +1139,7 @@ scale_array = [1.12E44, 1.72E44, 2.27E44]
 ###################################
 
 #### Read in M82 Templates ####
-m82 = ascii.read('/Users/connor_auge/Research/templets/M82.csv')
+m82 = ascii.read('/Users/connorauge/Research/templets/M82.csv')
 m82_wave = np.asarray(m82['wave'])
 m82_lum = np.asarray(m82['lum'])
 ###################################
@@ -1191,10 +1193,10 @@ filter_GOODSS_total = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F
 filter_GOODS_total  = np.asarray(['Fxh','Fxs','FUV','NUV','U','F435W','B','V','F606W','R','I','F775W','F814W', 'z', 'F850LP', 'F098M','F105W', 'F125W', 'J', 'F140W', 'F160W', 'H', 'Ks','IRAC1','IRAC2','IRAC3','IRAC4','F24','F70','F100','F160','F250','F350','F500'])
 ###############################################################################
 ############################## Start CIGALE File ##############################
-cigale_name = 'S82X_shape1_high_z2.mag'
-inf = open(f'../xcigale/cigale-master/pcigale/data/AHA_input_final2/{cigale_name}', 'w')
+cigale_name = 'COSMOS_shape4_high_z.mag'
+inf = open(f'/Users/connorauge/Research/Dissertation/cigale/AHA_input/{cigale_name}', 'w')
 header = np.asarray(['# id', 'redshift'])
-cigale_filters = Filters('filter_list.dat').pull_filter(S82X_CIGALE_filters, 'xcigale name')
+cigale_filters = Filters('filter_list.dat').pull_filter(COSMOS_CIGALE_filters, 'xcigale name')
 for i in range(len(cigale_filters)):
     header = np.append(header, cigale_filters[i])
     header = np.append(header, cigale_filters[i]+'_err')
@@ -1206,7 +1208,7 @@ inf.close()
 ###############################################################################
 # ############################# Start Check SED File #############################
 # check_sed_fname = 'COSMOS_SED_Check'
-# with open(f'/Users/connor_auge/Desktop/sed_check_output/{check_sed_fname}.txt', 'w') as outf:
+# with open(f'/Users/connorauge/Desktop/sed_check_output/{check_sed_fname}.txt', 'w') as outf:
 #     outf.writelines('ID,Bad_SED,UV_extrap,F1_extrap,MIR_extrap,FIR_extrap,Bad_FIR,Manual_Check\n')
 ###############################################################################
 
@@ -1447,22 +1449,22 @@ for i in range(len(chandra_cosmos_phot_id_match)):
  
         # print('---------------------')
 
-        # if check6 == 'GOOD':
-        #     if shape == 5:
-        #         # if chandra_cosmos_z_match[i] > 0.5: 
-        #             # cigale_count += 1
-        #             # if (cigale_count > 240) & (cigale_count <= 320):
-        #             # if cigale_count <= 80:
-        #                 source.write_cigale_file2(cigale_name, COSMOS_CIGALE_filters, cosmos_flux_dict, cosmos_flux_err_dict, int_fx=cosmos_Fx_int_array[0][i])
-        #             # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-        #             # else:
-        #                 # continue
-        #         # else:
-        #             # continue
-        #     else:
-        #         continue
-        # else:
-        #     continue
+        if check6 == 'GOOD':
+            if shape == 4:
+                if chandra_cosmos_z_match[i] > 0.5: 
+                    # cigale_count += 1
+                    # if (cigale_count > 240) & (cigale_count <= 320):
+                    if cigale_count <= 80:
+                        source.write_cigale_file2(cigale_name, COSMOS_CIGALE_filters, cosmos_flux_dict, cosmos_flux_err_dict, int_fx=cosmos_Fx_int_array[0][i])
+                    # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
+                    else:
+                        continue
+                else:
+                    continue
+            else:
+                continue
+        else:
+            continue
 
 
     # # else:
@@ -1625,22 +1627,22 @@ for i in range(len(s82x_id)):
             #     plot.PlotSED(point_x=100,point_y=f100/f1)
             #     source.write_cigale_file(cigale_name,S82X_filters,int_fx=s82x_Fx_int_array[i],use_int_fx=True)
 
-            if check6 == 'GOOD':
-                if shape == 1:
-                    if s82x_z[i] > 0.5: 
-                        cigale_count += 1
-                        if (cigale_count > 80) & (cigale_count <= 160):
-                        # if cigale_count <= 80:
-                            source.write_cigale_file2(cigale_name, S82X_CIGALE_filters, s82x_flux_dict, s82x_flux_err_dict, int_fx=s82x_Fx_int_array[0][i])
-                            # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
-                        else:
-                            continue
-                    # else:
-                        # continue
-                else:
-                    continue
-            else:
-                continue
+            # if check6 == 'GOOD':
+            #     if shape == 2:
+            #         if s82x_z[i] > 0.5: 
+            #             cigale_count += 1
+            #             # if (cigale_count > 80) & (cigale_count <= 160):
+            #             if cigale_count <= 80:
+            #                 source.write_cigale_file2(cigale_name, S82X_CIGALE_filters, s82x_flux_dict, s82x_flux_err_dict, int_fx=s82x_Fx_int_array[0][i])
+            #                 # source.write_cigale_file(cigale_name,int_fx=cosmos_Fx_int_array[i],use_int_fx=True)
+            #             else:
+            #                 continue
+            #         # else:
+            #             # continue
+            #     else:
+            #         continue
+            # else:
+            #     continue
 
             # if check6 == 'GOOD':
             #     c = SkyCoord(ra = s82x_ra[i]*u.degree, dec = s82x_dec[i]*u.degree)
@@ -2254,7 +2256,7 @@ t = Table([ out_ID,field,out_SED_shape,out_z,out_x,out_y,out_frac_error,
             F025,F025_boot,F1,F1_boot,F6,F6_boot,F10,F10_boot,F100,F100_boot,F2,F2_boot,uv_slope,mir_slope1,mir_slope2,
             Lbol_out,Lbol_sub_out,Lbol_sf_sub_out,Nh,UV_lum_out,OPT_lum_out,MIR_lum_out,FIR_lum_out,FIR_R_lum,Nh_check,abs_check,mix_x,mix_y,spec_class,check_sed,F24_out,bin_stack_out,F100_ratio,check_sed6],names=(h))
 
-t.write('/Users/connor_auge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6_FINAL8.fits',format='fits',overwrite=True)
+t.write('/Users/connorauge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6_FINAL8.fits',format='fits',overwrite=True)
 
 
 
@@ -2321,7 +2323,7 @@ plot_shape = SED_shape_Plotter(out_ID, out_z, out_x, out_y, out_Lx, norm, FIR_up
 # plt.legend()
 # plt.grid()
 # plt.xlim(42.75,46)
-# plt.savefig('/Users/connor_auge/Desktop/Final_Plots/a_new/Lx_sample_update.pdf')
+# plt.savefig('/Users/connorauge/Desktop/Final_Plots/a_new/Lx_sample_update.pdf')
 # plt.show()
 
 
