@@ -13,7 +13,7 @@ from SED_v8 import Flux_to_Lum
 from match import match
 
 
-path = '/Users/connor_auge/Research/Disertation/catalogs/'
+path = '/Users/connorauge/Research/Dissertation/catalogs/'
 # AHA_SEDs_out_good_1sig
 # AHA_SEDs_out_ALL
 with fits.open(path+'Kelly_SEDs_out5.fits') as hdul:
