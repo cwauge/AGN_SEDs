@@ -2256,7 +2256,7 @@ t = Table([ out_ID,field,out_SED_shape,out_z,out_x,out_y,out_frac_error,
             F025,F025_boot,F1,F1_boot,F6,F6_boot,F10,F10_boot,F100,F100_boot,F2,F2_boot,uv_slope,mir_slope1,mir_slope2,
             Lbol_out,Lbol_sub_out,Lbol_sf_sub_out,Nh,UV_lum_out,OPT_lum_out,MIR_lum_out,FIR_lum_out,FIR_R_lum,Nh_check,abs_check,mix_x,mix_y,spec_class,check_sed,F24_out,bin_stack_out,F100_ratio,check_sed6],names=(h))
 
-t.write('/Users/connorauge/Research/Disertation/catalogs/AHA_SEDs_out_ALL_F6_FINAL8.fits',format='fits',overwrite=True)
+t.write('/Users/connorauge/Research/Dissertation/catalogs/AHA_SEDs_out_ALL_F6_FINAL8.fits',format='fits',overwrite=True)
 
 
 
